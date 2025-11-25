@@ -1,9 +1,3 @@
-Dưới đây là **Markdown tiếng Việt** được tối ưu lại từ cấu trúc bạn cung cấp — rõ ràng, gọn gàng, dễ đưa vào website hoặc tài liệu giới thiệu.
-
----
-
-# 📚 Cấu Trúc & Chương Trình — **MathViet**
-
 ## 🏠 MathViet (Trang Chủ)
 
 Giới thiệu nền tảng, nội dung nổi bật và các chế độ học/tự luyện dành cho học sinh từ Lớp 1–9.
