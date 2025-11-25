@@ -115,16 +115,6 @@ Giới thiệu nền tảng, nội dung nổi bật và các chế độ học/t
 * Gợi ý lộ trình học phù hợp
 * Quản lý thời gian và quyền truy cập
 
----
-
-Nếu bạn muốn, mình có thể tạo thêm:
-
-✅ Phiên bản Markdown dành cho README dự án
-✅ Phiên bản đẹp dạng Landing Page (Hero, Features, CTA)
-✅ Chuyển sang HTML hoặc React component
-Chỉ cần yêu cầu!
-
-
 ## Run Locally
 
 **Prerequisites:**  Node.js
