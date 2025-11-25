@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { AppRoute, GameType, GameMode } from '../types';
-import { Brain, Puzzle, ShoppingCart, Layers, Shapes, ArrowLeft, Settings, Check, Target, PenTool, Feather, Search, Quote, Hammer, ScanEye, Globe, Languages, Type, MessageCircle, RotateCcw } from 'lucide-react';
+import { Brain, Puzzle, ShoppingCart, Layers, Shapes, ArrowLeft, Settings, Check, Target, PenTool, Feather, Search, Quote, Hammer, ScanEye, Globe, Languages, Type, MessageCircle, RotateCcw, Shuffle, Signal, BarChart, AlertTriangle } from 'lucide-react';
 
 interface PracticeSetupProps {
   onNavigate: (route: AppRoute, params?: any) => void;
@@ -240,27 +240,62 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                     <span className="w-6 h-6 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center text-xs mr-2">2</span>
                     Độ khó
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex flex-col space-y-2">
-                      <label className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${difficulty === undefined ? 'bg-violet-50 border-violet-500' : 'border-gray-200 hover:bg-gray-50'}`}>
-                        <input type="radio" name="diff" className="mr-3" checked={difficulty === undefined} onChange={() => setDifficulty(undefined)} />
-                        <span className="font-semibold text-sm">Hỗn hợp (Mặc định)</span>
-                      </label>
-                      <label className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${difficulty === 'Easy' ? 'bg-green-50 border-green-500' : 'border-gray-200 hover:bg-gray-50'}`}>
-                        <input type="radio" name="diff" className="mr-3" checked={difficulty === 'Easy'} onChange={() => setDifficulty('Easy')} />
-                        <span className="font-semibold text-sm text-green-700">Dễ</span>
-                      </label>
-                    </div>
-                    <div className="flex flex-col space-y-2">
-                      <label className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${difficulty === 'Medium' ? 'bg-yellow-50 border-yellow-500' : 'border-gray-200 hover:bg-gray-50'}`}>
-                        <input type="radio" name="diff" className="mr-3" checked={difficulty === 'Medium'} onChange={() => setDifficulty('Medium')} />
-                        <span className="font-semibold text-sm text-yellow-700">Trung bình</span>
-                      </label>
-                      <label className={`flex items-center p-3 rounded-lg border cursor-pointer transition-colors ${difficulty === 'Hard' ? 'bg-red-50 border-red-500' : 'border-gray-200 hover:bg-gray-50'}`}>
-                        <input type="radio" name="diff" className="mr-3" checked={difficulty === 'Hard'} onChange={() => setDifficulty('Hard')} />
-                        <span className="font-semibold text-sm text-red-700">Khó</span>
-                      </label>
-                    </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {/* Mixed */}
+                    <button
+                      onClick={() => setDifficulty(undefined)}
+                      className={`p-3 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${
+                        difficulty === undefined 
+                        ? 'border-violet-500 bg-violet-50 text-violet-700 shadow-md scale-105' 
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                      }`}
+                    >
+                       <Shuffle className="w-8 h-8 mb-2" />
+                       <span className="font-bold text-sm">Hỗn hợp</span>
+                       {difficulty === undefined && <Check className="absolute top-2 right-2 w-4 h-4 text-violet-500" />}
+                    </button>
+
+                    {/* Easy */}
+                    <button
+                      onClick={() => setDifficulty('Easy')}
+                      className={`p-3 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${
+                        difficulty === 'Easy' 
+                        ? 'border-green-500 bg-green-50 text-green-700 shadow-md scale-105' 
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                      }`}
+                    >
+                       <Signal className="w-8 h-8 mb-2" />
+                       <span className="font-bold text-sm">Dễ</span>
+                       {difficulty === 'Easy' && <Check className="absolute top-2 right-2 w-4 h-4 text-green-500" />}
+                    </button>
+
+                    {/* Medium */}
+                    <button
+                      onClick={() => setDifficulty('Medium')}
+                      className={`p-3 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${
+                        difficulty === 'Medium' 
+                        ? 'border-yellow-500 bg-yellow-50 text-yellow-700 shadow-md scale-105' 
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                      }`}
+                    >
+                       <BarChart className="w-8 h-8 mb-2" />
+                       <span className="font-bold text-sm">Vừa</span>
+                       {difficulty === 'Medium' && <Check className="absolute top-2 right-2 w-4 h-4 text-yellow-500" />}
+                    </button>
+
+                    {/* Hard */}
+                    <button
+                      onClick={() => setDifficulty('Hard')}
+                      className={`p-3 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${
+                        difficulty === 'Hard' 
+                        ? 'border-red-500 bg-red-50 text-red-700 shadow-md scale-105' 
+                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                      }`}
+                    >
+                       <AlertTriangle className="w-8 h-8 mb-2" />
+                       <span className="font-bold text-sm">Khó</span>
+                       {difficulty === 'Hard' && <Check className="absolute top-2 right-2 w-4 h-4 text-red-500" />}
+                    </button>
                   </div>
                 </section>
               </>

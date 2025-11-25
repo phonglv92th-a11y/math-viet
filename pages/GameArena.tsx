@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { AppRoute, GameType, MathProblem, GameMode } from '../types';
 import { generateGameProblems } from '../services/geminiService';
-import { ArrowLeft, ArrowRight, CheckCircle, XCircle, Timer, Loader2, Trophy, Home, RotateCcw, Zap, Sun, CloudRain, Sparkles, Star, Palette, Settings, X, Info, Lightbulb } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, XCircle, Timer, Loader2, Trophy, Home, RotateCcw, Zap, Sun, CloudRain, Sparkles, Star, Palette, Settings, X, Info, Lightbulb, HelpCircle } from 'lucide-react';
 import { Confetti } from '../components/Confetti';
 
 interface GameArenaProps {
@@ -448,44 +448,84 @@ export const GameArena: React.FC<GameArenaProps> = ({
     const lines = question.split('\n').filter(line => line.trim() !== '');
     
     // Check if the first line is text (contains Vietnamese letters)
-    // Common Vietnamese chars: a-z, spaces, and specific tone marks. 
     const hasText = /[a-zA-Zà-ỹÀ-Ỹ]/.test(lines[0]);
+    let title = '';
+    let puzzleLines = lines;
 
     if (lines.length > 1 && hasText) {
-        const title = lines[0];
-        const puzzleContent = lines.slice(1);
-        
-        return (
-            <div className="w-full flex flex-col items-center mb-8">
-                {/* Instruction Text */}
-                <h3 className="text-xl md:text-2xl font-bold text-blue-900 mb-6 text-center leading-relaxed">
-                   {title}
-                </h3>
-                
-                {/* Visual Puzzle Area */}
-                <div className="flex flex-col gap-3 items-center w-full">
-                    {puzzleContent.map((line, i) => (
-                        <div key={i} className="bg-white/80 backdrop-blur-md border-2 border-indigo-100 rounded-2xl p-4 w-full max-w-lg shadow-sm flex items-center justify-center min-h-[70px] hover:border-indigo-300 transition-colors">
-                            <span className="text-3xl md:text-5xl font-bold text-slate-800 tracking-wider flex items-center gap-2">
-                               {line}
-                            </span>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
+        title = lines[0];
+        puzzleLines = lines.slice(1);
     }
 
-    // Fallback for single line or pure visual
+    // Parse a single line into visual tokens
+    const parseLine = (line: string) => {
+        // Split by operators +, -, =, ?, : but keep the delimiters
+        // Also trim extra spaces
+        return line.split(/([+\-=?:])/g)
+            .map(part => part.trim())
+            .filter(part => part.length > 0);
+    };
+
     return (
-        <div className="flex flex-col gap-4 items-center justify-center mb-8 w-full">
-            {lines.map((line, i) => (
-                <div key={i} className="bg-white/50 backdrop-blur-sm border-2 border-dashed border-gray-300 rounded-2xl p-4 w-full max-w-lg shadow-sm flex items-center justify-center">
-                    <span className="text-3xl md:text-5xl font-bold text-slate-700 tracking-wider">
-                      {line}
-                    </span>
+        <div className="w-full flex flex-col items-center mb-8">
+            {/* Instruction Banner */}
+            {title && (
+                <div className="bg-blue-50 px-6 py-3 rounded-full border border-blue-100 shadow-sm mb-6 flex items-center animate-in slide-in-from-top-4">
+                   <HelpCircle className="w-5 h-5 text-blue-500 mr-2" />
+                   <h3 className="text-lg md:text-xl font-bold text-blue-800 leading-snug">
+                      {title}
+                   </h3>
                 </div>
-            ))}
+            )}
+            
+            {/* Visual Puzzle Area */}
+            <div className="flex flex-col gap-4 items-center w-full">
+                {puzzleLines.map((line, i) => {
+                    const tokens = parseLine(line);
+                    const isQuestionRow = line.includes('?');
+
+                    return (
+                        <div 
+                           key={i} 
+                           className={`
+                             rounded-2xl p-3 w-full max-w-lg flex flex-wrap items-center justify-center gap-2 md:gap-4 transition-all duration-300
+                             ${isQuestionRow 
+                               ? 'bg-yellow-50 border-2 border-dashed border-yellow-400 shadow-md scale-105' 
+                               : 'bg-white/60 border border-gray-200'
+                             }
+                           `}
+                        >
+                            {tokens.map((token, idx) => {
+                                // Determine style based on token type
+                                const isOperator = ['+', '-', '=', '?', ':'].includes(token);
+                                
+                                if (isOperator) {
+                                   return (
+                                     <div key={idx} className={`
+                                       w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-xl md:text-2xl font-black shadow-inner
+                                       ${token === '?' ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-200 text-gray-600'}
+                                     `}>
+                                        {token}
+                                     </div>
+                                   );
+                                } 
+                                
+                                // Content Tile (Emoji or Number)
+                                return (
+                                   <div key={idx} className="
+                                      bg-white rounded-xl shadow-sm border-b-4 border-gray-200 px-3 py-2 md:px-5 md:py-3
+                                      flex items-center justify-center min-w-[50px] md:min-w-[70px]
+                                   ">
+                                      <span className="text-3xl md:text-5xl leading-none select-none transform hover:scale-110 transition-transform cursor-default">
+                                         {token}
+                                      </span>
+                                   </div>
+                                );
+                            })}
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
   };
@@ -923,7 +963,7 @@ export const GameArena: React.FC<GameArenaProps> = ({
                     onClick={() => handleAnswer(idx)}
                     className={`rounded-xl font-bold transition-all duration-200 relative border-2 ${btnClass} ${animationClass}
                       ${isLogicPuzzle 
-                          ? 'aspect-square flex flex-col items-center justify-center text-5xl md:text-6xl p-4 hover:scale-105 shadow-md' 
+                          ? 'aspect-square flex flex-col items-center justify-center text-6xl md:text-7xl p-4 hover:scale-105 shadow-md' 
                           : isVisualGame 
                               ? 'p-6 text-center text-4xl' 
                               : 'p-6 text-left text-lg'

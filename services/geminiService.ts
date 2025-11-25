@@ -56,19 +56,20 @@ export const generateGameProblems = async (
       promptContext = `Generate ${count} logic puzzles suitable for Grade ${grade}.
       
       CRITICAL FORMATTING INSTRUCTION:
-      The 'question' field MUST be a multi-line string with this exact structure:
-      Line 1: A short text question/instruction in Vietnamese (e.g. "Tìm giá trị của quả táo", "Điền số còn thiếu").
-      Line 2+: The visual puzzle content using Emojis (🍎, 🚗, ⭐) or Numbers/Shapes arranged in a pattern/equation.
+      The 'question' field MUST be a multi-line string:
+      Line 1: A short text instruction in Vietnamese (e.g. "Tìm giá trị của quả táo", "Điền hình còn thiếu", "Kết quả là bao nhiêu?").
+      Line 2+: The visual puzzle content using Emojis (🍎, 🚗, ⭐) or Numbers/Shapes arranged in a vertical equation or pattern.
 
       CRITICAL OPTION INSTRUCTION:
-      The 'options' MUST be purely visual:
-      - Either a single number (e.g. "5", "10")
-      - OR a single emoji/symbol (e.g. "🍎", "🔺")
-      - NEVER use descriptive text in options (e.g. NO "Số 5", NO "Hình tam giác", NO "Màu đỏ").
+      The 'options' MUST be purely visual to act as game tiles:
+      - It MUST be a single Number (e.g. "5") OR a single Emoji (e.g. "🍎").
+      - ABSOLUTELY NO DESCRIPTIVE TEXT in options.
+      - INCORRECT: "Số 5", "Quả táo đỏ", "Hình tam giác".
+      - CORRECT: "5", "🍎", "🔺".
 
       CRITICAL EXPLANATION INSTRUCTION:
       The 'explanation' MUST use the actual Emojis/Symbols from the question to explain the logic clearly.
-      Example: "Vì 🍎 + 🍎 = 10 nên 🍎 = 5. Thay vào dòng 2: 5 + ⭐ = 9 => ⭐ = 4."
+      Example: "Vì 🍎 + 🍎 = 10 nên 🍎 = 5."
       Keep the explanation step-by-step and purely visual where possible.
 
       Example 1 (Equation):
@@ -195,8 +196,13 @@ export const generateGameProblems = async (
       - 33% Vietnamese Literature questions.
       - 33% English questions.
       - Randomly shuffle the order of topics.
-      - CRITICAL: The difficulty MUST increase progressively from Easy to Hard. The first few questions should be simple, and the last few should be challenging.
       - CRITICAL: Explanations must be in Vietnamese.`;
+      
+      // If no explicit difficulty is set for mixed, use progressive.
+      // If explicit difficulty IS set (below), it will be appended.
+      if (!difficulty) {
+        promptContext += ` - CRITICAL: The difficulty MUST increase progressively from Easy to Hard.`;
+      }
       break;
   }
 
@@ -206,11 +212,10 @@ export const generateGameProblems = async (
     CRITICAL: Generate problems specifically addressing these weak areas to help them improve. If the input suggests a specific game type, generate problems of that type but focus on tricky or commonly misunderstood concepts.`;
   }
 
-  // Add Specific Modifiers
-  if (difficulty && gameType !== GameType.MIXED_CHALLENGE && !reviewContext) {
-    // For mixed challenge, we handle difficulty in the main prompt
-    promptContext += ` STRICTLY ensure all problems are of '${difficulty}' difficulty level.`;
-  } else if (gameType !== GameType.MIXED_CHALLENGE && !reviewContext) {
+  // Add Specific Difficulty Modifier
+  if (difficulty && !reviewContext) {
+    promptContext += ` STRICTLY ensure all problems are of '${difficulty}' difficulty level. Do not vary the difficulty.`;
+  } else if (!difficulty && gameType !== GameType.MIXED_CHALLENGE && !reviewContext) {
     promptContext += ` Provide a mix of difficulties.`;
   }
 
