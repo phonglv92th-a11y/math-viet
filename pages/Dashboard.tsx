@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { AppRoute, GameType, UserProfile, GameMode, GameStats, Subject as SubjectEnum, AdventureLevel, World, GameCardStyle } from '../types';
-import { Brain, Puzzle, ShoppingCart, Shapes, PlayCircle, Zap, Palette, Swords, Search, BookOpen, PenTool, Hammer, ScanEye, X, ChevronRight, Trophy, Loader2, Layers, Feather, Quote, Globe, Languages, Type, MessageCircle, Calculator, BarChart3 } from 'lucide-react';
+import { Brain, Puzzle, ShoppingCart, Shapes, PlayCircle, Zap, Palette, Swords, Search, BookOpen, PenTool, Hammer, ScanEye, X, ChevronRight, Trophy, Loader2, Layers, Feather, Quote, Globe, Languages, Type, MessageCircle, Calculator, BarChart3, Grid3X3, Grid } from 'lucide-react';
 import { GameCard } from '../components/GameCard';
 
 // Lazy load heavy components
@@ -93,6 +93,8 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
       case SubjectEnum.LITERATURE:
         return (
           <>
+             <GameCard title="Truy Tìm Từ Vựng" description="Trò chơi ô chữ" icon={Grid3X3} color="purple" type={GameType.WORD_SEARCH} mode={gameMode} stats={user.progress[GameType.WORD_SEARCH]} customStyle={gameStyles[GameType.WORD_SEARCH]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.WORD_SEARCH, mode: gameMode, difficulty })} />
+             <GameCard title="Ô Chữ Bí Ẩn" description="Giải mã ô chữ" icon={Grid} color="indigo" type={GameType.CROSSWORD} mode={gameMode} stats={user.progress[GameType.CROSSWORD]} customStyle={gameStyles[GameType.CROSSWORD]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.CROSSWORD, mode: gameMode, difficulty })} />
              <GameCard title="Vua Tiếng Việt" description="Ghép từ, đồng nghĩa" icon={BookOpen} color="rose" type={GameType.WORD_MATCH} mode={gameMode} stats={user.progress[GameType.WORD_MATCH]} customStyle={gameStyles[GameType.WORD_MATCH]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.WORD_MATCH, mode: gameMode, difficulty })} />
              <GameCard title="Chính Tả" description="Sửa lỗi sai" icon={Search} color="orange" type={GameType.SPELLING_BEE} mode={gameMode} stats={user.progress[GameType.SPELLING_BEE]} customStyle={gameStyles[GameType.SPELLING_BEE]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.SPELLING_BEE, mode: gameMode, difficulty })} />
              <GameCard title="Thợ Xây Câu" description="Sắp xếp câu đúng ngữ pháp" icon={Hammer} color="amber" type={GameType.SENTENCE_BUILDER} mode={gameMode} stats={user.progress[GameType.SENTENCE_BUILDER]} customStyle={gameStyles[GameType.SENTENCE_BUILDER]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.SENTENCE_BUILDER, mode: gameMode, difficulty })} />

@@ -159,7 +159,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStart, onOpenHelp }) =
                </div>
             </div>
             <div className="text-xs text-gray-400 font-mono pt-4 border-t w-full text-center">
-               Owner of this website all information signature is Lamphong.1992
+               Owner of this website all information signature is phonglam.1992
             </div>
          </div>
       </footer>

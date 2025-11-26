@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { AppRoute } from '../types';
-import { ArrowLeft, Map as MapIcon, Layout, Gamepad2, Users, Settings, Sparkles, Brain, Target, Shield, BookOpen, Crown, Zap, Home, Calculator, PenTool, GraduationCap, Globe } from 'lucide-react';
+import { ArrowLeft, Map as MapIcon, Layout, Gamepad2, Users, Settings, Sparkles, Brain, Target, Shield, BookOpen, Crown, Zap, Home, Calculator, PenTool, GraduationCap, Globe, Grid } from 'lucide-react';
 
 interface SiteMapProps {
   onNavigate: (route: AppRoute) => void;
@@ -116,6 +116,8 @@ export const SiteMap: React.FC<SiteMapProps> = ({ onNavigate }) => {
                                 <p>• Chính tả (Phân biệt tr/ch, s/x...)</p>
                                 <p>• Từ vựng (Từ đồng nghĩa, trái nghĩa, từ láy)</p>
                                 <p>• Câu đố thơ ca, ca dao tục ngữ.</p>
+                                <p>• Truy tìm từ vựng (Word Search).</p>
+                                <p>• Ô chữ bí ẩn (Crossword).</p>
                              </div>
                           </SitemapNode>
                           <SitemapNode title="Tiếng Anh" icon={Globe} color="indigo">
@@ -158,6 +160,8 @@ export const SiteMap: React.FC<SiteMapProps> = ({ onNavigate }) => {
                              <span className="text-xs bg-gray-50 px-2 py-1 rounded border">English Quiz</span>
                              <span className="text-xs bg-gray-50 px-2 py-1 rounded border">Spelling Bee</span>
                              <span className="text-xs bg-gray-50 px-2 py-1 rounded border">Visual Count</span>
+                             <span className="text-xs bg-gray-50 px-2 py-1 rounded border">Truy Tìm Từ Vựng</span>
+                             <span className="text-xs bg-gray-50 px-2 py-1 rounded border">Ô Chữ Bí Ẩn</span>
                           </div>
                        </SitemapNode>
 
@@ -173,6 +177,10 @@ export const SiteMap: React.FC<SiteMapProps> = ({ onNavigate }) => {
               </div>
            </div>
 
+        </div>
+        
+        <div className="text-center mt-12 text-gray-400 text-xs font-mono border-t pt-4">
+           Owner of this website all information signature is phonglam.1992
         </div>
       </div>
     </div>

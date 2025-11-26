@@ -108,7 +108,8 @@ export const generateGameProblems = async (
       promptContext = `Generate ${count} math problems related to ordering numbers (ascending/descending), comparing values (greater than, less than), or finding the missing step in a number sequence ladder. Suitable for Grade ${grade}. Format as multiple choice.`;
       break;
     case GameType.VISUAL_COUNT:
-      promptContext = `Generate ${count} visual math problems using Emojis (🍎, 🍌, 🐱, ⭐, 🎈) to represent quantities or simple equations. Example: '🍎🍎 + 🍎 = ?' or 'Đếm số ngôi sao: ⭐⭐⭐'. Focus on counting and visual addition/subtraction. Suitable for Grade ${grade}.`;
+      promptContext = `Generate ${count} visual math problems using Emojis (🍎, 🍌, 🐱, ⭐, 🎈) to represent quantities or simple equations. Example: '🍎🍎 + 🍎 = ?' or 'Đếm số ngôi sao: ⭐⭐⭐'. Focus on counting and visual addition/subtraction. Suitable for Grade ${grade}. 
+      CRITICAL EXPLANATION: Use emojis in the explanation text (e.g. "Có 3 🍎 và thêm 1 🍎...").`;
       break;
 
     // --- LITERATURE GAMES ---
@@ -159,6 +160,33 @@ export const generateGameProblems = async (
       Example: "Câu thơ 'Người cha mái tóc bạc / Đốt lửa cho anh nằm' sử dụng biện pháp tu từ nào?"
       Options: ["Ẩn dụ", "So sánh", "Nhân hóa", "Hoán dụ"].`;
       break;
+    case GameType.WORD_SEARCH:
+      promptContext = `Generate ${count} sets of words for a Crossword/Word Search game for Grade ${grade}.
+      Structure for each set (Problem):
+      - 'question': The Topic Name in Vietnamese or English (e.g. "Chủ đề: Gia Đình" or "Topic: Animals").
+      - 'options': A list of 4-6 vocabulary words related to that topic. Words must be 3-8 characters long, no spaces, no special punctuation (uppercase).
+      - 'correctAnswerIndex': Set to 0.
+      - 'explanation': A fun fact about the topic.
+      
+      IMPORTANT: If the 'topicFocus' appears to be English (e.g., 'Animals', 'Colors'), generate English words. If Vietnamese, generate Vietnamese words.`;
+      break;
+    case GameType.CROSSWORD:
+      promptContext = `Generate ${count} Crossword Puzzle data sets suitable for Grade ${grade}.
+      Each problem represents one full crossword puzzle on a specific topic.
+      
+      Structure:
+      - 'question': The Topic Name (e.g., "Chủ đề: Lịch Sử" or "Topic: Fruits").
+      - 'options': A list of exactly 6 Word+Clue pairs string formatted as "WORD|Clue Text".
+        - The WORD must be 3-8 letters, no spaces, uppercase.
+        - The Clue Text explains the word.
+        - Example Option: "HANOI|Thủ đô của Việt Nam" or "APPLE|A red fruit".
+      - 'correctAnswerIndex': 0.
+      - 'explanation': A brief summary of the topic.
+      
+      IMPORTANT: Detect the language of the topicFocus. 
+      - If English topic (e.g. 'Sports', 'Food'), Words MUST be English. Clues should be in Vietnamese (to test meaning) or simple English.
+      - If Vietnamese topic, Words MUST be Vietnamese.`;
+      break;
 
     // --- ENGLISH GAMES ---
     case GameType.ENGLISH_VOCAB:
@@ -198,8 +226,6 @@ export const generateGameProblems = async (
       - Randomly shuffle the order of topics.
       - CRITICAL: Explanations must be in Vietnamese.`;
       
-      // If no explicit difficulty is set for mixed, use progressive.
-      // If explicit difficulty IS set (below), it will be appended.
       if (!difficulty) {
         promptContext += ` - CRITICAL: The difficulty MUST increase progressively from Easy to Hard.`;
       }

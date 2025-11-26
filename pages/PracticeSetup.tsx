@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { AppRoute, GameType, GameMode } from '../types';
-import { Brain, Puzzle, ShoppingCart, Layers, Shapes, ArrowLeft, Settings, Check, Target, PenTool, Feather, Search, Quote, Hammer, ScanEye, Globe, Languages, Type, MessageCircle, RotateCcw, Shuffle, Signal, BarChart, AlertTriangle } from 'lucide-react';
+import { Brain, Puzzle, ShoppingCart, Layers, Shapes, ArrowLeft, Settings, Check, Target, PenTool, Feather, Search, Quote, Hammer, ScanEye, Globe, Languages, Type, MessageCircle, RotateCcw, Shuffle, Signal, BarChart, AlertTriangle, Sparkles, Grid3X3, Grid } from 'lucide-react';
 
 interface PracticeSetupProps {
   onNavigate: (route: AppRoute, params?: any) => void;
@@ -55,6 +55,25 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
       mode: isReviewMode ? GameMode.REVIEW : GameMode.STANDARD
     });
   };
+
+  const getTopicSuggestions = (type: GameType): string[] => {
+    switch (type) {
+        case GameType.MENTAL_MATH: return ['Phép cộng', 'Bảng cửu chương', 'Số tròn chục', 'Tính nhẩm nhanh'];
+        case GameType.REAL_WORLD: return ['Đi chợ', 'Tiền lì xì', 'Xem đồng hồ', 'Chia kẹo'];
+        case GameType.LOGIC_PUZZLE: return ['Quy luật số', 'Hình học', 'Tìm mật mã'];
+        case GameType.ENGLISH_VOCAB: return ['Animals', 'Food', 'School', 'Family', 'Colors'];
+        case GameType.ENGLISH_GRAMMAR: return ['Present Simple', 'Past Tense', 'Prepositions', 'Plural Nouns'];
+        case GameType.ENGLISH_SPELLING: return ['Common words', 'Jobs', 'Body parts'];
+        case GameType.WORD_MATCH: return ['Từ láy', 'Từ trái nghĩa', 'Thành ngữ', 'Đồng nghĩa'];
+        case GameType.POETRY_PUZZLE: return ['Ca dao', 'Tục ngữ', 'Thơ thiếu nhi', 'Truyện Kiều'];
+        case GameType.LITERATURE_QUIZ: return ['Truyện cổ tích', 'Thánh Gióng', 'Dế Mèn'];
+        case GameType.WORD_SEARCH: return ['Animals (English)', 'School (English)', 'Trái cây', 'Gia đình'];
+        case GameType.CROSSWORD: return ['Sports (English)', 'Food (English)', 'Lịch sử Việt Nam', 'Địa lý'];
+        default: return [];
+    }
+  };
+
+  const suggestions = getTopicSuggestions(selectedType);
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 pb-16">
@@ -156,7 +175,21 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                   </div>
 
                   <div className="mb-2 text-sm font-semibold text-gray-500 uppercase tracking-wide">Môn Tiếng Việt / Văn Học</div>
-                  <div className="grid grid-cols-3 gap-3 mb-6">
+                  <div className="grid grid-cols-3 md:grid-cols-4 gap-3 mb-6">
+                    <GameTypeOption 
+                      type={GameType.CROSSWORD} 
+                      selected={selectedType === GameType.CROSSWORD} 
+                      onClick={() => setSelectedType(GameType.CROSSWORD)} 
+                      icon={Grid} 
+                      color="indigo" 
+                    />
+                    <GameTypeOption 
+                      type={GameType.WORD_SEARCH} 
+                      selected={selectedType === GameType.WORD_SEARCH} 
+                      onClick={() => setSelectedType(GameType.WORD_SEARCH)} 
+                      icon={Grid3X3} 
+                      color="purple" 
+                    />
                     <GameTypeOption 
                       type={GameType.WORD_MATCH} 
                       selected={selectedType === GameType.WORD_MATCH} 
@@ -202,7 +235,7 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                   </div>
 
                   <div className="mb-2 text-sm font-semibold text-gray-500 uppercase tracking-wide">Môn Tiếng Anh</div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
                     <GameTypeOption 
                       type={GameType.ENGLISH_VOCAB} 
                       selected={selectedType === GameType.ENGLISH_VOCAB} 
@@ -230,6 +263,20 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                       onClick={() => setSelectedType(GameType.ENGLISH_QUIZ)} 
                       icon={MessageCircle} 
                       color="sky" 
+                    />
+                    <GameTypeOption 
+                      type={GameType.CROSSWORD} 
+                      selected={selectedType === GameType.CROSSWORD} 
+                      onClick={() => setSelectedType(GameType.CROSSWORD)} 
+                      icon={Grid} 
+                      color="blue" 
+                    />
+                    <GameTypeOption 
+                      type={GameType.WORD_SEARCH} 
+                      selected={selectedType === GameType.WORD_SEARCH} 
+                      onClick={() => setSelectedType(GameType.WORD_SEARCH)} 
+                      icon={Grid3X3} 
+                      color="teal" 
                     />
                   </div>
                 </section>
@@ -327,10 +374,15 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
             {/* Step 4: Topic Focus (Hidden in Review Mode) */}
             {!isReviewMode && (
               <section className="animate-in fade-in slide-in-from-top-4 duration-300">
-                <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                    <span className="w-6 h-6 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center text-xs mr-2">4</span>
-                    Chủ đề cụ thể (Tùy chọn)
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-gray-800 flex items-center">
+                      <span className="w-6 h-6 bg-violet-100 text-violet-600 rounded-full flex items-center justify-center text-xs mr-2">4</span>
+                      Chủ đề cụ thể (Tùy chọn)
                   </h3>
+                  <div className="text-xs bg-gradient-to-r from-blue-500 to-purple-500 text-white px-2 py-1 rounded-full font-bold flex items-center shadow-sm">
+                      <Sparkles className="w-3 h-3 mr-1" /> AI Powered
+                  </div>
+                </div>
                   <div className="relative">
                     <Target className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                     <input 
@@ -341,8 +393,27 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                         className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all"
                     />
                   </div>
-                  <p className="text-xs text-gray-500 mt-2 ml-1">
-                    AI sẽ cố gắng tạo câu hỏi tập trung vào chủ đề bạn nhập.
+                  
+                  {/* AI Suggestions */}
+                  {suggestions.length > 0 && (
+                      <div className="mt-4">
+                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Gợi ý từ AI cho môn này:</p>
+                         <div className="flex flex-wrap gap-2">
+                             {suggestions.map((suggestion, idx) => (
+                                 <button
+                                    key={idx}
+                                    onClick={() => setTopicFocus(suggestion)}
+                                    className="px-3 py-1 bg-white border border-gray-200 rounded-full text-sm text-gray-600 hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 transition-colors"
+                                 >
+                                    {suggestion}
+                                 </button>
+                             ))}
+                         </div>
+                      </div>
+                  )}
+
+                  <p className="text-xs text-gray-400 mt-4 ml-1 italic">
+                    * Nhập bất kỳ chủ đề nào, AI sẽ tạo câu hỏi xoay quanh chủ đề đó.
                   </p>
               </section>
             )}
@@ -358,7 +429,7 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
         </div>
         
         <div className="text-center mt-8 text-gray-400 text-xs font-mono">
-           Owner of this website all information signature is Lamphong.1992
+           Owner of this website all information signature is phonglam.1992
         </div>
       </div>
     </div>

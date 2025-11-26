@@ -25,6 +25,8 @@ export enum GameType {
   LITERATURE_QUIZ = 'Hiểu Biết Văn Học',
   SENTENCE_BUILDER = 'Thợ Xây Câu',
   LITERARY_DETECTIVE = 'Thám Tử Văn Học',
+  WORD_SEARCH = 'Truy Tìm Từ Vựng',
+  CROSSWORD = 'Ô Chữ Bí Ẩn',
 
   // English
   ENGLISH_VOCAB = 'Vua Từ Vựng (Vocab)',
