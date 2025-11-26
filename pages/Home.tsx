@@ -53,13 +53,14 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStart, onOpenHelp }) =
               Khám phá thế giới tri thức qua các trò chơi tương tác, rèn luyện tư duy logic và chinh phục các thử thách thú vị dành cho học sinh lớp 1-9.
             </p>
             
-            <div className="bg-white p-2 rounded-2xl shadow-xl border border-gray-100 max-w-md mx-auto md:mx-0 flex">
+            {/* Added relative z-30 to ensure input is above any background decorations */}
+            <div className="relative z-30 bg-white p-2 rounded-2xl shadow-xl border border-gray-100 max-w-md mx-auto md:mx-0 flex">
                <input 
                   type="text" 
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Nhập tên của bạn..."
-                  className="flex-1 px-4 py-3 rounded-xl outline-none text-gray-700 font-bold placeholder-gray-400"
+                  className="w-full flex-1 px-4 py-3 rounded-xl outline-none text-gray-700 font-bold placeholder-gray-400 bg-transparent"
                />
             </div>
             {name && !selectedGrade && (
@@ -68,7 +69,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStart, onOpenHelp }) =
           </div>
 
           <div className="md:w-1/2 relative">
-             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-blue-200 to-purple-200 rounded-full blur-3xl opacity-30 animate-pulse"></div>
+             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-blue-200 to-purple-200 rounded-full blur-3xl opacity-30 animate-pulse pointer-events-none"></div>
              <div className="relative z-10 grid grid-cols-2 gap-4 max-w-sm mx-auto transform rotate-3 hover:rotate-0 transition-transform duration-500">
                 <div className="bg-white p-4 rounded-2xl shadow-lg border-b-4 border-blue-100 flex flex-col items-center">
                    <div className="bg-blue-100 p-3 rounded-full mb-2"><Calculator className="text-blue-500" /></div>
