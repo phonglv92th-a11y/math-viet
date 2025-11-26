@@ -45,12 +45,21 @@ export const generateGameProblems = async (
   const modelId = 'gemini-2.5-flash';
   
   let promptContext = "";
+  const isHighSchool = grade >= 10;
   
   // Base context based on Game Type
   switch (gameType) {
     // --- MATH GAMES ---
     case GameType.MENTAL_MATH:
-      promptContext = `Generate ${count} mental math problems suitable for a Grade ${grade} student in Vietnam. Focus on arithmetic, speed calculation, and number properties. Avoid complex word problems.`;
+      if (isHighSchool) {
+        promptContext = `Generate ${count} math problems for Grade ${grade} High School in Vietnam. Focus on:
+        - Grade 10: Set theory (Tập hợp), Quadratic equations, Vectors (Calculate magnitude, dot product).
+        - Grade 11: Trigonometric values (sin/cos of special angles), Basic limits, Probability calculations.
+        - Grade 12: Properties of functions (monotonicity, extrema), Basic Derivatives, Integral properties, Complex number arithmetic.
+        Keep calculations simple enough for mental math but conceptually advanced.`;
+      } else {
+        promptContext = `Generate ${count} mental math problems suitable for a Grade ${grade} student in Vietnam. Focus on arithmetic, speed calculation, and number properties. Avoid complex word problems.`;
+      }
       break;
     case GameType.LOGIC_PUZZLE:
       promptContext = `Generate ${count} logic puzzles suitable for Grade ${grade}.
@@ -90,19 +99,30 @@ export const generateGameProblems = async (
       1. Use purely visual elements (Emojis/Shapes) for the puzzle part.
       2. Ensure the text instruction is clear and simple for the grade level.
       3. For Grade 1-3: Use simple addition/subtraction with fruit/animal icons.
-      4. For Grade 4+: Use patterns or simple logic series.
+      4. For Grade 4-9: Use patterns or simple logic series.
+      5. For Grade 10-12: Use advanced matrix patterns or complex series logic but represented visually.
       `;
       break;
     case GameType.REAL_WORLD:
-      promptContext = `Generate ${count} real-world math word problems suitable for a Grade ${grade} student in Vietnam. 
-      CRITICAL INSTRUCTION: Infuse the problems with deeply authentic Vietnamese cultural context.
-      Use scenarios such as:
-      - Buying ingredients for traditional dishes like Phở, Bánh Mì, or Bánh Chưng at a local wet market (chợ).
-      - Calculating 'Lì xì' (lucky money) during Tet holiday.
-      - Organizing traditional games like 'Ô ăn quan' or 'Nhảy dây'.
-      - School trips to historical sites like Văn Miếu or Dinh Độc Lập.
-      - Using Vietnamese currency (đồng) realistically (e.g., 5.000đ, 20.000đ).
-      - Sharing fruits like Lychee (vải), Longan (nhãn), or Durian (sầu riêng).`;
+      if (isHighSchool) {
+         promptContext = `Generate ${count} real-world math problems for Grade ${grade} High School (THPT).
+         Topics:
+         - Optimization problems (Maximum profit, Minimum cost).
+         - Physics applications (Velocity, Acceleration).
+         - Financial math (Compound interest, Loans).
+         - Statistics in real life (Probability of events).
+         Context: Authentic Vietnamese scenarios (Startup business, Banking in Vietnam, Construction).`;
+      } else {
+         promptContext = `Generate ${count} real-world math word problems suitable for a Grade ${grade} student in Vietnam. 
+         CRITICAL INSTRUCTION: Infuse the problems with deeply authentic Vietnamese cultural context.
+         Use scenarios such as:
+         - Buying ingredients for traditional dishes like Phở, Bánh Mì, or Bánh Chưng at a local wet market (chợ).
+         - Calculating 'Lì xì' (lucky money) during Tet holiday.
+         - Organizing traditional games like 'Ô ăn quan' or 'Nhảy dây'.
+         - School trips to historical sites like Văn Miếu or Dinh Độc Lập.
+         - Using Vietnamese currency (đồng) realistically (e.g., 5.000đ, 20.000đ).
+         - Sharing fruits like Lychee (vải), Longan (nhãn), or Durian (sầu riêng).`;
+      }
       break;
     case GameType.TOWER_STACK:
       promptContext = `Generate ${count} math problems related to ordering numbers (ascending/descending), comparing values (greater than, less than), or finding the missing step in a number sequence ladder. Suitable for Grade ${grade}. Format as multiple choice.`;
@@ -114,16 +134,24 @@ export const generateGameProblems = async (
 
     // --- LITERATURE GAMES ---
     case GameType.WORD_MATCH:
-      promptContext = `Generate ${count} Vietnamese language questions for Grade ${grade}. Focus on:
-      - Synonyms and Antonyms (Từ đồng nghĩa, trái nghĩa).
-      - Idioms and Proverbs (Thành ngữ, Tục ngữ Việt Nam).
-      - Word sorting/reordering to make meaningful sentences.
-      - Identifying the correct word type (Danh từ, Động từ, Tính từ).`;
+      if (isHighSchool) {
+        promptContext = `Generate ${count} Vietnamese language questions for Grade ${grade} (High School). Focus on:
+        - Han-Viet words (Từ Hán Việt) and their meanings.
+        - Literary styles (Phong cách ngôn ngữ: Báo chí, Chính luận, Nghệ thuật).
+        - Rhetorical devices in famous poetry (Truyện Kiều, poems by Xuân Diệu, Hàn Mặc Tử).
+        - Advanced vocabulary usage in essays.`;
+      } else {
+        promptContext = `Generate ${count} Vietnamese language questions for Grade ${grade}. Focus on:
+        - Synonyms and Antonyms (Từ đồng nghĩa, trái nghĩa).
+        - Idioms and Proverbs (Thành ngữ, Tục ngữ Việt Nam).
+        - Word sorting/reordering to make meaningful sentences.
+        - Identifying the correct word type (Danh từ, Động từ, Tính từ).`;
+      }
       break;
     case GameType.POETRY_PUZZLE:
       promptContext = `Generate ${count} 'fill-in-the-blank' questions using famous Vietnamese poems or folk verses (Ca dao) taught in Grade ${grade} textbooks. 
       Example: "Công cha như núi ___ Sơn". Options: ["Thái", "Hồng", "Tản", "Hoàng"].
-      Include works from authors like Trần Đăng Khoa, Tố Hữu, or classical folk poetry.`;
+      For High School (Grade 10-12): Use works from 'Văn học trung đại' (Nguyễn Du, Nguyễn Trãi) or 'Thơ mới' (Xuân Diệu, Huy Cận).`;
       break;
     case GameType.SPELLING_BEE:
       promptContext = `Generate ${count} Vietnamese spelling (Chính tả) questions for Grade ${grade}.
@@ -136,11 +164,20 @@ export const generateGameProblems = async (
       Example: "Chọn từ đúng:" Options: ["Trâu", "Châu"].`;
       break;
     case GameType.LITERATURE_QUIZ:
-      promptContext = `Generate ${count} multiple choice questions about Vietnamese literature knowledge suitable for Grade ${grade}.
-      Topics:
-      - Famous characters (Dế Mèn, Thánh Gióng, Thạch Sanh, Tấm Cám).
-      - Authors and their works.
-      - Reading comprehension of short passages regarding Vietnamese culture or history.`;
+      if (isHighSchool) {
+         promptContext = `Generate ${count} multiple choice questions about Vietnamese literature knowledge suitable for Grade ${grade}.
+         Topics:
+         - Major authors (Nam Cao, Kim Lân, Hồ Chí Minh, Tố Hữu).
+         - Literary periods (Literature 1930-1945, 1945-1975).
+         - Analysis of characters in 'Vợ nhặt', 'Vợ chồng A Phủ', 'Chí Phèo'.
+         - Genres: Short stories, Epic poetry, Argumentative essays.`;
+      } else {
+         promptContext = `Generate ${count} multiple choice questions about Vietnamese literature knowledge suitable for Grade ${grade}.
+         Topics:
+         - Famous characters (Dế Mèn, Thánh Gióng, Thạch Sanh, Tấm Cám).
+         - Authors and their works.
+         - Reading comprehension of short passages regarding Vietnamese culture or history.`;
+      }
       break;
     case GameType.SENTENCE_BUILDER:
       promptContext = `Generate ${count} Vietnamese sentence structure questions for Grade ${grade}.
@@ -157,6 +194,7 @@ export const generateGameProblems = async (
       - Ẩn dụ (Metaphor)
       - Hoán dụ (Metonymy)
       - Điệp ngữ (Repetition)
+      For High School: Include advanced devices like 'Đảo ngữ' (Inversion), 'Châm biếm' (Satire), 'Nói giảm nói tránh'.
       Example: "Câu thơ 'Người cha mái tóc bạc / Đốt lửa cho anh nằm' sử dụng biện pháp tu từ nào?"
       Options: ["Ẩn dụ", "So sánh", "Nhân hóa", "Hoán dụ"].`;
       break;
@@ -190,18 +228,41 @@ export const generateGameProblems = async (
 
     // --- ENGLISH GAMES ---
     case GameType.ENGLISH_VOCAB:
-      promptContext = `Generate ${count} English Vocabulary questions for Vietnamese students Grade ${grade}.
-      Question types:
-      - Choose the correct Vietnamese meaning for an English word.
-      - Choose the correct English word for a Vietnamese definition.
-      - Fill in the blank with the correct vocabulary word.
-      CRITICAL: The Explanation field MUST be in Vietnamese to help the student learn.`;
+      if (isHighSchool) {
+        promptContext = `Generate ${count} English Vocabulary questions for Vietnamese students Grade ${grade} (High School).
+        Level: B1-B2 (IELTS 4.5 - 6.0 level).
+        Topics: Environment, Technology, Education, Society.
+        Question types:
+        - Synonyms/Antonyms in context.
+        - Collocations (e.g., 'make a decision' vs 'do a decision').
+        - Word forms (Noun/Verb/Adjective).
+        CRITICAL: The Explanation field MUST be in Vietnamese.`;
+      } else {
+        promptContext = `Generate ${count} English Vocabulary questions for Vietnamese students Grade ${grade}.
+        Question types:
+        - Choose the correct Vietnamese meaning for an English word.
+        - Choose the correct English word for a Vietnamese definition.
+        - Fill in the blank with the correct vocabulary word.
+        CRITICAL: The Explanation field MUST be in Vietnamese to help the student learn.`;
+      }
       break;
     case GameType.ENGLISH_GRAMMAR:
-      promptContext = `Generate ${count} English Grammar questions for Vietnamese students Grade ${grade}.
-      Focus on curriculum appropriate topics (e.g., Verb Tenses, Prepositions, Articles, Pronouns).
-      Example: "She ___ to school every day." Options: ["go", "goes", "going", "went"].
-      CRITICAL: The Explanation field MUST be in Vietnamese explaining the grammar rule (e.g., "Vì chủ ngữ là 'She' nên động từ thêm 'es' ở thì hiện tại đơn").`;
+      if (isHighSchool) {
+        promptContext = `Generate ${count} English Grammar questions for Vietnamese students Grade ${grade} (High School).
+        Focus on advanced topics:
+        - Conditional Sentences (Type 2, 3, Mixed).
+        - Passive Voice (Advanced structures).
+        - Reported Speech.
+        - Relative Clauses (Reduced).
+        - Inversion (Đảo ngữ).
+        Example: "Never ___ such a beautiful sight." Options: ["have I seen", "I have seen", "did I see", "I saw"].
+        CRITICAL: The Explanation field MUST be in Vietnamese explaining the grammar rule.`;
+      } else {
+        promptContext = `Generate ${count} English Grammar questions for Vietnamese students Grade ${grade}.
+        Focus on curriculum appropriate topics (e.g., Verb Tenses, Prepositions, Articles, Pronouns).
+        Example: "She ___ to school every day." Options: ["go", "goes", "going", "went"].
+        CRITICAL: The Explanation field MUST be in Vietnamese explaining the grammar rule (e.g., "Vì chủ ngữ là 'She' nên động từ thêm 'es' ở thì hiện tại đơn").`;
+      }
       break;
     case GameType.ENGLISH_SPELLING:
       promptContext = `Generate ${count} English Spelling questions for Vietnamese students Grade ${grade}.
@@ -220,7 +281,7 @@ export const generateGameProblems = async (
     case GameType.MIXED_CHALLENGE:
       promptContext = `Generate ${count} mixed questions for Grade ${grade} in Vietnam.
       Requirements:
-      - 33% Math questions.
+      - 33% Math questions (Grade appropriate).
       - 33% Vietnamese Literature questions.
       - 33% English questions.
       - Randomly shuffle the order of topics.

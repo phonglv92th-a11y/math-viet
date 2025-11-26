@@ -62,7 +62,7 @@ export const SiteMap: React.FC<SiteMapProps> = ({ onNavigate }) => {
                  <FeatureItem 
                     icon={Brain} color="blue"
                     title="AI Thông Minh (Gemini)" 
-                    desc="Hệ thống tự động tạo bài tập toán, văn và tiếng anh vô hạn, thích ứng với trình độ lớp 1-9 và chủ đề tùy chọn."
+                    desc="Hệ thống tự động tạo bài tập toán, văn và tiếng anh vô hạn, thích ứng với trình độ lớp 1-12 và chủ đề tùy chọn."
                  />
                  <FeatureItem 
                     icon={Target} color="purple"
@@ -147,6 +147,29 @@ export const SiteMap: React.FC<SiteMapProps> = ({ onNavigate }) => {
                               <div className="ml-8 mt-2 text-sm text-gray-500 italic space-y-1">
                                 <p>• Ngữ pháp nâng cao (Các thì, Câu điều kiện).</p>
                                 <p>• Đọc hiểu văn bản và văn hóa.</p>
+                             </div>
+                          </SitemapNode>
+                       </SitemapNode>
+
+                       <SitemapNode title="Trung Học Phổ Thông (Lớp 10-12)" icon={GraduationCap} color="red">
+                          <SitemapNode title="Toán Học" icon={Calculator} color="blue">
+                             <div className="ml-8 mt-2 text-sm text-gray-500 italic space-y-1">
+                                <p>• Lớp 10: Tập hợp, Mệnh đề, Hàm số bậc 2, Vectơ.</p>
+                                <p>• Lớp 11: Lượng giác, Dãy số, Giới hạn, Xác suất.</p>
+                                <p>• Lớp 12: Khảo sát hàm số (Đạo hàm), Tích phân, Số phức, Oxyz.</p>
+                             </div>
+                          </SitemapNode>
+                          <SitemapNode title="Ngữ Văn" icon={BookOpen} color="rose">
+                              <div className="ml-8 mt-2 text-sm text-gray-500 italic space-y-1">
+                                <p>• Văn học trung đại & hiện đại.</p>
+                                <p>• Nghị luận xã hội & Nghị luận văn học.</p>
+                                <p>• Phong cách ngôn ngữ.</p>
+                             </div>
+                          </SitemapNode>
+                          <SitemapNode title="Tiếng Anh" icon={Globe} color="indigo">
+                              <div className="ml-8 mt-2 text-sm text-gray-500 italic space-y-1">
+                                <p>• Ngữ pháp chuyên sâu (Đảo ngữ, Mệnh đề quan hệ rút gọn).</p>
+                                <p>• Từ vựng học thuật (Academic) & IELTS.</p>
                              </div>
                           </SitemapNode>
                        </SitemapNode>

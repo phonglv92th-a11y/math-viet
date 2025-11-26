@@ -1,7 +1,8 @@
 
 export enum GradeLevel {
   PRIMARY = 'Tiểu học (Lớp 1-5)',
-  SECONDARY = 'Trung học cơ sở (Lớp 6-9)'
+  SECONDARY = 'Trung học cơ sở (Lớp 6-9)',
+  HIGH_SCHOOL = 'Trung học phổ thông (Lớp 10-12)'
 }
 
 export enum Subject {
@@ -52,7 +53,7 @@ export interface GameStats {
 export interface UserProfile {
   id: string; // Unique ID
   name: string;
-  grade: number; // 1-9
+  grade: number; // 1-12
   points: number;
   completedGames: number;
   streak: number;

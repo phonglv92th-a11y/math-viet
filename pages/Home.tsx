@@ -22,6 +22,10 @@ const GRADE_LEVELS = [
   { grade: 7, title: 'Lớp 7', icon: '⚡', desc: 'Đại số & Hàm số', color: 'from-orange-500 to-red-600', shadow: 'shadow-orange-200', text: 'text-orange-700' },
   { grade: 8, title: 'Lớp 8', icon: '🧬', desc: 'Hóa học & Đa thức', color: 'from-violet-500 to-fuchsia-600', shadow: 'shadow-violet-200', text: 'text-violet-700' },
   { grade: 9, title: 'Lớp 9', icon: '🎓', desc: 'Luyện thi vào 10', color: 'from-slate-600 to-slate-800', shadow: 'shadow-slate-300', text: 'text-slate-700' },
+  // High School
+  { grade: 10, title: 'Lớp 10', icon: '🌌', desc: 'Vectơ & Tập hợp', color: 'from-cyan-600 to-blue-700', shadow: 'shadow-cyan-300', text: 'text-cyan-800' },
+  { grade: 11, title: 'Lớp 11', icon: '📊', desc: 'Lượng giác & Tổ hợp', color: 'from-fuchsia-600 to-purple-800', shadow: 'shadow-fuchsia-300', text: 'text-fuchsia-800' },
+  { grade: 12, title: 'Lớp 12', icon: '🔥', desc: 'Tích phân & Oxyz', color: 'from-red-600 to-rose-800', shadow: 'shadow-red-300', text: 'text-red-800' },
 ];
 
 export const Home: React.FC<HomeProps> = ({ onNavigate, onStart, onOpenHelp }) => {
@@ -50,7 +54,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStart, onOpenHelp }) =
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600">Thật Vui!</span> 🇻🇳
             </h1>
             <p className="text-lg text-slate-500 mb-8 max-w-lg mx-auto md:mx-0">
-              Khám phá thế giới tri thức qua các trò chơi tương tác, rèn luyện tư duy logic và chinh phục các thử thách thú vị dành cho học sinh lớp 1-9.
+              Khám phá thế giới tri thức qua các trò chơi tương tác, rèn luyện tư duy logic và chinh phục các thử thách thú vị dành cho học sinh lớp 1-12.
             </p>
             
             {/* Added relative z-30 to ensure input is above any background decorations */}
@@ -99,7 +103,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStart, onOpenHelp }) =
           Chọn Lớp Của Bạn
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-6">
            {GRADE_LEVELS.map((level) => (
              <button
                 key={level.grade}
