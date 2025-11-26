@@ -5,6 +5,7 @@ import { ArrowLeft, Map as MapIcon, Layout, Gamepad2, Users, Settings, Sparkles,
 
 interface SiteMapProps {
   onNavigate: (route: AppRoute) => void;
+  onOpenDonation: () => void; // New prop
 }
 
 const FeatureItem = ({ icon: Icon, title, desc, color }: { icon: any, title: string, desc: string, color: string }) => (
@@ -33,7 +34,7 @@ const SitemapNode = ({ title, route, children, onNavigate, icon: Icon, color = '
   </div>
 );
 
-export const SiteMap: React.FC<SiteMapProps> = ({ onNavigate }) => {
+export const SiteMap: React.FC<SiteMapProps> = ({ onNavigate, onOpenDonation }) => {
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans">
       <div className="max-w-7xl mx-auto">
@@ -202,8 +203,12 @@ export const SiteMap: React.FC<SiteMapProps> = ({ onNavigate }) => {
 
         </div>
         
-        <div className="text-center mt-12 text-gray-400 text-xs font-mono border-t pt-4">
-           Owner of this website all information signature is phonglam.1992
+        <div 
+          className="text-center mt-12 text-gray-400 text-xs font-mono border-t pt-4 flex flex-col items-center gap-1 cursor-pointer hover:text-rose-500 transition-colors"
+          onClick={onOpenDonation}
+        >
+           <span>Ủng hộ tôi một ly cà phê tùy tâm ☕</span>
+           <span className="opacity-70">Phát triển bởi Lâm Phong - Cựu Học Sinh THPT Tĩnh Gia 3 (2007-2010)</span>
         </div>
       </div>
     </div>

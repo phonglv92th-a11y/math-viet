@@ -1,8 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppRoute, UserProfile, GameType, AdventureLevel, GameMode, World, WorldId } from './types';
 import { Navbar } from './components/Navbar';
 import { HelpModal } from './components/HelpModal';
+import { DonationModal } from './components/DonationModal';
 import { Home } from './pages/Home';
 import { Dashboard } from './pages/Dashboard';
 import { GameArena } from './pages/GameArena';
@@ -11,6 +12,7 @@ import { AdventureMap } from './pages/AdventureMap';
 import { PracticeSetup } from './pages/PracticeSetup';
 import { MasteryPeak } from './pages/MasteryPeak';
 import { SiteMap } from './pages/SiteMap';
+import { About } from './pages/About';
 
 // Define Worlds
 const WORLDS: World[] = [
@@ -63,22 +65,32 @@ const App: React.FC = () => {
   const [currentRoute, setCurrentRoute] = useState<AppRoute>(AppRoute.HOME);
   const [routeParams, setRouteParams] = useState<any>({});
   const [showHelp, setShowHelp] = useState(false);
+  const [showDonation, setShowDonation] = useState(false); // Donation Modal State
   
-  // Mock User Data
-  const [user, setUser] = useState<UserProfile>({
-    id: 'user_me_123',
-    name: 'Bé Yêu',
-    grade: 3,
-    points: 0,
-    completedGames: 0,
-    streak: 0,
-    badges: [],
-    friends: [],
-    progress: {},
-    masteryHighScore: 0
-  });
-
+  // User Data State
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [adventureLevels, setAdventureLevels] = useState<AdventureLevel[]>(INITIAL_LEVELS);
+
+  // Load User from LocalStorage on Mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem('mathviet_user_profile');
+    if (savedUser) {
+      try {
+        const parsed = JSON.parse(savedUser);
+        setUser(parsed);
+        setCurrentRoute(AppRoute.DASHBOARD);
+      } catch (e) {
+        console.error("Failed to load user profile", e);
+      }
+    }
+  }, []);
+
+  // Save Registered User to LocalStorage whenever user state changes
+  useEffect(() => {
+    if (user && !user.isGuest) {
+      localStorage.setItem('mathviet_user_profile', JSON.stringify(user));
+    }
+  }, [user]);
 
   const navigateTo = (route: AppRoute, params?: any) => {
     setCurrentRoute(route);
@@ -86,50 +98,96 @@ const App: React.FC = () => {
     window.scrollTo(0, 0);
   };
 
-  const handleStart = (name: string, grade: number) => {
-    setUser(prev => ({
-      ...prev,
+  // --- Auth Handlers ---
+
+  const handleStartGuest = (name: string, grade: number) => {
+    const guestUser: UserProfile = {
+      id: `guest_${Date.now()}`,
       name: name,
-      grade: grade
-    }));
+      grade: grade,
+      points: 0,
+      completedGames: 0,
+      streak: 0,
+      badges: [],
+      friends: [],
+      progress: {},
+      masteryHighScore: 0,
+      isGuest: true
+    };
+    setUser(guestUser);
+  };
+
+  const handleLogin = (username: string, grade: number, fullName: string) => {
+    const storageKey = `mathviet_user_${username}`;
+    const existing = localStorage.getItem(storageKey);
+    
+    if (existing) {
+        const existingUser = JSON.parse(existing);
+        setUser(existingUser);
+        localStorage.setItem('mathviet_user_profile', existing);
+    } else {
+        const newUser: UserProfile = {
+            id: `user_${username}_${Date.now()}`,
+            username: username,
+            name: fullName,
+            grade: grade,
+            points: 0,
+            completedGames: 0,
+            streak: 0,
+            badges: [],
+            friends: [],
+            progress: {},
+            masteryHighScore: 0,
+            isGuest: false
+        };
+        setUser(newUser);
+        localStorage.setItem(storageKey, JSON.stringify(newUser));
+        localStorage.setItem('mathviet_user_profile', JSON.stringify(newUser));
+    }
+  };
+
+  const handleLogout = () => {
+    if (user && !user.isGuest && user.username) {
+        localStorage.setItem(`mathviet_user_${user.username}`, JSON.stringify(user));
+    }
+    localStorage.removeItem('mathviet_user_profile');
+    setUser(null);
+    setCurrentRoute(AppRoute.HOME);
   };
 
   const handleAddFriend = (friendId: string) => {
-    if (!user.friends.includes(friendId) && friendId !== user.id) {
-      setUser(prev => ({
+    if (user && !user.friends.includes(friendId) && friendId !== user.id) {
+      setUser(prev => prev ? ({
         ...prev,
         friends: [...prev.friends, friendId]
-      }));
+      }) : null);
     }
   };
 
   const handleGameComplete = (score: number) => {
+    if (!user) return;
+
     let newPoints = user.points + score;
     let newCompletedGames = user.completedGames + 1;
     let newBadges = [...user.badges];
     
-    // Simple badge logic
     if (newPoints >= 500 && !newBadges.includes('Tập Sự')) newBadges.push('Tập Sự');
     if (newPoints >= 1000 && !newBadges.includes('Nhà Toán Học')) newBadges.push('Nhà Toán Học');
 
-    // Update Adventure Progress if applicable
     if (currentRoute === AppRoute.GAME_PLAY && routeParams.levelId) {
       const levelId = routeParams.levelId;
       setAdventureLevels(prev => prev.map(lvl => {
         if (lvl.id === levelId) return { ...lvl, status: 'COMPLETED' };
-        // Unlock next level
         if (lvl.id === levelId + 1) return { ...lvl, status: 'UNLOCKED' };
         return lvl;
       }));
     }
     
-    // Update Mastery High Score
     let newMasteryHighScore = user.masteryHighScore;
     if (currentRoute === AppRoute.MASTERY_PEAK && score > newMasteryHighScore) {
       newMasteryHighScore = score;
     }
 
-    // Update Stats for specific game type
     const gameType = routeParams.type as GameType;
     let currentStats = user.progress[gameType] || { stars: 0, highScore: 0 };
     if (score > currentStats.highScore) {
@@ -139,21 +197,25 @@ const App: React.FC = () => {
        else if (score > 100) currentStats.stars = 1;
     }
 
-    setUser(prev => ({
-      ...prev,
+    const updatedUser = {
+      ...user,
       points: newPoints,
       completedGames: newCompletedGames,
       badges: newBadges,
       masteryHighScore: newMasteryHighScore,
       progress: {
-         ...prev.progress,
+         ...user.progress,
          [gameType]: currentStats
       }
-    }));
+    };
+
+    setUser(updatedUser);
+
+    if (!updatedUser.isGuest && updatedUser.username) {
+        localStorage.setItem(`mathviet_user_${updatedUser.username}`, JSON.stringify(updatedUser));
+    }
     
-    // Slight delay before navigating back to show confetti in GameArena
     setTimeout(() => {
-       // If in Adventure mode, go back to map, else dashboard
        if (routeParams.levelId) {
          navigateTo(AppRoute.ADVENTURE_MAP);
        } else if (currentRoute === AppRoute.MASTERY_PEAK) {
@@ -165,9 +227,17 @@ const App: React.FC = () => {
   };
 
   const renderContent = () => {
+    if (!user && currentRoute !== AppRoute.HOME) {
+        return <Home onNavigate={navigateTo} onStartGuest={handleStartGuest} onLogin={handleLogin} onOpenHelp={() => setShowHelp(true)} onOpenDonation={() => setShowDonation(true)} />;
+    }
+
+    if (!user) {
+         return <Home onNavigate={navigateTo} onStartGuest={handleStartGuest} onLogin={handleLogin} onOpenHelp={() => setShowHelp(true)} onOpenDonation={() => setShowDonation(true)} />;
+    }
+
     switch (currentRoute) {
       case AppRoute.HOME:
-        return <Home onNavigate={navigateTo} onStart={handleStart} onOpenHelp={() => setShowHelp(true)} />;
+        return <Dashboard user={user} onNavigate={navigateTo} onAddFriend={handleAddFriend} adventureLevels={adventureLevels} worlds={WORLDS} />;
       case AppRoute.DASHBOARD:
         return <Dashboard user={user} onNavigate={navigateTo} onAddFriend={handleAddFriend} adventureLevels={adventureLevels} worlds={WORLDS} />;
       case AppRoute.GAME_PLAY:
@@ -188,24 +258,30 @@ const App: React.FC = () => {
       case AppRoute.ADVENTURE_MAP:
         return <AdventureMap levels={adventureLevels} worlds={WORLDS} onNavigate={navigateTo} />;
       case AppRoute.PRACTICE_SETUP:
-        return <PracticeSetup onNavigate={navigateTo} userGrade={user.grade} />;
+        return <PracticeSetup onNavigate={navigateTo} userGrade={user.grade} onOpenDonation={() => setShowDonation(true)} />;
       case AppRoute.MASTERY_PEAK:
         return <MasteryPeak userGrade={user.grade} onNavigate={navigateTo} onGameComplete={handleGameComplete} currentHighScore={user.masteryHighScore} />;
       case AppRoute.SITEMAP:
-        return <SiteMap onNavigate={navigateTo} />;
+        return <SiteMap onNavigate={navigateTo} onOpenDonation={() => setShowDonation(true)} />;
+      case AppRoute.ABOUT:
+        return <About onNavigate={navigateTo} onOpenDonation={() => setShowDonation(true)} />;
       default:
-        return <Home onNavigate={navigateTo} onStart={handleStart} onOpenHelp={() => setShowHelp(true)} />;
+        return <Dashboard user={user} onNavigate={navigateTo} onAddFriend={handleAddFriend} adventureLevels={adventureLevels} worlds={WORLDS} />;
     }
   };
 
   return (
     <div className="min-h-screen font-sans text-slate-800">
-      {currentRoute !== AppRoute.HOME && (
+      {user && currentRoute !== AppRoute.HOME && (
         <Navbar 
           onNavigate={navigateTo} 
           currentRoute={currentRoute} 
           userPoints={user.points} 
           onOpenHelp={() => setShowHelp(true)}
+          onOpenDonation={() => setShowDonation(true)} 
+          isGuest={user.isGuest}
+          username={user.name}
+          onLogout={handleLogout}
         />
       )}
       
@@ -214,6 +290,7 @@ const App: React.FC = () => {
       </main>
 
       <HelpModal isOpen={showHelp} onClose={() => setShowHelp(false)} />
+      <DonationModal isOpen={showDonation} onClose={() => setShowDonation(false)} />
     </div>
   );
 };

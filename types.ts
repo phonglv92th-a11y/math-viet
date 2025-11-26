@@ -52,6 +52,7 @@ export interface GameStats {
 
 export interface UserProfile {
   id: string; // Unique ID
+  username?: string; // For registered users
   name: string;
   grade: number; // 1-12
   points: number;
@@ -61,6 +62,7 @@ export interface UserProfile {
   friends: string[]; // List of friend IDs
   progress: Record<string, GameStats>; // Map GameType to Stats
   masteryHighScore: number; // For Mastery Peak
+  isGuest: boolean; // Flag to identify guest mode
 }
 
 export interface LeaderboardEntry {
@@ -117,7 +119,8 @@ export enum AppRoute {
   PARENT_DASHBOARD = 'parent_dashboard',
   PRACTICE_SETUP = 'practice_setup',
   MASTERY_PEAK = 'mastery_peak',
-  SITEMAP = 'sitemap'
+  SITEMAP = 'sitemap',
+  ABOUT = 'about'
 }
 
 // Navigation Context Type

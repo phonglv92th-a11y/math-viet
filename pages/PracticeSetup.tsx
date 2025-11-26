@@ -6,6 +6,7 @@ import { Brain, Puzzle, ShoppingCart, Layers, Shapes, ArrowLeft, Settings, Check
 interface PracticeSetupProps {
   onNavigate: (route: AppRoute, params?: any) => void;
   userGrade: number;
+  onOpenDonation: () => void; // New prop
 }
 
 const GameTypeOption = ({ 
@@ -39,7 +40,7 @@ const GameTypeOption = ({
   </button>
 );
 
-export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGrade }) => {
+export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGrade, onOpenDonation }) => {
   const [selectedType, setSelectedType] = useState<GameType>(GameType.MENTAL_MATH);
   const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | undefined>(undefined);
   const [questionCount, setQuestionCount] = useState<number>(5);
@@ -428,8 +429,12 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
           </div>
         </div>
         
-        <div className="text-center mt-8 text-gray-400 text-xs font-mono">
-           Owner of this website all information signature is phonglam.1992
+        <div 
+          className="text-center mt-8 text-gray-400 text-xs font-mono flex flex-col items-center gap-1 cursor-pointer hover:text-rose-500 transition-colors"
+          onClick={onOpenDonation}
+        >
+           <span>Ủng hộ tôi một ly cà phê tùy tâm ☕</span>
+           <span className="opacity-70">Phát triển bởi Lâm Phong - Cựu Học Sinh THPT Tĩnh Gia 3 (2007-2010)</span>
         </div>
       </div>
     </div>
