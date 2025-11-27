@@ -1,13 +1,13 @@
 
 import React, { useState } from 'react';
-import { X, Brain, Puzzle, ShoppingBag, Layers, Shapes, Map, Trophy, Star, Zap, LayoutDashboard, User, Users, Award, BookOpen, Compass, Gamepad2, Target } from 'lucide-react';
+import { X, Brain, Puzzle, ShoppingBag, Layers, Shapes, Map, Trophy, Star, Zap, LayoutDashboard, User, Users, Award, BookOpen, Compass, Gamepad2, Target, Atom, FlaskConical, Dna, Hourglass, Globe, PenTool, Search, Grid, Grid3X3, Hammer } from 'lucide-react';
 
 interface HelpModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-type Tab = 'OVERVIEW' | 'GAMES' | 'REWARDS' | 'NAV';
+type Tab = 'OVERVIEW' | 'SUBJECTS' | 'MODES' | 'REWARDS';
 
 export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState<Tab>('OVERVIEW');
@@ -30,222 +30,183 @@ export const HelpModal: React.FC<HelpModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       ></div>
 
-      {/* Modal Content */}
-      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl h-[90vh] md:h-[80vh] flex flex-col md:flex-row overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-5xl h-[90vh] md:h-[80vh] flex flex-col md:flex-row overflow-hidden animate-in zoom-in-95 duration-200">
         
-        {/* Sidebar / Navigation Header */}
+        {/* Sidebar */}
         <div className="w-full md:w-64 bg-gray-50 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col flex-shrink-0">
           <div className="p-4 md:px-6 md:pt-6 flex justify-between items-center md:block">
              <h2 className="text-lg md:text-xl font-extrabold text-gray-800 flex items-center">
                <BookOpen className="w-5 h-5 md:w-6 md:h-6 mr-2 text-primary" />
                Hướng Dẫn
              </h2>
-             {/* Mobile Close Button (Visible only on mobile header) */}
-             <button 
-                onClick={onClose}
-                className="md:hidden p-2 bg-white rounded-full text-gray-500 shadow-sm"
-             >
-                <X className="w-5 h-5" />
-             </button>
+             <button onClick={onClose} className="md:hidden p-2 bg-white rounded-full text-gray-500 shadow-sm"><X className="w-5 h-5" /></button>
           </div>
           
-          {/* Scrollable Tabs for Mobile / Vertical List for Desktop */}
           <div className="flex flex-row md:flex-col overflow-x-auto md:overflow-visible px-2 pb-2 md:pb-0 md:px-4 space-x-2 md:space-x-0 md:space-y-2 no-scrollbar">
              <NavButton tab="OVERVIEW" label="Tổng Quan" icon={Compass} />
-             <NavButton tab="GAMES" label="Trò Chơi" icon={Gamepad2} />
-             <NavButton tab="REWARDS" label="Thưởng" icon={Award} />
-             <NavButton tab="NAV" label="Điều Hướng" icon={LayoutDashboard} />
-          </div>
-
-          <div className="hidden md:block p-4 border-t border-gray-200 mt-auto text-xs text-gray-400 text-center">
-             Phiên bản 1.0.0
+             <NavButton tab="SUBJECTS" label="Môn Học" icon={BookOpen} />
+             <NavButton tab="MODES" label="Chế Độ Chơi" icon={Gamepad2} />
+             <NavButton tab="REWARDS" label="Điểm & Thưởng" icon={Award} />
           </div>
         </div>
 
-        {/* Main Content Area */}
+        {/* Content */}
         <div className="flex-1 flex flex-col h-full bg-white relative overflow-hidden">
-          {/* Desktop Close Button */}
-          <button 
-            onClick={onClose}
-            className="hidden md:block absolute top-4 right-4 p-2 bg-gray-100 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors z-10"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <button onClick={onClose} className="hidden md:block absolute top-4 right-4 p-2 bg-gray-100 hover:bg-red-50 hover:text-red-500 rounded-full transition-colors z-10"><X className="w-5 h-5" /></button>
 
           <div className="flex-1 overflow-y-auto p-5 md:p-10 custom-scrollbar">
             
             {activeTab === 'OVERVIEW' && (
-              <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="text-center mb-6 md:mb-8">
-                   <h1 className="text-2xl md:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-4">
-                     Chào mừng đến với MathViet! 🇻🇳
-                   </h1>
-                   <p className="text-gray-600 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
-                     Nền tảng học toán thông minh kết hợp trò chơi, giúp các bạn học sinh từ lớp 1 đến lớp 12 rèn luyện tư duy một cách vui vẻ và hiệu quả.
-                   </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                   <div className="bg-blue-50 p-5 md:p-6 rounded-2xl">
-                      <h3 className="font-bold text-blue-800 mb-2 flex items-center text-lg"><User className="w-5 h-5 mr-2" /> Hồ Sơ Của Bạn</h3>
-                      <p className="text-sm text-gray-700 leading-relaxed">
-                        Tại đây bạn có thể chọn lớp học phù hợp. Hệ thống AI sẽ tự động điều chỉnh độ khó của câu hỏi dựa trên lớp học và trình độ của bạn.
-                      </p>
-                   </div>
-                   <div className="bg-purple-50 p-5 md:p-6 rounded-2xl">
-                      <h3 className="font-bold text-purple-800 mb-2 flex items-center text-lg"><Target className="w-5 h-5 mr-2" /> Mục Tiêu</h3>
-                      <p className="text-sm text-gray-700 leading-relaxed">
-                        Mỗi ngày hãy dành 15-30 phút để luyện tập. Duy trì chuỗi ngày học tập (Streak) để nhận thêm nhiều phần thưởng đặc biệt!
-                      </p>
-                   </div>
-                </div>
+              <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                 <h1 className="text-3xl font-extrabold text-blue-700 mb-2">Chào mừng đến với MathViet! 🇻🇳</h1>
+                 <p className="text-gray-600 text-lg">
+                    MathViet là nền tảng học tập thông minh sử dụng AI (Google Gemini) để tạo ra các bài tập toán, văn, anh, lý, hóa... không giới hạn, phù hợp cho học sinh từ lớp 1 đến lớp 12.
+                 </p>
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                       <h3 className="font-bold text-blue-800 mb-2">🤖 AI Powered</h3>
+                       <p className="text-sm">Bài tập được tạo tự động, không bao giờ trùng lặp.</p>
+                    </div>
+                    <div className="bg-green-50 p-4 rounded-xl border border-green-100">
+                       <h3 className="font-bold text-green-800 mb-2">📚 Đa Dạng</h3>
+                       <p className="text-sm">Hỗ trợ Toán, Văn, Anh, Lý, Hóa, Sinh, Sử.</p>
+                    </div>
+                    <div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                       <h3 className="font-bold text-purple-800 mb-2">🎮 Gamification</h3>
+                       <p className="text-sm">Học như chơi với điểm số, bảng xếp hạng và huy hiệu.</p>
+                    </div>
+                 </div>
               </div>
             )}
 
-            {activeTab === 'GAMES' && (
-               <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                  <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">Các Chế Độ Chơi</h2>
+            {activeTab === 'SUBJECTS' && (
+               <div className="space-y-8 animate-in fade-in slide-in-from-right-4">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">Chi Tiết Các Môn Học</h2>
                   
-                  <div className="space-y-4">
-                    <div className="flex flex-col md:flex-row p-4 border border-gray-100 rounded-xl hover:shadow-md transition-shadow bg-gray-50/50">
-                      <div className="flex items-center mb-2 md:mb-0">
-                          <div className="bg-blue-100 p-2 md:p-3 rounded-lg h-fit mr-3 md:mr-4 text-blue-600"><Brain size={20} className="md:w-6 md:h-6" /></div>
-                          <h4 className="font-bold text-base md:text-lg text-gray-800 md:hidden">Tính Nhẩm Thần Tốc</h4>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-lg text-gray-800 hidden md:block">Tính Nhẩm Thần Tốc</h4>
-                        <p className="text-xs md:text-sm text-gray-500 mb-1 italic">Kỹ năng: Số học, Tốc độ</p>
-                        <p className="text-sm text-gray-600">Rèn luyện phản xạ với các phép tính cộng, trừ, nhân, chia cơ bản. Đưa ra đáp án chính xác trong thời gian ngắn nhất.</p>
-                      </div>
-                    </div>
+                  {/* Toan Hoc */}
+                  <div className="bg-blue-50/50 p-5 rounded-2xl border border-blue-100">
+                     <h3 className="font-bold text-xl text-blue-700 flex items-center mb-3"><Brain className="mr-2"/> Toán Học</h3>
+                     <ul className="space-y-2 text-gray-700">
+                        <li><strong>• Tính Nhẩm:</strong> Rèn luyện cộng trừ nhân chia tốc độ cao.</li>
+                        <li><strong>• Mật Mã Logic:</strong> Tìm quy luật dãy số, hình ảnh (IQ).</li>
+                        <li><strong>• Toán Thực Tế:</strong> Các bài toán có lời văn gắn với đời sống (mua bán, đo lường).</li>
+                        <li><strong>• Xây Tháp / Đếm Hình:</strong> Các trò chơi tư duy không gian và sắp xếp dành cho tiểu học.</li>
+                        <li><strong>• THPT (Lớp 10-12):</strong> Hỗ trợ công thức Toán cao cấp (Tích phân, Đạo hàm, Lượng giác) với hiển thị LaTeX chuẩn.</li>
+                     </ul>
+                  </div>
 
-                    <div className="flex flex-col md:flex-row p-4 border border-gray-100 rounded-xl hover:shadow-md transition-shadow bg-gray-50/50">
-                      <div className="flex items-center mb-2 md:mb-0">
-                          <div className="bg-purple-100 p-2 md:p-3 rounded-lg h-fit mr-3 md:mr-4 text-purple-600"><Puzzle size={20} className="md:w-6 md:h-6" /></div>
-                          <h4 className="font-bold text-base md:text-lg text-gray-800 md:hidden">Mật Mã Logic</h4>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-lg text-gray-800 hidden md:block">Mật Mã Logic</h4>
-                        <p className="text-xs md:text-sm text-gray-500 mb-1 italic">Kỹ năng: Tư duy logic, Quy luật</p>
-                        <p className="text-sm text-gray-600">Tìm số còn thiếu trong dãy số, hoặc giải các câu đố IQ toán học bằng hình ảnh. Giúp phát triển tư duy trừu tượng.</p>
-                      </div>
-                    </div>
+                  {/* Van Hoc */}
+                  <div className="bg-rose-50/50 p-5 rounded-2xl border border-rose-100">
+                     <h3 className="font-bold text-xl text-rose-700 flex items-center mb-3"><PenTool className="mr-2"/> Văn Học & Tiếng Việt</h3>
+                     <ul className="space-y-2 text-gray-700">
+                        <li><strong>• Truy Tìm Từ Vựng (Word Search):</strong> Tìm từ khóa ẩn trong bảng chữ cái.</li>
+                        <li><strong>• Ô Chữ Bí Ẩn (Crossword):</strong> Giải ô chữ dựa trên gợi ý.</li>
+                        <li><strong>• Vua Tiếng Việt:</strong> Trắc nghiệm từ đồng nghĩa, trái nghĩa, từ láy.</li>
+                        <li><strong>• Thợ Xây Câu:</strong> Sắp xếp từ thành câu hoàn chỉnh đúng ngữ pháp.</li>
+                        <li><strong>• Nhà Thơ Tài Ba:</strong> Điền từ còn thiếu vào thơ, ca dao.</li>
+                     </ul>
+                  </div>
 
-                    <div className="flex flex-col md:flex-row p-4 border border-gray-100 rounded-xl hover:shadow-md transition-shadow bg-gray-50/50">
-                      <div className="flex items-center mb-2 md:mb-0">
-                          <div className="bg-green-100 p-2 md:p-3 rounded-lg h-fit mr-3 md:mr-4 text-green-600"><ShoppingBag size={20} className="md:w-6 md:h-6" /></div>
-                          <h4 className="font-bold text-base md:text-lg text-gray-800 md:hidden">Toán Thực Tế</h4>
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-lg text-gray-800 hidden md:block">Toán Thực Tế</h4>
-                        <p className="text-xs md:text-sm text-gray-500 mb-1 italic">Kỹ năng: Ứng dụng, Giải quyết vấn đề</p>
-                        <p className="text-sm text-gray-600">Giải quyết các bài toán có lời văn gắn liền với đời sống như: tính tiền đi chợ, xem đồng hồ, chia kẹo.</p>
-                      </div>
-                    </div>
+                  {/* Khoa Hoc */}
+                  <div className="bg-teal-50/50 p-5 rounded-2xl border border-teal-100">
+                     <h3 className="font-bold text-xl text-teal-700 flex items-center mb-3"><Atom className="mr-2"/> Khoa Học Tự Nhiên & Xã Hội</h3>
+                     <p className="text-sm italic text-gray-500 mb-2">(Dành cho học sinh từ lớp 6 trở lên)</p>
+                     <ul className="space-y-2 text-gray-700">
+                        <li><strong>• Vật Lý:</strong> Cơ học, Điện học, Quang học, Nhiệt học.</li>
+                        <li><strong>• Hóa Học:</strong> Bảng tuần hoàn, Phản ứng hóa học, Hữu cơ/Vô cơ.</li>
+                        <li><strong>• Sinh Học:</strong> Di truyền, Tế bào, Sinh thái.</li>
+                        <li><strong>• Lịch Sử:</strong> Các sự kiện lịch sử Việt Nam và Thế giới.</li>
+                     </ul>
                   </div>
                </div>
             )}
 
-            {activeTab === 'REWARDS' && (
-              <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-                <section>
-                  <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 flex items-center"><Award className="text-yellow-500 mr-2" /> Hệ Thống Điểm Thưởng</h2>
-                  <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 md:p-6">
-                    <ul className="space-y-4">
-                      <li className="flex items-center justify-between">
-                         <span className="font-bold text-sm md:text-base text-gray-700">Trả lời đúng</span>
-                         <span className="bg-green-100 text-green-700 font-bold px-2 py-1 md:px-3 rounded-full text-xs md:text-sm">+100 điểm</span>
-                      </li>
-                      <li className="flex items-center justify-between">
-                         <div className="flex flex-col">
-                            <span className="font-bold text-sm md:text-base text-gray-700">Thưởng thời gian</span>
-                            <span className="text-[10px] md:text-xs text-gray-500">Chỉ áp dụng ở chế độ Cơ bản</span>
-                         </div>
-                         <span className="bg-blue-100 text-blue-700 font-bold px-2 py-1 md:px-3 rounded-full text-xs md:text-sm">+2 điểm / giây</span>
-                      </li>
-                      <li className="flex items-center justify-between">
-                         <div className="flex flex-col">
-                            <span className="font-bold text-sm md:text-base text-gray-700 flex items-center"><Zap className="w-4 h-4 text-red-500 mr-1" /> Speed Run</span>
-                            <span className="text-[10px] md:text-xs text-gray-500">Độ khó cao hơn, rủi ro cao hơn</span>
-                         </div>
-                         <span className="bg-red-100 text-red-700 font-bold px-2 py-1 md:px-3 rounded-full text-xs md:text-sm">Nhân đôi (x2)</span>
-                      </li>
-                    </ul>
-                  </div>
-                </section>
-
-                <section>
-                   <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 flex items-center"><Trophy className="text-orange-500 mr-2" /> Huy Hiệu (Badges)</h2>
-                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-                      <div className="border p-4 rounded-xl flex flex-col items-center text-center">
-                         <div className="text-3xl mb-2">🏅</div>
-                         <div className="font-bold text-sm">Tập Sự</div>
-                         <div className="text-xs text-gray-500">Đạt 500 điểm</div>
-                      </div>
-                      <div className="border p-4 rounded-xl flex flex-col items-center text-center bg-yellow-50 border-yellow-200">
-                         <div className="text-3xl mb-2">🎓</div>
-                         <div className="font-bold text-sm">Nhà Toán Học</div>
-                         <div className="text-xs text-gray-500">Đạt 1000 điểm</div>
-                      </div>
-                   </div>
-                </section>
-
-                <section>
-                   <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4 flex items-center"><Star className="text-purple-500 mr-2" /> Chuỗi Ngày (Streak)</h2>
-                   <p className="text-sm md:text-base text-gray-600 mb-4">
-                     Chuỗi ngày thể hiện sự chăm chỉ của bạn. Hãy vào ứng dụng và hoàn thành ít nhất 1 bài học mỗi ngày để duy trì ngọn lửa này nhé! 🔥
-                   </p>
-                </section>
-              </div>
-            )}
-
-            {activeTab === 'NAV' && (
-              <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                 <h2 className="text-xl md:text-2xl font-bold text-gray-800 mb-4">Điều Hướng Ứng Dụng</h2>
+            {activeTab === 'MODES' && (
+              <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                 <h2 className="text-2xl font-bold text-gray-800">Các Chế Độ Chơi Đặc Biệt</h2>
                  
-                 <div className="grid grid-cols-1 gap-4">
-                    <div className="flex items-start bg-gray-50 p-3 rounded-xl">
-                       <LayoutDashboard className="w-6 h-6 md:w-8 md:h-8 text-blue-500 mr-3 md:mr-4 mt-1 flex-shrink-0" />
+                 <div className="grid gap-4">
+                    <div className="flex items-start bg-yellow-50 p-4 rounded-xl border border-yellow-100">
+                       <Zap className="w-8 h-8 text-yellow-600 mr-4 mt-1" />
                        <div>
-                          <h4 className="font-bold text-base md:text-lg">Góc Học Tập (Dashboard)</h4>
-                          <p className="text-gray-600 text-xs md:text-sm">Trung tâm chính của bạn. Tại đây bạn có thể chọn trò chơi, xem bảng xếp hạng và theo dõi tiến độ.</p>
+                          <h4 className="font-bold text-lg text-gray-800">Speed Run (Tốc Độ)</h4>
+                          <p className="text-sm text-gray-600">Trả lời câu hỏi trong thời gian cực ngắn (15s/câu). Điểm thưởng nhân đôi (x2) nhưng rủi ro cao hơn.</p>
                        </div>
                     </div>
 
-                    <div className="flex items-start bg-gray-50 p-3 rounded-xl">
-                       <Map className="w-6 h-6 md:w-8 md:h-8 text-emerald-500 mr-3 md:mr-4 mt-1 flex-shrink-0" />
+                    <div className="flex items-start bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                       <Trophy className="w-8 h-8 text-indigo-600 mr-4 mt-1" />
                        <div>
-                          <h4 className="font-bold text-base md:text-lg">Hành Trình Tri Thức (Adventure)</h4>
-                          <p className="text-gray-600 text-xs md:text-sm">Chế độ chơi theo cốt truyện. Bạn sẽ đi qua các vùng đất khác nhau, mỗi vùng đất là một thử thách.</p>
+                          <h4 className="font-bold text-lg text-gray-800">Đỉnh Cao Tri Thức (Leo Núi)</h4>
+                          <p className="text-sm text-gray-600">Chế độ sinh tồn. Bạn có 3 mạng. Trả lời đúng liên tiếp để leo lên đỉnh núi. Độ khó tăng dần theo từng bậc.</p>
                        </div>
                     </div>
 
-                    <div className="flex items-start bg-gray-50 p-3 rounded-xl">
-                       <Users className="w-6 h-6 md:w-8 md:h-8 text-indigo-500 mr-3 md:mr-4 mt-1 flex-shrink-0" />
+                    <div className="flex items-start bg-green-50 p-4 rounded-xl border border-green-100">
+                       <Map className="w-8 h-8 text-green-600 mr-4 mt-1" />
                        <div>
-                          <h4 className="font-bold text-base md:text-lg">Bảng Xếp Hạng & Bạn Bè</h4>
-                          <p className="text-gray-600 text-xs md:text-sm">Thi đua cùng các bạn học sinh khác trên toàn quốc hoặc thêm bạn bè để cùng nhau tiến bộ.</p>
+                          <h4 className="font-bold text-lg text-gray-800">Hành Trình Tri Thức (Adventure)</h4>
+                          <p className="text-sm text-gray-600">Khám phá các vùng đất: Đảo Số Học, Vương Quốc Chữ... Mỗi vùng đất là một chuỗi các bài học được sắp xếp logic.</p>
                        </div>
                     </div>
                  </div>
               </div>
             )}
 
-          </div>
+            {activeTab === 'REWARDS' && (
+               <div className="space-y-6 animate-in fade-in slide-in-from-right-4">
+                  <h2 className="text-2xl font-bold text-gray-800">Cách Tính Điểm & Phần Thưởng</h2>
+                  
+                  <div className="bg-white border rounded-xl overflow-hidden">
+                     <table className="w-full text-sm text-left">
+                        <thead className="bg-gray-100 font-bold text-gray-700">
+                           <tr>
+                              <th className="p-3">Hành động</th>
+                              <th className="p-3">Điểm thưởng (XP)</th>
+                           </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                           <tr><td className="p-3">Trả lời đúng</td><td className="p-3 font-bold text-green-600">+100</td></tr>
+                           <tr><td className="p-3">Tìm được 1 từ (Word Search)</td><td className="p-3 font-bold text-green-600">+50</td></tr>
+                           <tr><td className="p-3">Bonus thời gian (Chế độ thường)</td><td className="p-3 text-blue-600">+2 điểm / giây còn lại</td></tr>
+                           <tr><td className="p-3">Chế độ Speed Run</td><td className="p-3 text-red-600 font-bold">Nhân đôi (x2) tổng điểm</td></tr>
+                           <tr><td className="p-3">Duy trì Streak (Chuỗi ngày)</td><td className="p-3 text-orange-600">+10 điểm / ngày</td></tr>
+                        </tbody>
+                     </table>
+                  </div>
 
-          <div className="p-4 bg-gray-50 text-center border-t border-gray-200 flex-shrink-0">
-            <button 
-              onClick={onClose}
-              className="bg-primary hover:bg-blue-600 text-white font-bold py-3 px-8 w-full md:w-auto md:px-12 rounded-full shadow-lg transition-transform transform hover:scale-105"
-            >
-              Đã Hiểu!
-            </button>
+                  <div className="mt-6">
+                     <h3 className="font-bold text-lg mb-3">Hệ Thống Huy Hiệu</h3>
+                     <div className="flex gap-4">
+                        <div className="text-center p-3 border rounded-lg bg-gray-50">
+                           <div className="text-2xl">🏅</div>
+                           <div className="font-bold text-xs mt-1">Tập Sự</div>
+                           <div className="text-[10px] text-gray-500">500 điểm</div>
+                        </div>
+                        <div className="text-center p-3 border rounded-lg bg-yellow-50 border-yellow-200">
+                           <div className="text-2xl">🎓</div>
+                           <div className="font-bold text-xs mt-1">Nhà Toán Học</div>
+                           <div className="text-[10px] text-gray-500">1000 điểm</div>
+                        </div>
+                        <div className="text-center p-3 border rounded-lg bg-purple-50 border-purple-200">
+                           <div className="text-2xl">👑</div>
+                           <div className="font-bold text-xs mt-1">Thần Đồng</div>
+                           <div className="text-[10px] text-gray-500">5000 điểm</div>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            )}
+
+          </div>
+          
+          <div className="p-4 bg-gray-50 border-t border-gray-200 text-center">
+             <button onClick={onClose} className="bg-primary hover:bg-blue-600 text-white font-bold py-3 px-10 rounded-full shadow-lg transition-transform active:scale-95">Đã Hiểu</button>
           </div>
         </div>
       </div>
