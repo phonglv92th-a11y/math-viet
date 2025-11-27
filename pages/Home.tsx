@@ -190,7 +190,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
               </h1>
               
               <p className="text-lg md:text-xl text-slate-500 max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                Nền tảng giáo dục Gamification số 1 Việt Nam dành cho học sinh lớp 1-12. 
+                Nền tảng giáo dục Gamification số Việt Nam dành cho học sinh lớp 1-12. 
                 Rèn luyện tư duy mỗi ngày với AI thông minh.
               </p>
 
