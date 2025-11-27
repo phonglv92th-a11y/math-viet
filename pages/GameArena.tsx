@@ -235,6 +235,27 @@ const TUTORIALS: Record<GameType, { title: string; desc: string; tip: string }> 
     title: "Thử Thách Hỗn Hợp",
     desc: "Một bài kiểm tra toàn diện gồm cả Toán, Tiếng Việt và Tiếng Anh. Độ khó sẽ tăng dần từ Dễ đến Khó!",
     tip: "Mẹo: Hãy sẵn sàng chuyển đổi tư duy giữa tính toán và ngôn ngữ liên tục."
+  },
+  // SCIENCE & HISTORY
+  [GameType.PHYSICS_QUIZ]: {
+    title: "Nhà Vật Lý Tài Ba",
+    desc: "Trả lời các câu hỏi trắc nghiệm về các hiện tượng vật lý, công thức và định luật.",
+    tip: "Mẹo: Nhớ kỹ các đơn vị đo lường cơ bản."
+  },
+  [GameType.CHEMISTRY_LAB]: {
+    title: "Phòng Thí Nghiệm Hóa Học",
+    desc: "Kiểm tra kiến thức về các nguyên tố, phản ứng hóa học và bảng tuần hoàn.",
+    tip: "Mẹo: Chú ý hóa trị của các nguyên tố."
+  },
+  [GameType.BIOLOGY_LIFE]: {
+    title: "Thế Giới Sinh Học",
+    desc: "Khám phá thế giới tự nhiên từ tế bào, thực vật, động vật đến cơ thể người.",
+    tip: "Mẹo: Liên hệ các kiến thức với cơ thể của chính mình."
+  },
+  [GameType.HISTORY_TIMELINE]: {
+    title: "Dòng Chảy Lịch Sử",
+    desc: "Trả lời các câu hỏi về các sự kiện, nhân vật lịch sử Việt Nam và Thế giới.",
+    tip: "Mẹo: Ghi nhớ các mốc thời gian quan trọng."
   }
 };
 
@@ -433,93 +454,6 @@ export const GameArena: React.FC<GameArenaProps> = ({
       }).sort((a,b) => b.len - a.len); // Longest first
 
       // Simple Layout Algorithm
-      const placedWords: typeof cwClues = [];
-      const occupied = new Set<string>();
-
-      // Place first word in middle horizontally
-      const startR = 5;
-      const startC = Math.max(0, 5 - Math.floor(parsedItems[0].len / 2));
-      placedWords.push({ ...parsedItems[0], direction: 'across', row: startR, col: startC });
-      for(let i=0; i<parsedItems[0].len; i++) occupied.add(`${startR}-${startC+i}`);
-
-      // Try placing others
-      for (let i=1; i<parsedItems.length; i++) {
-        const item = parsedItems[i];
-        let placed = false;
-        
-        // Try intersecting with already placed words
-        for (const placedWord of placedWords) {
-          if (placed) break;
-          // Find common letter
-          for (let j=0; j<item.len; j++) {
-             if (placed) break;
-             const char = item.word[j];
-             
-             // Iterate through placed word chars
-             for (let k=0; k<placedWord.word.length; k++) {
-                if (placedWord.word[k] === char) {
-                   // Potential intersection
-                   const intersectR = placedWord.direction === 'across' ? placedWord.row : placedWord.row + k;
-                   const intersectC = placedWord.direction === 'across' ? placedWord.col + k : placedWord.col;
-                   
-                   // New word direction must be perpendicular
-                   const newDir = placedWord.direction === 'across' ? 'down' : 'across';
-                   const newRow = newDir === 'down' ? intersectR - j : intersectR;
-                   const newCol = newDir === 'down' ? intersectC : intersectC - j;
-                   
-                   // Check bounds and collisions
-                   let fits = true;
-                   for(let l=0; l<item.len; l++) {
-                      const r = newDir === 'down' ? newRow + l : newRow;
-                      const c = newDir === 'down' ? newCol : newCol + l;
-                      const key = `${r}-${c}`;
-                      
-                      // Check connectivity logic simplified: 
-                      // 1. Must match intersecting char
-                      // 2. Must not overwrite conflicting char
-                      // 3. Must not touch other words adjacently (except intersection) - Simplified here
-                      
-                      // Actually, we need to store the grid content to check conflicts
-                      // For this simplified version, let's just check if cell is empty OR matches char
-                      // And check immediate neighbors?
-                   }
-                   
-                   // Since implementing a full crossword generator client-side is complex, 
-                   // let's assume a simplified list display if layout fails, or just place sequentially if hard
-                   // For this demo, let's just place the first word across, and subsequent words vertically intersecting if possible, or just listed if not perfectly connected.
-                   // Actually, let's just create a dummy layout for the visual if real algo is too heavy.
-                   // Or: Just place them independently? No, crossword must intersect.
-                }
-             }
-          }
-        }
-        
-        // Fallback: Place randomly without intersection if complex logic fails (to ensure game works)
-        if (!placed) {
-           const dir = i % 2 === 0 ? 'across' : 'down';
-           const r = i * 2; 
-           const c = 0;
-           placedWords.push({ ...item, direction: dir, row: r, col: c });
-        }
-      }
-      
-      // Let's use a simpler "Stack" layout if intersection logic is too buggy for MVP
-      // Layout: Word 1 Across (Row 0), Word 2 Down (Col 0, intersecting W1[0] if char matches or just starting at Row 2)
-      // RE-IMPLEMENTING SIMPLE LAYOUT:
-      // Just list them with spacing? No that's not a crossword.
-      // Let's assume the AI generated intersecting words? No AI prompt just said "words".
-      
-      // Better fallback: Just place them diagonally offset so they don't overlap, effectively 6 mini puzzles.
-      // Not ideal but safe.
-      // Or: Use a hardcoded 12x12 grid and try to fit.
-      
-      // Let's rely on a very simple "Waterfall" placement.
-      // Word 1 at 0,0 ACROSS.
-      // Word 2 at 2,0 ACROSS.
-      // ...
-      // This is not a "Cross"word but a "Fill-in" puzzle. 
-      // To satisfy user, let's try to make at least one intersection.
-      
       // Updated Logic: Just list them as "Across" clues. 
       // This turns it into a "Fill the grid" game which is still playable.
       const simpleLayout = parsedItems.map((item, idx) => ({

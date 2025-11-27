@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { AppRoute, GameType, GameMode } from '../types';
-import { Brain, Puzzle, ShoppingCart, Layers, Shapes, ArrowLeft, Settings, Check, Target, PenTool, Feather, Search, Quote, Hammer, ScanEye, Globe, Languages, Type, MessageCircle, RotateCcw, Shuffle, Signal, BarChart, AlertTriangle, Sparkles, Grid3X3, Grid } from 'lucide-react';
+import { Brain, Puzzle, ShoppingCart, Layers, Shapes, ArrowLeft, Settings, Check, Target, PenTool, Feather, Search, Quote, Hammer, ScanEye, Globe, Languages, Type, MessageCircle, RotateCcw, Shuffle, Signal, BarChart, AlertTriangle, Sparkles, Grid3X3, Grid, Atom, FlaskConical, Dna, Hourglass } from 'lucide-react';
 
 interface PracticeSetupProps {
   onNavigate: (route: AppRoute, params?: any) => void;
@@ -46,6 +46,7 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
   const [questionCount, setQuestionCount] = useState<number>(5);
   const [topicFocus, setTopicFocus] = useState<string>('');
   const [isReviewMode, setIsReviewMode] = useState(false);
+  const isAdvancedGrade = userGrade >= 6;
 
   const handleStart = () => {
     onNavigate(AppRoute.GAME_PLAY, {
@@ -70,6 +71,10 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
         case GameType.LITERATURE_QUIZ: return ['Truyện cổ tích', 'Thánh Gióng', 'Dế Mèn'];
         case GameType.WORD_SEARCH: return ['Animals (English)', 'School (English)', 'Trái cây', 'Gia đình'];
         case GameType.CROSSWORD: return ['Sports (English)', 'Food (English)', 'Lịch sử Việt Nam', 'Địa lý'];
+        case GameType.PHYSICS_QUIZ: return ['Áp suất', 'Điện học', 'Quang học', 'Cơ học'];
+        case GameType.CHEMISTRY_LAB: return ['Bảng tuần hoàn', 'Axit & Bazơ', 'Kim loại', 'Phản ứng hóa học'];
+        case GameType.BIOLOGY_LIFE: return ['Tế bào', 'Quang hợp', 'Cơ thể người', 'Di truyền'];
+        case GameType.HISTORY_TIMELINE: return ['Chiến tranh thế giới', 'Nhà Trần', 'Cách mạng tháng 8', 'Lịch sử hiện đại'];
         default: return [];
     }
   };
@@ -236,7 +241,7 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                   </div>
 
                   <div className="mb-2 text-sm font-semibold text-gray-500 uppercase tracking-wide">Môn Tiếng Anh</div>
-                  <div className="grid grid-cols-3 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-3 md:grid-cols-4 gap-3 mb-6">
                     <GameTypeOption 
                       type={GameType.ENGLISH_VOCAB} 
                       selected={selectedType === GameType.ENGLISH_VOCAB} 
@@ -280,6 +285,42 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                       color="teal" 
                     />
                   </div>
+                  
+                  {isAdvancedGrade && (
+                     <>
+                        <div className="mb-2 text-sm font-semibold text-gray-500 uppercase tracking-wide">Khoa Học Tự Nhiên & Xã Hội</div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                           <GameTypeOption 
+                              type={GameType.PHYSICS_QUIZ} 
+                              selected={selectedType === GameType.PHYSICS_QUIZ} 
+                              onClick={() => setSelectedType(GameType.PHYSICS_QUIZ)} 
+                              icon={Atom} 
+                              color="blue" 
+                           />
+                           <GameTypeOption 
+                              type={GameType.CHEMISTRY_LAB} 
+                              selected={selectedType === GameType.CHEMISTRY_LAB} 
+                              onClick={() => setSelectedType(GameType.CHEMISTRY_LAB)} 
+                              icon={FlaskConical} 
+                              color="purple" 
+                           />
+                           <GameTypeOption 
+                              type={GameType.BIOLOGY_LIFE} 
+                              selected={selectedType === GameType.BIOLOGY_LIFE} 
+                              onClick={() => setSelectedType(GameType.BIOLOGY_LIFE)} 
+                              icon={Dna} 
+                              color="green" 
+                           />
+                           <GameTypeOption 
+                              type={GameType.HISTORY_TIMELINE} 
+                              selected={selectedType === GameType.HISTORY_TIMELINE} 
+                              onClick={() => setSelectedType(GameType.HISTORY_TIMELINE)} 
+                              icon={Hourglass} 
+                              color="amber" 
+                           />
+                        </div>
+                     </>
+                  )}
                 </section>
 
                 {/* Step 2: Difficulty */}

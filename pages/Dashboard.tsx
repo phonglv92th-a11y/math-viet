@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { AppRoute, GameType, UserProfile, GameMode, GameStats, Subject as SubjectEnum, AdventureLevel, World, GameCardStyle } from '../types';
-import { Brain, Puzzle, ShoppingCart, Shapes, PlayCircle, Zap, Palette, Swords, Search, BookOpen, PenTool, Hammer, ScanEye, X, ChevronRight, Trophy, Loader2, Layers, Feather, Quote, Globe, Languages, Type, MessageCircle, Calculator, BarChart3, Grid3X3, Grid } from 'lucide-react';
+import { Brain, Puzzle, ShoppingCart, Shapes, PlayCircle, Zap, Palette, Swords, Search, BookOpen, PenTool, Hammer, ScanEye, X, ChevronRight, Trophy, Loader2, Layers, Feather, Quote, Globe, Languages, Type, MessageCircle, Calculator, BarChart3, Grid3X3, Grid, Atom, FlaskConical, Dna, Hourglass } from 'lucide-react';
 import { GameCard } from '../components/GameCard';
 
 // Lazy load heavy components
@@ -49,6 +49,7 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
   const [isStyleModalOpen, setIsStyleModalOpen] = useState(false);
   const [editingGameType, setEditingGameType] = useState<GameType>(GameType.MENTAL_MATH);
   const [tempStyle, setTempStyle] = useState<GameCardStyle | null>(null);
+  const [liveUsers, setLiveUsers] = useState(0);
 
   // Determine current adventure level (first UNLOCKED)
   const currentAdventureLevel = adventureLevels.find(l => l.status === 'UNLOCKED') || adventureLevels[adventureLevels.length - 1];
@@ -59,6 +60,13 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
       const savedStyles = localStorage.getItem('dashboard_game_styles');
       if (savedStyles) setGameStyles(JSON.parse(savedStyles));
     } catch (e) { console.error("Failed to load styles", e); }
+    
+    // Simulate Live Users
+    setLiveUsers(Math.floor(Math.random() * (1000 - 600 + 1)) + 600);
+    const interval = setInterval(() => {
+       setLiveUsers(prev => prev + Math.floor(Math.random() * 10 - 5));
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleSaveStyle = () => {
@@ -71,7 +79,7 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
   };
 
   const openStyleModal = () => {
-    const defaultGame = subject === SubjectEnum.MATH ? GameType.MENTAL_MATH : (subject === SubjectEnum.LITERATURE ? GameType.WORD_MATCH : GameType.ENGLISH_VOCAB);
+    const defaultGame = GameType.MENTAL_MATH; // Simplify logic
     setEditingGameType(defaultGame);
     const existing = gameStyles[defaultGame];
     setTempStyle(existing || { id: 'blue', name: 'Đại Dương', gradient: 'bg-gradient-to-br from-blue-50 to-blue-100', text: 'text-blue-600', iconStyle: 'SIMPLE' });
@@ -111,9 +119,37 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
              <GameCard title="Đánh Vần" description="Spelling Challenge" icon={Type} color="fuchsia" type={GameType.ENGLISH_SPELLING} mode={gameMode} stats={user.progress[GameType.ENGLISH_SPELLING]} customStyle={gameStyles[GameType.ENGLISH_SPELLING]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.ENGLISH_SPELLING, mode: gameMode, difficulty })} />
              <GameCard title="Đố Vui Tiếng Anh" description="General Knowledge" icon={MessageCircle} color="sky" type={GameType.ENGLISH_QUIZ} mode={gameMode} stats={user.progress[GameType.ENGLISH_QUIZ]} customStyle={gameStyles[GameType.ENGLISH_QUIZ]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.ENGLISH_QUIZ, mode: gameMode, difficulty })} />
           </>
-        )
+        );
+      case SubjectEnum.PHYSICS:
+        return (
+          <>
+             <GameCard title="Nhà Vật Lý" description="Chuyển động & Lực" icon={Atom} color="blue" type={GameType.PHYSICS_QUIZ} mode={gameMode} stats={user.progress[GameType.PHYSICS_QUIZ]} customStyle={gameStyles[GameType.PHYSICS_QUIZ]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.PHYSICS_QUIZ, mode: gameMode, difficulty })} />
+          </>
+        );
+      case SubjectEnum.CHEMISTRY:
+        return (
+          <>
+             <GameCard title="Hóa Học" description="Phản ứng & Nguyên tố" icon={FlaskConical} color="purple" type={GameType.CHEMISTRY_LAB} mode={gameMode} stats={user.progress[GameType.CHEMISTRY_LAB]} customStyle={gameStyles[GameType.CHEMISTRY_LAB]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.CHEMISTRY_LAB, mode: gameMode, difficulty })} />
+          </>
+        );
+      case SubjectEnum.BIOLOGY:
+        return (
+          <>
+             <GameCard title="Sinh Học" description="Thế giới tự nhiên" icon={Dna} color="green" type={GameType.BIOLOGY_LIFE} mode={gameMode} stats={user.progress[GameType.BIOLOGY_LIFE]} customStyle={gameStyles[GameType.BIOLOGY_LIFE]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.BIOLOGY_LIFE, mode: gameMode, difficulty })} />
+          </>
+        );
+      case SubjectEnum.HISTORY:
+        return (
+          <>
+             <GameCard title="Lịch Sử" description="Dòng chảy thời gian" icon={Hourglass} color="amber" type={GameType.HISTORY_TIMELINE} mode={gameMode} stats={user.progress[GameType.HISTORY_TIMELINE]} customStyle={gameStyles[GameType.HISTORY_TIMELINE]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.HISTORY_TIMELINE, mode: gameMode, difficulty })} />
+          </>
+        );
+      default:
+        return null;
     }
   }
+  
+  const isAdvancedGrade = user.grade >= 6;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 relative">
@@ -144,16 +180,15 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
                 </div>
              </div>
              
-             <div className="text-left">
-                <div className="flex justify-between items-center mb-2">
-                   <span className="text-xs font-bold text-gray-500 uppercase">Huy hiệu gần nhất</span>
-                   <span className="text-xs text-blue-500 cursor-pointer hover:underline">Xem tất cả</span>
-                </div>
-                <div className="flex space-x-2 overflow-x-auto pb-2 custom-scrollbar">
-                   {user.badges.length > 0 ? user.badges.slice(0, 3).map((b, i) => (
-                      <span key={i} className="text-xl" title={b}>🏅</span>
-                   )) : <span className="text-xs text-gray-400 italic">Chưa có huy hiệu</span>}
-                </div>
+             {/* Live Users Counter */}
+             <div className="bg-green-50 p-3 rounded-xl border border-green-100 flex items-center justify-center space-x-2">
+                 <div className="relative">
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full animate-ping"></span>
+                    <span className="relative w-2 h-2 bg-green-500 rounded-full block"></span>
+                 </div>
+                 <div className="text-xs font-bold text-green-700">
+                    {liveUsers} người đang học
+                 </div>
              </div>
           </div>
 
@@ -198,36 +233,6 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
               </div>
            </div>
 
-           {/* Adventure Progress Card */}
-           <div className="bg-white rounded-3xl shadow-sm p-1 border border-gray-100 flex items-center">
-              <div className={`w-32 h-32 rounded-2xl flex-shrink-0 flex flex-col items-center justify-center text-white bg-gradient-to-br ${currentWorld.bgGradient}`}>
-                 <div className="text-4xl mb-1">{currentWorld.icon}</div>
-              </div>
-              <div className="p-4 flex-1">
-                 <div className="flex justify-between items-start">
-                    <div>
-                       <div className="text-xs font-bold text-gray-400 uppercase tracking-wider">Hành trình hiện tại</div>
-                       <h3 className="text-xl font-bold text-gray-800">{currentWorld.name}</h3>
-                    </div>
-                    <button 
-                       onClick={() => onNavigate(AppRoute.ADVENTURE_MAP)}
-                       className="text-blue-600 hover:bg-blue-50 p-2 rounded-full transition-colors"
-                    >
-                       <ChevronRight className="w-6 h-6" />
-                    </button>
-                 </div>
-                 <div className="mt-3">
-                    <div className="flex justify-between text-xs mb-1">
-                       <span className="font-bold text-gray-600">{currentAdventureLevel.title}</span>
-                       <span className="text-gray-400">Cấp {currentAdventureLevel.id}</span>
-                    </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2">
-                       <div className="bg-green-500 h-2 rounded-full w-2/3"></div>
-                    </div>
-                 </div>
-              </div>
-           </div>
-
            {/* Quick Game Grid */}
            <div>
               <div className="flex flex-col gap-3 mb-4">
@@ -236,91 +241,45 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
                  </h3>
                  
                  {/* Toolbar Row */}
-                 <div className="flex flex-col md:flex-row items-center gap-2 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+                 <div className="flex flex-col gap-2 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
                      
                      {/* Subject Toggle */}
-                     <div className="flex bg-gray-100 p-1 rounded-lg text-xs font-bold w-full md:w-auto">
-                        <button 
-                           onClick={() => setSubject(SubjectEnum.MATH)}
-                           className={`flex-1 md:flex-none px-3 py-1 rounded-md transition-all ${subject === SubjectEnum.MATH ? 'bg-white shadow text-blue-600' : 'text-gray-500'}`}
-                        >Toán</button>
-                        <button 
-                           onClick={() => setSubject(SubjectEnum.LITERATURE)}
-                           className={`flex-1 md:flex-none px-3 py-1 rounded-md transition-all ${subject === SubjectEnum.LITERATURE ? 'bg-white shadow text-rose-600' : 'text-gray-500'}`}
-                        >Văn</button>
-                         <button 
-                           onClick={() => setSubject(SubjectEnum.ENGLISH)}
-                           className={`flex-1 md:flex-none px-3 py-1 rounded-md transition-all ${subject === SubjectEnum.ENGLISH ? 'bg-white shadow text-indigo-600' : 'text-gray-500'}`}
-                        >Anh</button>
+                     <div className="flex flex-wrap gap-1 bg-gray-100 p-1 rounded-lg text-xs font-bold">
+                        <button onClick={() => setSubject(SubjectEnum.MATH)} className={`px-3 py-1.5 rounded-md transition-all ${subject === SubjectEnum.MATH ? 'bg-white shadow text-blue-600' : 'text-gray-500'}`}>Toán</button>
+                        <button onClick={() => setSubject(SubjectEnum.LITERATURE)} className={`px-3 py-1.5 rounded-md transition-all ${subject === SubjectEnum.LITERATURE ? 'bg-white shadow text-rose-600' : 'text-gray-500'}`}>Văn</button>
+                        <button onClick={() => setSubject(SubjectEnum.ENGLISH)} className={`px-3 py-1.5 rounded-md transition-all ${subject === SubjectEnum.ENGLISH ? 'bg-white shadow text-indigo-600' : 'text-gray-500'}`}>Anh</button>
+                        
+                        {isAdvancedGrade && (
+                            <>
+                                <button onClick={() => setSubject(SubjectEnum.PHYSICS)} className={`px-3 py-1.5 rounded-md transition-all ${subject === SubjectEnum.PHYSICS ? 'bg-white shadow text-blue-600' : 'text-gray-500'}`}>Lý</button>
+                                <button onClick={() => setSubject(SubjectEnum.CHEMISTRY)} className={`px-3 py-1.5 rounded-md transition-all ${subject === SubjectEnum.CHEMISTRY ? 'bg-white shadow text-purple-600' : 'text-gray-500'}`}>Hóa</button>
+                                <button onClick={() => setSubject(SubjectEnum.BIOLOGY)} className={`px-3 py-1.5 rounded-md transition-all ${subject === SubjectEnum.BIOLOGY ? 'bg-white shadow text-green-600' : 'text-gray-500'}`}>Sinh</button>
+                                <button onClick={() => setSubject(SubjectEnum.HISTORY)} className={`px-3 py-1.5 rounded-md transition-all ${subject === SubjectEnum.HISTORY ? 'bg-white shadow text-amber-600' : 'text-gray-500'}`}>Sử</button>
+                            </>
+                        )}
                      </div>
 
-                     <div className="hidden md:block h-6 w-px bg-gray-200"></div>
+                     <div className="flex flex-wrap items-center gap-2">
+                        {/* Difficulty Toggle */}
+                        <div className="flex bg-gray-100 p-1 rounded-lg text-xs font-bold">
+                            <button onClick={() => setDifficulty(undefined)} className={`px-2 py-1 rounded-md transition-all ${difficulty === undefined ? 'bg-white shadow text-gray-700' : 'text-gray-500'}`}>Ngẫu nhiên</button>
+                            <button onClick={() => setDifficulty('Easy')} className={`px-2 py-1 rounded-md transition-all ${difficulty === 'Easy' ? 'bg-green-100 text-green-700 shadow-sm' : 'text-gray-500'}`}>Dễ</button>
+                            <button onClick={() => setDifficulty('Medium')} className={`px-2 py-1 rounded-md transition-all ${difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700 shadow-sm' : 'text-gray-500'}`}>Vừa</button>
+                            <button onClick={() => setDifficulty('Hard')} className={`px-2 py-1 rounded-md transition-all ${difficulty === 'Hard' ? 'bg-red-100 text-red-700 shadow-sm' : 'text-gray-500'}`}>Khó</button>
+                        </div>
 
-                     {/* Difficulty Toggle */}
-                     <div className="flex bg-gray-100 p-1 rounded-lg text-xs font-bold w-full md:w-auto">
-                        <button 
-                           onClick={() => setDifficulty(undefined)}
-                           className={`flex-1 md:flex-none px-3 py-1 rounded-md transition-all ${difficulty === undefined ? 'bg-white shadow text-gray-700' : 'text-gray-500'}`}
-                        >Ngẫu nhiên</button>
-                        <button 
-                           onClick={() => setDifficulty('Easy')}
-                           className={`flex-1 md:flex-none px-3 py-1 rounded-md transition-all ${difficulty === 'Easy' ? 'bg-green-100 text-green-700 shadow-sm' : 'text-gray-500 hover:text-green-600'}`}
-                        >Dễ</button>
-                        <button 
-                           onClick={() => setDifficulty('Medium')}
-                           className={`flex-1 md:flex-none px-3 py-1 rounded-md transition-all ${difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700 shadow-sm' : 'text-gray-500 hover:text-yellow-600'}`}
-                        >Vừa</button>
-                        <button 
-                           onClick={() => setDifficulty('Hard')}
-                           className={`flex-1 md:flex-none px-3 py-1 rounded-md transition-all ${difficulty === 'Hard' ? 'bg-red-100 text-red-700 shadow-sm' : 'text-gray-500 hover:text-red-600'}`}
-                        >Khó</button>
+                         {/* Mode Toggle */}
+                         <div className="flex bg-gray-100 p-1 rounded-lg text-xs font-bold ml-auto">
+                            <button onClick={() => setGameMode(GameMode.STANDARD)} className={`px-2 py-1 rounded-md transition-all ${gameMode === GameMode.STANDARD ? 'bg-white shadow text-gray-800' : 'text-gray-500'}`}>Cơ bản</button>
+                            <button onClick={() => setGameMode(GameMode.SPEED_RUN)} className={`px-2 py-1 rounded-md transition-all flex items-center ${gameMode === GameMode.SPEED_RUN ? 'bg-gradient-to-r from-red-500 to-orange-500 shadow text-white' : 'text-gray-500'}`}><Zap className="w-3 h-3 mr-1" /> Speed</button>
+                         </div>
+                         
+                         {/* Style Button */}
+                         <button onClick={openStyleModal} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500" title="Tùy chỉnh"><Palette className="w-4 h-4" /></button>
                      </div>
-
-                     <div className="hidden md:block h-6 w-px bg-gray-200"></div>
-
-                     {/* Mode Toggle */}
-                     <div className="flex bg-gray-100 p-1 rounded-lg text-xs font-bold w-full md:w-auto">
-                        <button 
-                           onClick={() => setGameMode(GameMode.STANDARD)}
-                           className={`flex-1 md:flex-none px-3 py-1.5 rounded-md transition-all flex items-center justify-center ${gameMode === GameMode.STANDARD ? 'bg-white shadow text-gray-800' : 'text-gray-500'}`}
-                        >
-                            Cơ bản
-                        </button>
-                        <button 
-                           onClick={() => setGameMode(GameMode.SPEED_RUN)}
-                           className={`flex-1 md:flex-none px-3 py-1.5 rounded-md transition-all flex items-center justify-center ${gameMode === GameMode.SPEED_RUN ? 'bg-gradient-to-r from-red-500 to-orange-500 shadow text-white' : 'text-gray-500 hover:text-red-500'}`}
-                        >
-                            <Zap className="w-3 h-3 mr-1" /> Speed Run
-                        </button>
-                     </div>
-                     
-                     {/* Style Button */}
-                     <button onClick={openStyleModal} className="hidden md:block p-2 hover:bg-gray-100 rounded-lg text-gray-500 ml-auto" title="Tùy chỉnh">
-                        <Palette className="w-4 h-4" />
-                     </button>
                  </div>
               </div>
               
-              {/* Special Challenge Mode Card */}
-              <div className="mb-4">
-                 <div className="bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl p-4 text-white flex items-center justify-between shadow-lg cursor-pointer transform transition-transform hover:scale-[1.02]"
-                      onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.MIXED_CHALLENGE, mode: GameMode.STANDARD, difficulty: difficulty })}
-                 >
-                    <div className="flex items-center">
-                       <div className="bg-white/20 p-3 rounded-full mr-4">
-                          <Swords className="w-8 h-8 text-white" />
-                       </div>
-                       <div>
-                          <h3 className="font-bold text-lg">Thử Thách Hỗn Hợp</h3>
-                          <p className="text-pink-100 text-sm">Toán, Văn & Anh • {difficulty === undefined ? 'Độ khó tăng dần' : `Độ khó: ${difficulty}`}</p>
-                       </div>
-                    </div>
-                    <div className="bg-white text-pink-600 px-4 py-2 rounded-lg font-bold text-sm">
-                       Chơi Ngay
-                    </div>
-                 </div>
-              </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                  {renderGameCards()}
               </div>
@@ -336,18 +295,6 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
            <Suspense fallback={<CardSkeleton />}>
               <Leaderboard onAddFriend={onAddFriend} />
            </Suspense>
-
-           {/* Ad / Info Box */}
-           <div className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-6 text-white shadow-lg relative overflow-hidden">
-               <div className="relative z-10">
-                  <h3 className="font-bold mb-2">Mở khóa Premium?</h3>
-                  <p className="text-xs opacity-90 mb-4">Nhận thêm bài học nâng cao và huy hiệu độc quyền.</p>
-                  <button className="bg-white/20 hover:bg-white/30 text-white text-xs font-bold py-2 px-4 rounded-lg backdrop-blur-sm transition-colors border border-white/40">
-                     Tìm hiểu thêm
-                  </button>
-               </div>
-               <div className="absolute -bottom-4 -right-4 text-8xl opacity-20">💎</div>
-           </div>
         </div>
 
       </div>

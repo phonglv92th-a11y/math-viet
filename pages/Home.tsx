@@ -4,7 +4,8 @@ import { AppRoute } from '../types';
 import { 
   HelpCircle, GraduationCap, BookOpen, Calculator, Languages, 
   Smile, Map, User, LogIn, School, Book, ChevronRight, Star, 
-  Zap, Shield, Globe, Sparkles, MessageCircle, Shapes, Rocket
+  Zap, Shield, Globe, Sparkles, MessageCircle, Shapes, Rocket,
+  Heart, Info
 } from 'lucide-react';
 
 interface HomeProps {
@@ -84,7 +85,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans overflow-x-hidden relative">
       <style>{`
         @keyframes float-slow {
           0%, 100% { transform: translateY(0px); }
@@ -106,8 +107,57 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
         }
       `}</style>
 
+      {/* Top Navigation Bar - Z-Index 100 to fix mobile tap issue */}
+      <nav className="absolute top-0 left-0 w-full z-[100] px-4 py-4 md:px-8 pointer-events-auto">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center gap-2 cursor-pointer group" onClick={() => window.location.reload()}>
+               <div className="bg-white/80 backdrop-blur-sm p-2 rounded-xl shadow-sm group-hover:scale-110 transition-transform">
+                  <Calculator className="w-6 h-6 text-blue-600" />
+               </div>
+               <span className="font-extrabold text-xl text-slate-800 tracking-tight">MathViet</span>
+            </div>
+
+            {/* Desktop Menu */}
+            <div className="hidden md:flex items-center gap-6">
+               <button 
+                  onClick={() => onNavigate(AppRoute.ABOUT)} 
+                  className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors"
+               >
+                  Về chúng tôi
+               </button>
+               <button 
+                  onClick={() => onNavigate(AppRoute.SITEMAP)} 
+                  className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors"
+               >
+                  Sitemap
+               </button>
+               <button 
+                  onClick={onOpenHelp} 
+                  className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors"
+               >
+                  Hướng dẫn
+               </button>
+               <button 
+                  onClick={onOpenDonation} 
+                  className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md rounded-full text-rose-500 font-bold text-sm shadow-sm hover:bg-white hover:shadow-md transition-all"
+               >
+                  <Heart className="w-4 h-4 fill-current" /> Ủng hộ
+               </button>
+            </div>
+
+            {/* Mobile Menu Icons */}
+            <div className="flex md:hidden items-center gap-2">
+               <button onClick={() => onNavigate(AppRoute.SITEMAP)} className="p-2 bg-white/50 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><Map className="w-5 h-5" /></button>
+               <button onClick={() => onNavigate(AppRoute.ABOUT)} className="p-2 bg-white/50 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><Info className="w-5 h-5" /></button>
+               <button onClick={onOpenHelp} className="p-2 bg-white/50 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><HelpCircle className="w-5 h-5" /></button>
+               <button onClick={onOpenDonation} className="p-2 bg-white/50 rounded-full text-rose-500 shadow-sm relative z-[101] cursor-pointer active:scale-95"><Heart className="w-5 h-5 fill-current" /></button>
+            </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
-      <section className="relative pt-8 pb-16 lg:pt-16 lg:pb-24 overflow-hidden">
+      <section className="relative pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
         {/* Dynamic Background */}
         <div className="absolute inset-0 z-0 transition-colors duration-1000 bg-gradient-to-b from-white via-white to-slate-50">
            <div className={`absolute top-0 right-0 w-[800px] h-[800px] rounded-full blur-[100px] opacity-20 transition-colors duration-1000 ${
@@ -225,7 +275,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
             
             {/* Login / Register Form */}
             <div className="w-full md:w-1/2">
-                <div className="bg-gray-100 p-1 rounded-xl flex mb-6">
+                <div className="bg-gray-100 p-1 rounded-xl flex mb-6 relative z-30">
                   <button 
                     onClick={() => setActiveTab('GUEST')}
                     className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${activeTab === 'GUEST' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
@@ -243,20 +293,20 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                 <div className="space-y-4">
                   {activeTab === 'GUEST' ? (
                      <>
-                        <div className="relative">
+                        <div className="relative z-30">
                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                            <input 
                               type="text" 
                               value={guestName}
                               onChange={(e) => setGuestName(e.target.value)}
                               placeholder="Nhập tên của bé..."
-                              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-gray-800 font-bold text-lg transition-all relative z-20"
+                              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-gray-800 font-bold text-lg transition-all relative z-40"
                            />
                         </div>
                         <button
                           onClick={handleStartGuest}
                           disabled={!guestName.trim() || !selectedGrade}
-                          className={`w-full py-4 rounded-2xl font-extrabold text-lg shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center ${
+                          className={`w-full py-4 rounded-2xl font-extrabold text-lg shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center relative z-30 ${
                              (!guestName.trim() || !selectedGrade) 
                              ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
                              : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-blue-200'
@@ -267,30 +317,30 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                      </>
                   ) : (
                      <>
-                        <div className="relative">
+                        <div className="relative z-30">
                            <LogIn className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                            <input 
                               type="text" 
                               value={username}
                               onChange={(e) => setUsername(e.target.value)}
                               placeholder="Tên đăng nhập"
-                              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all relative z-20"
+                              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all relative z-40"
                            />
                         </div>
-                        <div className="relative">
+                        <div className="relative z-30">
                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                            <input 
                               type="text" 
                               value={fullName}
                               onChange={(e) => setFullName(e.target.value)}
                               placeholder="Tên hiển thị (VD: Bé Bo)"
-                              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all relative z-20"
+                              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all relative z-40"
                            />
                         </div>
                         <button
                           onClick={handleAuthLogin}
                           disabled={!username.trim() || !fullName.trim() || !selectedGrade}
-                          className={`w-full py-4 rounded-2xl font-extrabold text-lg shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center ${
+                          className={`w-full py-4 rounded-2xl font-extrabold text-lg shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center relative z-30 ${
                              (!username.trim() || !fullName.trim() || !selectedGrade) 
                              ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
                              : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-purple-200'
@@ -302,7 +352,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                   )}
                   
                   {!selectedGrade && (
-                     <p className="text-center text-sm text-red-500 font-medium animate-pulse">
+                     <p className="text-center text-sm text-red-500 font-medium animate-pulse relative z-30">
                         👇 Vui lòng chọn lớp học ở bên phải
                      </p>
                   )}
@@ -353,13 +403,13 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                   <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-gray-50 to-transparent z-10"></div>
                   <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-gray-50 to-transparent z-10"></div>
                   
-                  <div className="flex flex-col gap-3 h-[300px] overflow-y-auto no-scrollbar snap-y snap-mandatory px-1">
+                  <div className="flex flex-col gap-3 h-[300px] overflow-y-auto no-scrollbar snap-y snap-mandatory px-1 relative z-20">
                      {getFilteredGrades().map((level) => (
                         <button
                            key={level.grade}
                            onClick={() => setSelectedGrade(level.grade)}
                            className={`
-                              flex items-center p-4 rounded-xl text-left transition-all duration-300 snap-center
+                              flex items-center p-4 rounded-xl text-left transition-all duration-300 snap-center relative z-20
                               ${selectedGrade === level.grade
                                  ? `bg-white ring-2 ring-offset-2 ring-${level.color.split('-')[1]} shadow-lg transform scale-[1.02]`
                                  : 'bg-white hover:bg-gray-50 border border-gray-100 hover:border-gray-300'

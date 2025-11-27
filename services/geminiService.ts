@@ -2,8 +2,19 @@
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { GameType, MathProblem } from "../types";
 
-// Initialize Gemini Client
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Initialize Gemini Client (Lazy)
+// This prevents the app from crashing on startup if the API_KEY env variable is missing
+let ai: GoogleGenAI | null = null;
+
+const getAiClient = () => {
+  if (!ai) {
+    if (!process.env.API_KEY) {
+      console.warn("Google Gemini API Key is missing. Game generation will fail.");
+    }
+    ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  }
+  return ai;
+};
 
 const problemSchema: Schema = {
   type: Type.OBJECT,
@@ -276,6 +287,59 @@ export const generateGameProblems = async (
       Topics: Basic conversation, Greetings, Culture of English speaking countries, or Reading Comprehension (short sentence).
       CRITICAL: The Explanation field MUST be in Vietnamese.`;
       break;
+      
+    // --- SCIENCE & HISTORY (Grade 6-12) ---
+    case GameType.PHYSICS_QUIZ:
+      promptContext = `Generate ${count} Physics questions for Grade ${grade} in Vietnam (Vật Lý).
+      Topics per grade:
+      - Grade 6: Measurements, Mass & Weight, Simple Machines (Lever, Pulley).
+      - Grade 7: Optics (Light reflection), Sound, Electricity basics.
+      - Grade 8: Mechanics (Pressure, Work, Power), Thermodynamics.
+      - Grade 9: Electricity (Ohm's Law), Electromagnetism, Optics (Lens).
+      - Grade 10: Kinematics (Motion), Dynamics (Newton's Laws), Energy, Momentum.
+      - Grade 11: Electric Field, DC Circuits, Magnetic Field.
+      - Grade 12: Oscillations (Pendulum), Waves, AC Circuits, Quantum Physics.
+      Format: Multiple Choice. 
+      CRITICAL: Explanation must be in Vietnamese.`;
+      break;
+    
+    case GameType.CHEMISTRY_LAB:
+      promptContext = `Generate ${count} Chemistry questions for Grade ${grade} in Vietnam (Hóa Học).
+      Topics per grade:
+      - Grade 8: Atoms, Molecules, Chemical Formulas, Chemical Reactions, Oxygen, Hydrogen.
+      - Grade 9: Oxides, Acids, Bases, Salts, Metals, Periodic Table.
+      - Grade 10: Atomic Structure, Chemical Bonding, Redox Reactions, Halogens.
+      - Grade 11: Nitrogen-Phosphorus, Carbon-Silicon, Intro to Organic Chemistry, Hydrocarbons.
+      - Grade 12: Esters, Carbohydrates, Amines, Polymers, Metals (Alkali, Earth).
+      Format: Multiple Choice.
+      CRITICAL: Explanation must be in Vietnamese.`;
+      break;
+      
+    case GameType.BIOLOGY_LIFE:
+      promptContext = `Generate ${count} Biology questions for Grade ${grade} in Vietnam (Sinh Học).
+      Topics per grade:
+      - Grade 6: Plants (Cells, Roots, Leaves, Photosynthesis).
+      - Grade 7: Animals (Invertebrates to Vertebrates).
+      - Grade 8: Human Biology (Systems: Digestive, Circulatory, Nervous).
+      - Grade 9: Genetics, Evolution, Ecology.
+      - Grade 10: Cell Biology (Viruses, Bacteria, Cell structure).
+      - Grade 11: Plant & Animal Physiology (Metabolism).
+      - Grade 12: Genetics (DNA, Mutations), Evolution, Ecology.
+      Format: Multiple Choice.
+      CRITICAL: Explanation must be in Vietnamese.`;
+      break;
+      
+    case GameType.HISTORY_TIMELINE:
+      promptContext = `Generate ${count} History questions for Grade ${grade} in Vietnam (Lịch Sử).
+      Focus on Vietnamese History and World History as per curriculum.
+      - Grade 6: Ancient History, Van Lang - Au Lac.
+      - Grade 7: Feudalism in Vietnam (Ly, Tran dynasties) & World.
+      - Grade 8: Modern History (French colonial period).
+      - Grade 9: Vietnam after 1945, World History (Cold War).
+      - Grade 10-12: In-depth analysis of Vietnamese Feudalism, Wars of Resistance against France/USA.
+      Format: Multiple Choice.
+      CRITICAL: Explanation must be in Vietnamese.`;
+      break;
 
     // --- SPECIAL MIXED MODE ---
     case GameType.MIXED_CHALLENGE:
@@ -284,6 +348,7 @@ export const generateGameProblems = async (
       - 33% Math questions (Grade appropriate).
       - 33% Vietnamese Literature questions.
       - 33% English questions.
+      - If Grade >= 6, include 1-2 Science/History questions randomly.
       - Randomly shuffle the order of topics.
       - CRITICAL: Explanations must be in Vietnamese.`;
       
@@ -313,7 +378,8 @@ export const generateGameProblems = async (
   const prompt = `${promptContext} Return the result as a JSON array. ensure the language is natural Vietnamese (except for the English question content itself).`;
 
   try {
-    const response = await ai.models.generateContent({
+    const client = getAiClient();
+    const response = await client.models.generateContent({
       model: modelId,
       contents: prompt,
       config: {

@@ -227,14 +227,19 @@ const App: React.FC = () => {
   };
 
   const renderContent = () => {
-    if (!user && currentRoute !== AppRoute.HOME) {
-        return <Home onNavigate={navigateTo} onStartGuest={handleStartGuest} onLogin={handleLogin} onOpenHelp={() => setShowHelp(true)} onOpenDonation={() => setShowDonation(true)} />;
-    }
-
+    // PUBLIC ROUTES (No Login Required)
     if (!user) {
+         if (currentRoute === AppRoute.ABOUT) {
+            return <About onNavigate={navigateTo} onOpenDonation={() => setShowDonation(true)} />;
+         }
+         if (currentRoute === AppRoute.SITEMAP) {
+            return <SiteMap onNavigate={navigateTo} onOpenDonation={() => setShowDonation(true)} />;
+         }
+         // Default to Home for any other route if not logged in
          return <Home onNavigate={navigateTo} onStartGuest={handleStartGuest} onLogin={handleLogin} onOpenHelp={() => setShowHelp(true)} onOpenDonation={() => setShowDonation(true)} />;
     }
 
+    // PROTECTED ROUTES
     switch (currentRoute) {
       case AppRoute.HOME:
         return <Dashboard user={user} onNavigate={navigateTo} onAddFriend={handleAddFriend} adventureLevels={adventureLevels} worlds={WORLDS} />;

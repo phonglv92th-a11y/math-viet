@@ -8,7 +8,11 @@ export enum GradeLevel {
 export enum Subject {
   MATH = 'Toán Học',
   LITERATURE = 'Văn Học',
-  ENGLISH = 'Tiếng Anh'
+  ENGLISH = 'Tiếng Anh',
+  PHYSICS = 'Vật Lý',
+  CHEMISTRY = 'Hóa Học',
+  BIOLOGY = 'Sinh Học',
+  HISTORY = 'Lịch Sử'
 }
 
 export enum GameType {
@@ -34,6 +38,12 @@ export enum GameType {
   ENGLISH_GRAMMAR = 'Ngữ Pháp (Grammar)',
   ENGLISH_SPELLING = 'Đánh Vần (Spelling)',
   ENGLISH_QUIZ = 'Đố Vui (Quiz)',
+
+  // Science & History (Grades 6-12)
+  PHYSICS_QUIZ = 'Nhà Vật Lý Tài Ba',
+  CHEMISTRY_LAB = 'Phòng Thí Nghiệm Hóa',
+  BIOLOGY_LIFE = 'Thế Giới Sinh Học',
+  HISTORY_TIMELINE = 'Dòng Chảy Lịch Sử',
 
   // Special
   MIXED_CHALLENGE = 'Thử Thách Hỗn Hợp'
