@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { AppRoute, GameType, UserProfile, GameMode, GameStats, Subject as SubjectEnum, AdventureLevel, World, GameCardStyle } from '../types';
-import { Brain, Puzzle, ShoppingCart, Shapes, PlayCircle, Zap, Palette, Swords, Search, BookOpen, PenTool, Hammer, ScanEye, X, ChevronRight, Trophy, Loader2, Layers, Feather, Quote, Globe, Languages, Type, MessageCircle, Calculator, BarChart3, Grid3X3, Grid, Atom, FlaskConical, Dna, Hourglass } from 'lucide-react';
+import { Brain, Puzzle, ShoppingCart, Shapes, PlayCircle, Zap, Palette, Swords, Search, BookOpen, PenTool, Hammer, ScanEye, X, ChevronRight, Trophy, Loader2, Layers, Feather, Quote, Globe, Languages, Type, MessageCircle, Calculator, BarChart3, Grid3X3, Grid, Atom, FlaskConical, Dna, Hourglass, Map, Star, Settings, Sliders } from 'lucide-react';
 import { GameCard } from '../components/GameCard';
 
 // Lazy load heavy components
@@ -201,7 +201,41 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
         {/* Center Column (6 spans) */}
         <div className="lg:col-span-6 space-y-6">
            
-           {/* Mastery Peak Banner (Hero) */}
+           {/* Adventure Mode Banner */}
+           <div 
+             onClick={() => onNavigate(AppRoute.ADVENTURE_MAP)}
+             className={`relative overflow-hidden rounded-3xl shadow-xl cursor-pointer group mb-6 bg-gradient-to-r ${currentWorld.bgGradient.replace('100', '500').replace('200', '600')}`}
+           >
+              <div className="absolute top-0 right-0 p-4 opacity-20 text-9xl transform translate-x-10 -translate-y-10 group-hover:scale-110 transition-transform duration-700 rotate-12">
+                {currentWorld.icon}
+              </div>
+              
+              <div className="p-8 relative z-10 text-white">
+                <div className="flex items-center space-x-2 mb-3">
+                  <span className="bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    Chế độ Cốt truyện
+                  </span>
+                  <span className="text-white/90 text-xs font-bold flex items-center">
+                    <Map className="w-3 h-3 mr-1" /> {currentWorld.name}
+                  </span>
+                </div>
+                
+                <h2 className="text-3xl font-extrabold text-white mb-2 drop-shadow-md">
+                  Hành Trình Tri Thức
+                </h2>
+                
+                <div className="flex items-center text-white/90 mb-6 bg-black/10 w-fit px-4 py-2 rounded-xl backdrop-blur-sm border border-white/10">
+                   <Star className="w-5 h-5 mr-2 text-yellow-300 fill-yellow-300" />
+                   <span className="font-bold text-lg">Cấp độ {currentAdventureLevel.id}: {currentAdventureLevel.title}</span>
+                </div>
+                
+                <button className="bg-white text-slate-900 font-extrabold py-3 px-8 rounded-2xl shadow-lg hover:bg-slate-50 transition-colors flex items-center transform group-hover:translate-x-2 duration-300">
+                   {currentAdventureLevel.id === 1 ? 'Bắt đầu' : 'Tiếp tục hành trình'} <ChevronRight className="w-5 h-5 ml-1" />
+                </button>
+              </div>
+           </div>
+
+           {/* Mastery Peak Banner */}
            <div 
              onClick={() => onNavigate(AppRoute.MASTERY_PEAK)}
              className="relative overflow-hidden rounded-3xl bg-slate-900 text-white shadow-xl cursor-pointer group h-64 flex flex-col justify-center px-8 border-4 border-slate-800 hover:border-purple-500 transition-all"
@@ -222,7 +256,7 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
                  </p>
                  <div className="flex items-center gap-4">
                     <button className="bg-white text-slate-900 font-bold py-2 px-6 rounded-full flex items-center hover:bg-purple-50 transition-colors">
-                       <PlayCircle className="w-5 h-5 mr-2" /> Bắt đầu leo núi
+                       <PlayCircle className="w-5 h-5 mr-2" /> Leo núi ngay
                     </button>
                     {user.masteryHighScore > 0 && (
                        <div className="text-sm font-bold text-yellow-400 flex items-center">
@@ -231,6 +265,27 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
                     )}
                  </div>
               </div>
+           </div>
+
+           {/* Custom Practice Highlight Banner */}
+           <div 
+             onClick={() => onNavigate(AppRoute.PRACTICE_SETUP)}
+             className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 to-fuchsia-600 p-1 cursor-pointer group shadow-lg hover:shadow-violet-200 transition-all transform hover:-translate-y-1"
+           >
+              <div className="bg-white/10 backdrop-blur-sm p-6 rounded-[20px] flex items-center justify-between relative z-10">
+                 <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                       <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border border-white/20">Cá nhân hóa</span>
+                    </div>
+                    <h3 className="text-xl font-extrabold text-white mb-1">Tùy Chỉnh Bài Luyện Tập</h3>
+                    <p className="text-violet-100 text-sm">Tự tạo đề thi theo ý muốn (Chủ đề, Độ khó & Số câu).</p>
+                 </div>
+                 <div className="bg-white/20 p-3 rounded-full text-white group-hover:bg-white group-hover:text-violet-600 transition-colors shadow-inner">
+                    <Sliders className="w-8 h-8" />
+                 </div>
+              </div>
+              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
+              <div className="absolute bottom-0 left-0 -mb-2 -ml-2 w-16 h-16 bg-black/10 rounded-full blur-lg"></div>
            </div>
 
            {/* Quick Game Grid */}
@@ -283,9 +338,6 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                  {renderGameCards()}
               </div>
-              <button onClick={() => onNavigate(AppRoute.PRACTICE_SETUP)} className="w-full mt-4 text-center text-sm text-gray-500 hover:text-blue-600 font-bold py-2 border border-dashed border-gray-300 rounded-xl hover:border-blue-300 hover:bg-blue-50 transition-all">
-                  + Tùy chỉnh bài luyện tập riêng
-              </button>
            </div>
         </div>
 
