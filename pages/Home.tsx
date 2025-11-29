@@ -3,9 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { AppRoute } from '../types';
 import { 
   HelpCircle, GraduationCap, BookOpen, Calculator, Languages, 
-  Smile, Map, User, LogIn, School, Book, ChevronRight, Star, 
-  Zap, Shield, Globe, Sparkles, MessageCircle, Shapes, Rocket,
-  Heart, Info
+  Map, User, LogIn, School, Book, ChevronRight, Sparkles, 
+  MessageCircle, Shapes, Heart, Info, Globe, Palette
 } from 'lucide-react';
 
 interface HomeProps {
@@ -274,7 +273,8 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
          <div className="max-w-5xl mx-auto bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/50 p-6 md:p-10 flex flex-col md:flex-row gap-10">
             
             {/* Login / Register Form */}
-            <div className="w-full md:w-1/2">
+            <div className="w-full md:w-1/2 relative">
+                {/* z-index relative to input container in mobile */}
                 <div className="bg-gray-100 p-1 rounded-xl flex mb-6 relative z-30">
                   <button 
                     onClick={() => setActiveTab('GUEST')}
@@ -496,6 +496,14 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                <span className="font-bold group-hover:underline">Ủng hộ tôi một ly cà phê tùy tâm ☕</span>
                <br/>
                <span className="text-gray-400 opacity-70 mt-1 block">Phát triển bởi Lâm Phong - Cựu Học Sinh THPT Tĩnh Gia 3 (2007-2010)</span>
+            </div>
+            
+            {/* Hidden Admin Link */}
+            <div 
+               onClick={() => onNavigate(AppRoute.ADMIN)} 
+               className="mt-8 opacity-5 hover:opacity-100 transition-opacity cursor-pointer text-[10px]"
+            >
+               Admin Portal
             </div>
          </div>
       </footer>

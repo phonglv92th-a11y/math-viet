@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { AppRoute, GameType, MathProblem, GameMode } from '../types';
 import { generateGameProblems } from '../services/geminiService';
-import { ArrowLeft, ArrowRight, CheckCircle, XCircle, Timer, Loader2, Trophy, Home, RotateCcw, Zap, Sun, CloudRain, Sparkles, Star, Palette, Settings, X, Info, Lightbulb, HelpCircle, Fingerprint, Volume2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, XCircle, Timer, Loader2, Trophy, Home, RotateCcw, Zap, Sun, CloudRain, Sparkles, Star, Palette, Settings, X, Info, Lightbulb, HelpCircle, Fingerprint, Volume2, Cloud } from 'lucide-react';
 import { Confetti } from '../components/Confetti';
 import { MathRenderer } from '../components/MathRenderer';
 
@@ -146,11 +145,19 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
 
   const [bgTheme, setBgTheme] = useState<BgTheme>(() => (localStorage.getItem('mathviet_bg_theme') as BgTheme) || 'DEFAULT');
   const [cardTheme, setCardTheme] = useState<CardTheme>(() => (localStorage.getItem('mathviet_card_theme') as CardTheme) || 'CLASSIC');
-  const [showAppearanceSettings, setShowAppearanceSettings] = useState(false);
   const starsRef = useRef<HTMLDivElement>(null);
   const nebulaRef = useRef<HTMLDivElement>(null);
   const planetsRef = useRef<HTMLDivElement>(null);
   const [showTutorial, setShowTutorial] = useState(false);
+
+  // Check if primary student for "Cute" mode
+  const isPrimary = userGrade <= 5;
+  const isEnglishGame = [GameType.ENGLISH_VOCAB, GameType.ENGLISH_GRAMMAR, GameType.ENGLISH_SPELLING, GameType.ENGLISH_QUIZ].includes(gameType);
+  const isVietnameseLitGame = [GameType.WORD_MATCH, GameType.SPELLING_BEE, GameType.POETRY_PUZZLE, GameType.SENTENCE_BUILDER, GameType.LITERATURE_QUIZ, GameType.LITERARY_DETECTIVE].includes(gameType);
+
+  // Determine TTS Configuration
+  // Enable for all subjects so kids can listen to questions
+  const ttsConfig = { enabled: true };
 
   useEffect(() => { localStorage.setItem('mathviet_bg_theme', bgTheme); }, [bgTheme]);
   useEffect(() => { localStorage.setItem('mathviet_card_theme', cardTheme); }, [cardTheme]);
@@ -170,13 +177,15 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
   }, [gameType, userGrade, mode, difficulty, topicFocus, questionCount]);
 
   useEffect(() => {
-    if (gameType === GameType.WORD_SEARCH && problems.length > 0) {
+    if (gameType === GameType.WORD_SEARCH && problems.length > 0 && problems[currentIndex]?.options) {
       const words = problems[currentIndex].options.map(w => w.toUpperCase());
       const size = 10;
       const grid = Array(size).fill('').map(() => Array(size).fill(''));
       words.forEach(word => {
         let placed = false;
-        while (!placed) {
+        let attempts = 0;
+        while (!placed && attempts < 100) {
+          attempts++;
           const dir = Math.floor(Math.random() * 3);
           const r = Math.floor(Math.random() * size), c = Math.floor(Math.random() * size);
           let fits = true;
@@ -197,10 +206,10 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
       for(let r=0; r<size; r++) for(let c=0; c<size; c++) if (!grid[r][c]) grid[r][c] = chars.charAt(Math.floor(Math.random() * chars.length));
       setGridState(grid); setFoundWords([]); setCurrentSelection([]); setSelectionStart(null);
     }
-    if (gameType === GameType.CROSSWORD && problems.length > 0) {
+    if (gameType === GameType.CROSSWORD && problems.length > 0 && problems[currentIndex]?.options) {
        const parsedItems = problems[currentIndex].options.map((opt, id) => {
          const [word, clue] = opt.split('|');
-         return { id, word: word.toUpperCase(), clue, len: word.length, direction: 'across', row: id * 2, col: 1 };
+         return { id, word: (word||'').toUpperCase(), clue: clue||'', len: (word||'').length, direction: 'across', row: id * 2, col: 1 };
        });
        setCwClues(parsedItems); setCwUserInputs({}); setCwSelectedClue(null);
     }
@@ -250,12 +259,23 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
     else { setGameActive(false); setIsGameOver(true); setGameResultState('WIN'); if (mode === GameMode.SPEED_RUN) setScore(prev => prev + (timeLeft * 5)); }
   };
 
-  const handleSpeak = (text: string, e?: React.MouseEvent) => {
+  const handleSpeak = (text: string, _lang: string = 'vi-VN', e?: React.MouseEvent) => {
     e?.stopPropagation();
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
+      
+      // Auto-detect: If text has Vietnamese accents, force vi-VN. 
+      // If it's an English game type, prefer en-US unless Vietnamese chars are heavy.
+      const hasVietnameseChars = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]/.test(text);
+      
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-US';
+      utterance.lang = hasVietnameseChars ? 'vi-VN' : (isEnglishGame ? 'en-US' : 'vi-VN');
+      
+      // Fallback for English games if no Vietnamese chars found (likely English word)
+      if (isEnglishGame && !hasVietnameseChars) {
+          utterance.lang = 'en-US';
+      }
+
       utterance.rate = 0.9;
       window.speechSynthesis.speak(utterance);
     }
@@ -285,10 +305,6 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
             </div>
         </div>
     );
-  };
-
-  const renderFormattedExplanation = (text: string) => {
-     return <MathRenderer text={text} />;
   };
   
   const handleGridMouseDown = (row: number, col: number) => { playSound('pop'); setIsSelecting(true); setSelectionStart({row, col}); setCurrentSelection([{row, col}]); };
@@ -354,12 +370,19 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
   }
 
   const currentProblem = problems[currentIndex];
+  // SAFETY CHECK: Ensure currentProblem exists
+  if (!currentProblem) return <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 text-center"><h2 className="text-xl font-bold mb-4">Có lỗi xảy ra khi tải câu hỏi</h2><button onClick={() => window.location.reload()} className="bg-blue-500 text-white px-4 py-2 rounded-lg">Thử lại</button></div>;
+
   const isVisualGame = gameType === GameType.VISUAL_COUNT || gameType === GameType.LOGIC_PUZZLE;
   const isLogicPuzzle = gameType === GameType.LOGIC_PUZZLE;
   const isWordSearch = gameType === GameType.WORD_SEARCH;
   const isCrossword = gameType === GameType.CROSSWORD;
-  const isEnglishGame = [GameType.ENGLISH_VOCAB, GameType.ENGLISH_GRAMMAR, GameType.ENGLISH_SPELLING, GameType.ENGLISH_QUIZ].includes(gameType);
-  const backgroundClass = bgTheme !== 'DEFAULT' ? BG_THEMES[bgTheme].class : (mode === GameMode.SPEED_RUN ? 'bg-red-50' : 'bg-slate-100');
+  
+  // PRIMARY SCHOOL 'CUTE' MODE LOGIC
+  const backgroundClass = isPrimary 
+    ? 'bg-sky-100 font-cute' 
+    : (bgTheme !== 'DEFAULT' ? BG_THEMES[bgTheme].class : (mode === GameMode.SPEED_RUN ? 'bg-red-50' : 'bg-slate-100'));
+  
   const currentCardTheme = CARD_THEMES[cardTheme];
 
   return (
@@ -370,8 +393,18 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
         .animate-pop-answer { animation: pop-answer 0.4s ease; } .animate-shake-answer { animation: shake-answer 0.5s ease; }
       `}</style>
 
+      {/* Primary School Decorations */}
+      {isPrimary && (
+         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+             <div className="absolute top-10 right-10 text-yellow-400 animate-spin-slow opacity-80"><Sun size={80} /></div>
+             <div className="absolute top-20 left-[-100px] text-white opacity-60 animate-[cloudMove_30s_linear_infinite]"><Cloud size={100} fill="white" /></div>
+             <div className="absolute top-40 left-[-200px] text-white opacity-40 animate-[cloudMove_45s_linear_infinite_5s]"><Cloud size={80} fill="white" /></div>
+             <div className="absolute bottom-0 w-full h-32 bg-green-200 rounded-t-[50%] scale-150"></div>
+         </div>
+      )}
+
       {/* Parallax Background Layers (SPACE Theme) */}
-      {bgTheme === 'SPACE' && (
+      {!isPrimary && bgTheme === 'SPACE' && (
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
               {/* Deep Background - Stars */}
               <div ref={starsRef} className="absolute inset-[-10%] w-[120%] h-[120%] z-0">
@@ -400,39 +433,47 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
       
       {/* Header */}
       <div className="relative z-10 p-4 flex justify-between items-center">
-        <button onClick={() => onNavigate(AppRoute.DASHBOARD)} className="bg-white/80 p-2 rounded-full"><ArrowLeft/></button>
+        <button onClick={() => onNavigate(AppRoute.DASHBOARD)} className="bg-white/80 p-2 rounded-full shadow-sm hover:bg-white"><ArrowLeft/></button>
         <div className="flex gap-2">
-           <span className="bg-white/80 px-3 py-1 rounded-full font-bold flex items-center"><Timer className="w-4 h-4 mr-1"/>{timeLeft}s</span>
-           <span className="bg-white/80 px-3 py-1 rounded-full font-bold text-blue-600">{score} pts</span>
+           <span className="bg-white/80 px-3 py-1 rounded-full font-bold flex items-center shadow-sm"><Timer className="w-4 h-4 mr-1"/>{timeLeft}s</span>
+           <span className="bg-white/80 px-3 py-1 rounded-full font-bold text-blue-600 shadow-sm">{score} pts</span>
         </div>
       </div>
-      <div className="h-1.5 w-full bg-gray-200"><div className="h-full bg-blue-500 transition-all duration-500" style={{width: `${((currentIndex+1)/problems.length)*100}%`}}></div></div>
+      <div className="h-1.5 w-full bg-gray-200/50"><div className="h-full bg-blue-500 transition-all duration-500" style={{width: `${((currentIndex+1)/problems.length)*100}%`}}></div></div>
 
       {/* Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-4 max-w-5xl mx-auto w-full relative z-10">
-        <div className={`w-full ${currentCardTheme.container} rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden transition-all duration-300`}>
-           <div className="absolute top-6 right-6 px-3 py-1 rounded-full text-xs font-bold text-white bg-blue-400">{currentProblem.difficulty}</div>
+        <div className={`w-full ${isPrimary ? 'bg-white/90 border-4 border-sky-300 rounded-[3rem] shadow-[0_10px_0_0_rgba(14,165,233,0.2)]' : `${currentCardTheme.container} rounded-[2.5rem]`} p-8 md:p-12 relative overflow-hidden transition-all duration-300`}>
+           
+           {!isPrimary && <div className="absolute top-6 right-6 px-3 py-1 rounded-full text-xs font-bold text-white bg-blue-400">{currentProblem.difficulty}</div>}
            <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Câu hỏi {currentIndex+1}/{problems.length}</div>
            
            {isLogicPuzzle ? renderLogicPuzzleContent(currentProblem.question) : 
             isWordSearch ? (
                <div className="w-full">
-                  <h2 className="text-2xl font-bold text-center mb-6">{currentProblem.question}</h2>
+                  <h2 className="text-2xl font-bold text-center mb-6 text-slate-800">{currentProblem.question}</h2>
                   <div className="flex flex-col md:flex-row gap-8 justify-center">
-                      <div className="relative bg-white rounded-3xl p-3 border-4 border-purple-100 shadow-xl touch-none"
-                           style={{ display: 'grid', gridTemplateColumns: `repeat(10, 1fr)`, gap: '2px' }}
+                      <div className="relative bg-white rounded-3xl p-3 border-4 border-purple-100 shadow-xl touch-none mx-auto md:mx-0"
+                           style={{ display: 'grid', gridTemplateColumns: `repeat(10, 1fr)`, gap: '2px', maxWidth: '400px' }}
                            onMouseUp={handleGridMouseUp} onTouchEnd={handleGridMouseUp}>
                            <svg className="absolute inset-0 w-full h-full pointer-events-none z-10" style={{overflow: 'visible'}}>
                                {foundWords.map((fw, i) => <line key={i} x1={(fw.start.col*10)+5+'%'} y1={(fw.start.row*10)+5+'%'} x2={(fw.end.col*10)+5+'%'} y2={(fw.end.row*10)+5+'%'} stroke={fw.color} strokeWidth="7%" opacity="0.5" strokeLinecap="round"/>)}
                                {isSelecting && selectionStart && <line x1={(selectionStart.col*10)+5+'%'} y1={(selectionStart.row*10)+5+'%'} x2={(currentSelection[currentSelection.length-1].col*10)+5+'%'} y2={(currentSelection[currentSelection.length-1].row*10)+5+'%'} stroke="purple" strokeWidth="7%" opacity="0.5" strokeLinecap="round"/>}
                            </svg>
                            {gridState.map((r, ri) => r.map((c, ci) => (
-                               <div key={`${ri}-${ci}`} onMouseDown={() => handleGridMouseDown(ri, ci)} onMouseEnter={() => handleGridMouseEnter(ri, ci)} className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center font-bold text-slate-700 bg-purple-50 rounded-full cursor-pointer select-none">{c}</div>
+                               <div key={`${ri}-${ci}`} onMouseDown={() => handleGridMouseDown(ri, ci)} onMouseEnter={() => handleGridMouseEnter(ri, ci)} className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center font-bold text-slate-700 bg-purple-50 rounded-full cursor-pointer select-none text-sm md:text-base">{c}</div>
                            )))}
                       </div>
                       <div className="bg-yellow-50 p-6 rounded-2xl min-w-[200px]">
                           <h3 className="font-bold text-yellow-800 mb-4 flex items-center"><Fingerprint className="w-4 h-4 mr-2"/> Từ vựng</h3>
-                          <div className="flex flex-col gap-2">{currentProblem.options.map((w, i) => <div key={i} className={`px-3 py-2 rounded-lg font-bold text-sm ${foundWords.some(f=>f.word===w.toUpperCase()) ? 'bg-white text-green-600 line-through' : 'text-gray-50'}`}>{w}</div>)}</div>
+                          <div className="flex flex-col gap-2">
+                            {currentProblem.options && currentProblem.options.map((w, i) => (
+                              // Changed text color from gray-50 to slate-500 for visibility
+                              <div key={i} className={`px-3 py-2 rounded-lg font-bold text-sm border border-transparent ${foundWords.some(f=>f.word===w.toUpperCase()) ? 'bg-white text-green-600 line-through border-green-200' : 'text-slate-500 bg-white/50'}`}>
+                                {w}
+                              </div>
+                            ))}
+                          </div>
                       </div>
                   </div>
                </div>
@@ -462,17 +503,16 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
                </div>
             ) : (
                 // Standard Question with MathRenderer
-                // CHANGED: Removed 'text-transparent bg-clip-text ...' and used 'text-slate-800' to fix invisible KaTeX math
                 <div className="text-center mb-8 relative group">
                    <div className="flex items-center justify-center gap-2">
                      <h2 className={`${isVisualGame ? 'text-6xl' : 'text-3xl md:text-5xl'} font-extrabold leading-tight text-slate-800 pb-2`}>
                         <MathRenderer text={currentProblem.question} />
                      </h2>
-                     {isEnglishGame && (
+                     {ttsConfig.enabled && (
                         <button 
-                          onClick={(e) => handleSpeak(currentProblem.question, e)}
+                          onClick={(e) => handleSpeak(currentProblem.question, 'vi-VN', e)}
                           className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
-                          title="Nghe phát âm"
+                          title="Nghe"
                         >
                            <Volume2 className="w-6 h-6" />
                         </button>
@@ -481,33 +521,46 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
                 </div>
             )}
 
-            {/* Answer Options */}
-            {!isWordSearch && !isCrossword && (
+            {/* Answer Options - FIXED OVERLAPPING ISSUE */}
+            {!isWordSearch && !isCrossword && currentProblem.options && (
               <div className={`grid gap-4 w-full ${isLogicPuzzle ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-1 md:grid-cols-2'}`}>
                 {currentProblem.options.map((opt, idx) => {
                    let style = currentCardTheme.buttonDef;
+                   if (isPrimary) style = "bg-white border-b-4 border-sky-200 text-sky-700 hover:bg-sky-50 active:border-b-0 active:translate-y-1 shadow-sm rounded-3xl";
+
                    if (selectedOption !== null) {
-                       if (idx === currentProblem.correctAnswerIndex) style = "bg-green-100 border-green-400 text-green-800 animate-pop-answer";
-                       else if (idx === selectedOption) style = "bg-red-100 border-red-400 text-red-800 animate-shake-answer";
-                       else style = "bg-gray-50 text-gray-400 border-gray-200";
+                       if (idx === currentProblem.correctAnswerIndex) style = isPrimary ? "bg-green-100 border-green-400 text-green-700 animate-pop-answer rounded-3xl" : "bg-green-100 border-green-400 text-green-800 animate-pop-answer";
+                       else if (idx === selectedOption) style = isPrimary ? "bg-red-100 border-red-400 text-red-700 animate-shake-answer rounded-3xl" : "bg-red-100 border-red-400 text-red-800 animate-shake-answer";
+                       else style = "bg-gray-50 text-gray-400 border-gray-200 opacity-50";
                    }
                    return (
-                     <button key={idx} onClick={() => handleAnswer(idx)} disabled={selectedOption !== null} className={`rounded-2xl font-bold transition-all relative group ${style} ${isLogicPuzzle ? 'aspect-square text-6xl' : 'p-6 text-xl'}`}>
-                        {!isLogicPuzzle && <span className="absolute left-6 top-1/2 -translate-y-1/2 w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm text-gray-500">{String.fromCharCode(65+idx)}</span>}
-                        <MathRenderer text={opt} inline />
+                     <button key={idx} onClick={() => handleAnswer(idx)} disabled={selectedOption !== null} className={`font-bold transition-all relative group flex items-center ${style} ${isLogicPuzzle ? 'aspect-square text-6xl justify-center rounded-3xl' : 'p-4 md:p-6 text-xl rounded-2xl'}`}>
+                        {/* Non-Logic Puzzles: Flex layout for label and text to prevent overlap */}
+                        {!isLogicPuzzle && (
+                           <div className="flex items-center w-full">
+                               <span className={`shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center text-sm md:text-base font-extrabold mr-4 ${isPrimary ? 'bg-sky-100 text-sky-600' : 'bg-gray-100 text-gray-500'}`}>
+                                  {String.fromCharCode(65+idx)}
+                               </span>
+                               <span className="flex-1 break-words text-left">
+                                  <MathRenderer text={opt} inline />
+                               </span>
+                           </div>
+                        )}
+
+                        {isLogicPuzzle && <MathRenderer text={opt} inline />}
                         
-                        {isEnglishGame && (
+                        {ttsConfig.enabled && (
                            <div 
-                             onClick={(e) => handleSpeak(opt, e)}
-                             className="absolute left-16 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-black/5 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer z-20"
+                             onClick={(e) => handleSpeak(opt, 'vi-VN', e)}
+                             className="absolute right-12 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-black/5 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer z-20"
                              title="Nghe"
                            >
                              <Volume2 size={16} />
                            </div>
                         )}
 
-                        {selectedOption === idx && idx === currentProblem.correctAnswerIndex && <CheckCircle className="absolute right-4 top-1/2 -translate-y-1/2 text-green-600"/>}
-                        {selectedOption === idx && idx !== currentProblem.correctAnswerIndex && <XCircle className="absolute right-4 top-1/2 -translate-y-1/2 text-red-600"/>}
+                        {selectedOption === idx && idx === currentProblem.correctAnswerIndex && <CheckCircle className="absolute right-4 top-1/2 -translate-y-1/2 text-green-600 w-6 h-6"/>}
+                        {selectedOption === idx && idx !== currentProblem.correctAnswerIndex && <XCircle className="absolute right-4 top-1/2 -translate-y-1/2 text-red-600 w-6 h-6"/>}
                      </button>
                    );
                 })}

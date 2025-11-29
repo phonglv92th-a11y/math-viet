@@ -58,6 +58,7 @@ export enum GameMode {
 export interface GameStats {
   stars: number; // 0-3
   highScore: number;
+  gamesPlayed: number; // Added to track mission progress
 }
 
 export interface UserProfile {
@@ -130,7 +131,8 @@ export enum AppRoute {
   PRACTICE_SETUP = 'practice_setup',
   MASTERY_PEAK = 'mastery_peak',
   SITEMAP = 'sitemap',
-  ABOUT = 'about'
+  ABOUT = 'about',
+  ADMIN = 'admin'
 }
 
 // Navigation Context Type

@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { AppRoute, GameType, UserProfile, GameMode, GameStats, Subject as SubjectEnum, AdventureLevel, World, GameCardStyle } from '../types';
-import { Brain, Puzzle, ShoppingCart, Shapes, PlayCircle, Zap, Palette, Swords, Search, BookOpen, PenTool, Hammer, ScanEye, X, ChevronRight, Trophy, Loader2, Layers, Feather, Quote, Globe, Languages, Type, MessageCircle, Calculator, BarChart3, Grid3X3, Grid, Atom, FlaskConical, Dna, Hourglass, Map, Star, Settings, Sliders } from 'lucide-react';
+import { Brain, Puzzle, ShoppingCart, Shapes, PlayCircle, Zap, Palette, Swords, Search, BookOpen, PenTool, Hammer, ScanEye, X, ChevronRight, Trophy, Loader2, Layers, Feather, Quote, Globe, Languages, Type, MessageCircle, Calculator, BarChart3, Grid3X3, Grid, Atom, FlaskConical, Dna, Hourglass, Map, Star, Settings, Sliders, Sparkles } from 'lucide-react';
 import { GameCard } from '../components/GameCard';
 
 // Lazy load heavy components
@@ -92,7 +92,7 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
         return (
           <>
              <GameCard title="Tính Nhẩm" description="Cộng trừ nhân chia" icon={Calculator} color="blue" type={GameType.MENTAL_MATH} mode={gameMode} stats={user.progress[GameType.MENTAL_MATH]} customStyle={gameStyles[GameType.MENTAL_MATH]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.MENTAL_MATH, mode: gameMode, difficulty })} />
-             <GameCard title="Mật Mã Logic" description="Tìm quy luật số" icon={Puzzle} color="purple" type={GameType.LOGIC_PUZZLE} mode={gameMode} stats={user.progress[GameType.LOGIC_PUZZLE]} customStyle={gameStyles[GameType.LOGIC_PUZZLE]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.LOGIC_PUZZLE, mode: gameMode, difficulty })} />
+             <GameCard title="Mật Mã Logic" description="Tìm quy luật số" icon={Puzzle} color="violet" type={GameType.LOGIC_PUZZLE} mode={gameMode} stats={user.progress[GameType.LOGIC_PUZZLE]} customStyle={gameStyles[GameType.LOGIC_PUZZLE]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.LOGIC_PUZZLE, mode: gameMode, difficulty })} />
              <GameCard title="Toán Thực Tế" description="Đi chợ, tính tiền" icon={ShoppingCart} color="emerald" type={GameType.REAL_WORLD} mode={gameMode} stats={user.progress[GameType.REAL_WORLD]} customStyle={gameStyles[GameType.REAL_WORLD]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.REAL_WORLD, mode: gameMode, difficulty })} />
              <GameCard title="Đếm Hình" description="Đếm vật thể vui nhộn" icon={Shapes} color="cyan" type={GameType.VISUAL_COUNT} mode={gameMode} stats={user.progress[GameType.VISUAL_COUNT]} customStyle={gameStyles[GameType.VISUAL_COUNT]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.VISUAL_COUNT, mode: gameMode, difficulty })} />
              <GameCard title="Xây Tháp Trí Tuệ" description="Sắp xếp số, điền số" icon={Layers} color="pink" type={GameType.TOWER_STACK} mode={gameMode} stats={user.progress[GameType.TOWER_STACK]} customStyle={gameStyles[GameType.TOWER_STACK]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.TOWER_STACK, mode: gameMode, difficulty })} />
@@ -101,7 +101,7 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
       case SubjectEnum.LITERATURE:
         return (
           <>
-             <GameCard title="Truy Tìm Từ Vựng" description="Trò chơi ô chữ" icon={Grid3X3} color="purple" type={GameType.WORD_SEARCH} mode={gameMode} stats={user.progress[GameType.WORD_SEARCH]} customStyle={gameStyles[GameType.WORD_SEARCH]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.WORD_SEARCH, mode: gameMode, difficulty })} />
+             <GameCard title="Truy Tìm Từ Vựng" description="Trò chơi ô chữ" icon={Grid3X3} color="fuchsia" type={GameType.WORD_SEARCH} mode={gameMode} stats={user.progress[GameType.WORD_SEARCH]} customStyle={gameStyles[GameType.WORD_SEARCH]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.WORD_SEARCH, mode: gameMode, difficulty })} />
              <GameCard title="Ô Chữ Bí Ẩn" description="Giải mã ô chữ" icon={Grid} color="indigo" type={GameType.CROSSWORD} mode={gameMode} stats={user.progress[GameType.CROSSWORD]} customStyle={gameStyles[GameType.CROSSWORD]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.CROSSWORD, mode: gameMode, difficulty })} />
              <GameCard title="Vua Tiếng Việt" description="Ghép từ, đồng nghĩa" icon={BookOpen} color="rose" type={GameType.WORD_MATCH} mode={gameMode} stats={user.progress[GameType.WORD_MATCH]} customStyle={gameStyles[GameType.WORD_MATCH]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.WORD_MATCH, mode: gameMode, difficulty })} />
              <GameCard title="Chính Tả" description="Sửa lỗi sai" icon={Search} color="orange" type={GameType.SPELLING_BEE} mode={gameMode} stats={user.progress[GameType.SPELLING_BEE]} customStyle={gameStyles[GameType.SPELLING_BEE]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.SPELLING_BEE, mode: gameMode, difficulty })} />
@@ -115,21 +115,21 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
         return (
           <>
              <GameCard title="Vua Từ Vựng" description="Vocabulary & Meaning" icon={Globe} color="teal" type={GameType.ENGLISH_VOCAB} mode={gameMode} stats={user.progress[GameType.ENGLISH_VOCAB]} customStyle={gameStyles[GameType.ENGLISH_VOCAB]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.ENGLISH_VOCAB, mode: gameMode, difficulty })} />
-             <GameCard title="Ngữ Pháp" description="Grammar & Tenses" icon={Languages} color="violet" type={GameType.ENGLISH_GRAMMAR} mode={gameMode} stats={user.progress[GameType.ENGLISH_GRAMMAR]} customStyle={gameStyles[GameType.ENGLISH_GRAMMAR]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.ENGLISH_GRAMMAR, mode: gameMode, difficulty })} />
-             <GameCard title="Đánh Vần" description="Spelling Challenge" icon={Type} color="fuchsia" type={GameType.ENGLISH_SPELLING} mode={gameMode} stats={user.progress[GameType.ENGLISH_SPELLING]} customStyle={gameStyles[GameType.ENGLISH_SPELLING]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.ENGLISH_SPELLING, mode: gameMode, difficulty })} />
+             <GameCard title="Ngữ Pháp" description="Grammar & Tenses" icon={Languages} color="purple" type={GameType.ENGLISH_GRAMMAR} mode={gameMode} stats={user.progress[GameType.ENGLISH_GRAMMAR]} customStyle={gameStyles[GameType.ENGLISH_GRAMMAR]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.ENGLISH_GRAMMAR, mode: gameMode, difficulty })} />
+             <GameCard title="Đánh Vần" description="Spelling Challenge" icon={Type} color="red" type={GameType.ENGLISH_SPELLING} mode={gameMode} stats={user.progress[GameType.ENGLISH_SPELLING]} customStyle={gameStyles[GameType.ENGLISH_SPELLING]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.ENGLISH_SPELLING, mode: gameMode, difficulty })} />
              <GameCard title="Đố Vui Tiếng Anh" description="General Knowledge" icon={MessageCircle} color="sky" type={GameType.ENGLISH_QUIZ} mode={gameMode} stats={user.progress[GameType.ENGLISH_QUIZ]} customStyle={gameStyles[GameType.ENGLISH_QUIZ]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.ENGLISH_QUIZ, mode: gameMode, difficulty })} />
           </>
         );
       case SubjectEnum.PHYSICS:
         return (
           <>
-             <GameCard title="Nhà Vật Lý" description="Chuyển động & Lực" icon={Atom} color="blue" type={GameType.PHYSICS_QUIZ} mode={gameMode} stats={user.progress[GameType.PHYSICS_QUIZ]} customStyle={gameStyles[GameType.PHYSICS_QUIZ]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.PHYSICS_QUIZ, mode: gameMode, difficulty })} />
+             <GameCard title="Nhà Vật Lý" description="Chuyển động & Lực" icon={Atom} color="indigo" type={GameType.PHYSICS_QUIZ} mode={gameMode} stats={user.progress[GameType.PHYSICS_QUIZ]} customStyle={gameStyles[GameType.PHYSICS_QUIZ]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.PHYSICS_QUIZ, mode: gameMode, difficulty })} />
           </>
         );
       case SubjectEnum.CHEMISTRY:
         return (
           <>
-             <GameCard title="Hóa Học" description="Phản ứng & Nguyên tố" icon={FlaskConical} color="purple" type={GameType.CHEMISTRY_LAB} mode={gameMode} stats={user.progress[GameType.CHEMISTRY_LAB]} customStyle={gameStyles[GameType.CHEMISTRY_LAB]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.CHEMISTRY_LAB, mode: gameMode, difficulty })} />
+             <GameCard title="Hóa Học" description="Phản ứng & Nguyên tố" icon={FlaskConical} color="violet" type={GameType.CHEMISTRY_LAB} mode={gameMode} stats={user.progress[GameType.CHEMISTRY_LAB]} customStyle={gameStyles[GameType.CHEMISTRY_LAB]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.CHEMISTRY_LAB, mode: gameMode, difficulty })} />
           </>
         );
       case SubjectEnum.BIOLOGY:
@@ -201,6 +201,34 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
         {/* Center Column (6 spans) */}
         <div className="lg:col-span-6 space-y-6">
            
+           {/* Featured Game Banner */}
+           <div 
+             onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.CROSSWORD, mode: GameMode.STANDARD })}
+             className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 p-1 cursor-pointer group shadow-lg hover:shadow-indigo-200 transition-all transform hover:-translate-y-1"
+           >
+              <div className="bg-white/10 backdrop-blur-sm p-6 rounded-[20px] flex items-center justify-between relative z-10">
+                 <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                       <span className="bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border border-yellow-200 flex items-center">
+                          <Star className="w-3 h-3 mr-1 fill-current" /> Nổi Bật
+                       </span>
+                    </div>
+                    <h3 className="text-2xl font-extrabold text-white mb-2">Ô Chữ Bí Ẩn</h3>
+                    <p className="text-indigo-100 text-sm mb-4">Thử thách trí tuệ với các câu đố ô chữ đa dạng chủ đề.</p>
+                    <button className="bg-white text-indigo-600 font-bold py-2 px-6 rounded-full text-sm shadow-sm hover:bg-indigo-50 transition-colors">
+                       Khám phá ngay
+                    </button>
+                 </div>
+                 <div className="bg-white/20 p-4 rounded-2xl text-white group-hover:bg-white group-hover:text-indigo-600 transition-colors shadow-inner transform rotate-3 group-hover:rotate-6">
+                    <Grid className="w-10 h-10" />
+                 </div>
+              </div>
+              
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-pulse"></div>
+              <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-black/10 rounded-full blur-xl"></div>
+           </div>
+
            {/* Adventure Mode Banner */}
            <div 
              onClick={() => onNavigate(AppRoute.ADVENTURE_MAP)}

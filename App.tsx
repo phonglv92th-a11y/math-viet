@@ -13,6 +13,7 @@ import { PracticeSetup } from './pages/PracticeSetup';
 import { MasteryPeak } from './pages/MasteryPeak';
 import { SiteMap } from './pages/SiteMap';
 import { About } from './pages/About';
+import { AdminDashboard } from './pages/AdminDashboard'; // Import new page
 
 // Define Worlds
 const WORLDS: World[] = [
@@ -189,13 +190,17 @@ const App: React.FC = () => {
     }
 
     const gameType = routeParams.type as GameType;
-    let currentStats = user.progress[gameType] || { stars: 0, highScore: 0 };
+    let currentStats = user.progress[gameType] || { stars: 0, highScore: 0, gamesPlayed: 0 };
+    
+    // Update Stats
     if (score > currentStats.highScore) {
        currentStats.highScore = score;
        if (score > 300) currentStats.stars = 3;
        else if (score > 200) currentStats.stars = 2;
        else if (score > 100) currentStats.stars = 1;
     }
+    // Increment games played counter (vital for missions)
+    currentStats.gamesPlayed = (currentStats.gamesPlayed || 0) + 1;
 
     const updatedUser = {
       ...user,
@@ -235,6 +240,9 @@ const App: React.FC = () => {
          if (currentRoute === AppRoute.SITEMAP) {
             return <SiteMap onNavigate={navigateTo} onOpenDonation={() => setShowDonation(true)} />;
          }
+         if (currentRoute === AppRoute.ADMIN) { // Admin Access without user login
+            return <AdminDashboard onNavigate={navigateTo} />;
+         }
          // Default to Home for any other route if not logged in
          return <Home onNavigate={navigateTo} onStartGuest={handleStartGuest} onLogin={handleLogin} onOpenHelp={() => setShowHelp(true)} onOpenDonation={() => setShowDonation(true)} />;
     }
@@ -270,6 +278,8 @@ const App: React.FC = () => {
         return <SiteMap onNavigate={navigateTo} onOpenDonation={() => setShowDonation(true)} />;
       case AppRoute.ABOUT:
         return <About onNavigate={navigateTo} onOpenDonation={() => setShowDonation(true)} />;
+      case AppRoute.ADMIN: // Registered users can also try to access admin
+        return <AdminDashboard onNavigate={navigateTo} />;
       default:
         return <Dashboard user={user} onNavigate={navigateTo} onAddFriend={handleAddFriend} adventureLevels={adventureLevels} worlds={WORLDS} />;
     }
@@ -277,7 +287,7 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen font-sans text-slate-800">
-      {user && currentRoute !== AppRoute.HOME && (
+      {user && currentRoute !== AppRoute.HOME && currentRoute !== AppRoute.ADMIN && (
         <Navbar 
           onNavigate={navigateTo} 
           currentRoute={currentRoute} 

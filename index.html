@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>MathViet - Học Toán Vui</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV" crossorigin="anonymous">
     <script>
       // Polyfill for process and global to prevent runtime errors
@@ -17,6 +17,7 @@
           extend: {
             fontFamily: {
               sans: ['Nunito', 'sans-serif'],
+              cute: ['Fredoka', 'sans-serif'], // Font cute cho tiểu học
             },
             colors: {
               primary: '#0ea5e9', // Sky 500
@@ -28,11 +29,16 @@
             animation: {
               'bounce-slow': 'bounce 3s infinite',
               'float-slow': 'float 6s ease-in-out infinite',
+              'cloud-move': 'cloudMove 20s linear infinite',
             },
             keyframes: {
               float: {
                 '0%, 100%': { transform: 'translateY(0)' },
                 '50%': { transform: 'translateY(-20px)' },
+              },
+              cloudMove: {
+                '0%': { transform: 'translateX(-100%)' },
+                '100%': { transform: 'translateX(100vw)' },
               }
             }
           }
@@ -67,7 +73,7 @@
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
     "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
-    "recharts": "https://aistudiocdn.com/recharts@^3.5.0",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
     "vite": "https://aistudiocdn.com/vite@^7.2.4",
     "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1",
     "katex": "https://aistudiocdn.com/katex@^0.16.25"
