@@ -47,6 +47,15 @@ const ICON_STYLES = [
   { id: 'NEON', name: 'Neon' },
 ];
 
+// Special Style for Primary School Logic Puzzle
+const CUTE_LOGIC_STYLE: GameCardStyle = {
+  id: 'cute-logic',
+  name: 'Hoạt hình',
+  gradient: 'bg-purple-100', // Icon background
+  text: 'text-purple-500',   // Icon text color
+  iconStyle: 'BUBBLE'
+};
+
 // Loading Skeleton
 const CardSkeleton = () => (
   <div className="bg-white rounded-3xl shadow-sm p-6 border border-gray-100 h-40 animate-pulse flex items-center justify-center">
@@ -101,13 +110,28 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
     setIsStyleModalOpen(true);
   };
 
+  const isPrimary = user.grade <= 5;
+
   const renderGameCards = () => {
     switch(subject) {
       case SubjectEnum.MATH:
         return (
           <>
              <GameCard title="Tính Nhẩm" description="Cộng trừ nhân chia" icon={Calculator} color="blue" type={GameType.MENTAL_MATH} mode={gameMode} stats={user.progress[GameType.MENTAL_MATH]} customStyle={gameStyles[GameType.MENTAL_MATH]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.MENTAL_MATH, mode: gameMode, difficulty })} />
-             <GameCard title="Mật Mã Logic" description="Tìm quy luật số" icon={Puzzle} color="violet" type={GameType.LOGIC_PUZZLE} mode={gameMode} stats={user.progress[GameType.LOGIC_PUZZLE]} customStyle={gameStyles[GameType.LOGIC_PUZZLE]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.LOGIC_PUZZLE, mode: gameMode, difficulty })} />
+             
+             {/* Special 'CUTE' style for Logic Puzzle if Primary School */}
+             <GameCard 
+                title="Mật Mã Logic" 
+                description="Tìm quy luật số" 
+                icon={Puzzle} 
+                color="violet" 
+                type={GameType.LOGIC_PUZZLE} 
+                mode={gameMode} 
+                stats={user.progress[GameType.LOGIC_PUZZLE]} 
+                customStyle={gameStyles[GameType.LOGIC_PUZZLE] || (isPrimary ? CUTE_LOGIC_STYLE : undefined)} 
+                onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.LOGIC_PUZZLE, mode: gameMode, difficulty })} 
+             />
+             
              <GameCard title="Toán Thực Tế" description="Đi chợ, tính tiền" icon={ShoppingCart} color="emerald" type={GameType.REAL_WORLD} mode={gameMode} stats={user.progress[GameType.REAL_WORLD]} customStyle={gameStyles[GameType.REAL_WORLD]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.REAL_WORLD, mode: gameMode, difficulty })} />
              <GameCard title="Đếm Hình" description="Đếm vật thể vui nhộn" icon={Shapes} color="cyan" type={GameType.VISUAL_COUNT} mode={gameMode} stats={user.progress[GameType.VISUAL_COUNT]} customStyle={gameStyles[GameType.VISUAL_COUNT]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.VISUAL_COUNT, mode: gameMode, difficulty })} />
              <GameCard title="Xây Tháp Trí Tuệ" description="Sắp xếp số, điền số" icon={Layers} color="pink" type={GameType.TOWER_STACK} mode={gameMode} stats={user.progress[GameType.TOWER_STACK]} customStyle={gameStyles[GameType.TOWER_STACK]} onClick={() => onNavigate(AppRoute.GAME_PLAY, { type: GameType.TOWER_STACK, mode: gameMode, difficulty })} />

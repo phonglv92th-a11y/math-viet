@@ -162,7 +162,10 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
   // Check if primary student for "Cute" mode
   const isPrimary = userGrade <= 5;
   const isEnglishGame = [GameType.ENGLISH_VOCAB, GameType.ENGLISH_GRAMMAR, GameType.ENGLISH_SPELLING, GameType.ENGLISH_QUIZ].includes(gameType);
-  const isVietnameseLitGame = [GameType.WORD_MATCH, GameType.SPELLING_BEE, GameType.POETRY_PUZZLE, GameType.SENTENCE_BUILDER, GameType.LITERATURE_QUIZ, GameType.LITERARY_DETECTIVE].includes(gameType);
+  const isLogicPuzzle = gameType === GameType.LOGIC_PUZZLE;
+  
+  // Determine if we should apply the "Cute Logic Puzzle" theme
+  const isCuteLogic = isPrimary && isLogicPuzzle;
 
   // Determine TTS Configuration
   const ttsConfig = { enabled: true };
@@ -293,18 +296,57 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
     const hasText = /[a-zA-Zà-ỹÀ-Ỹ]/.test(lines[0]);
     const title = (lines.length > 1 && hasText) ? lines[0] : '';
     const puzzleLines = (lines.length > 1 && hasText) ? lines.slice(1) : lines;
+    
+    // Custom container style for Cute mode
+    const lineContainerStyle = isCuteLogic 
+        ? 'rounded-3xl p-4 w-full max-w-lg flex flex-wrap items-center justify-center gap-3 bg-white/70 border-2 border-purple-100 shadow-sm'
+        : 'rounded-2xl p-3 w-full max-w-lg flex flex-wrap items-center justify-center gap-2 bg-white/60 border border-gray-200';
+
     return (
         <div className="w-full flex flex-col items-center mb-8">
-            {title && <div className="bg-blue-50 px-6 py-3 rounded-full border border-blue-100 shadow-sm mb-6 flex items-center"><HelpCircle className="w-5 h-5 text-blue-500 mr-2" /><h3 className="text-lg font-bold text-blue-800">{title}</h3></div>}
+            {title && (
+                <div className={`${isCuteLogic ? 'bg-purple-100 border-purple-200 text-purple-700' : 'bg-blue-50 border-blue-100 text-blue-800'} px-6 py-3 rounded-full border shadow-sm mb-6 flex items-center`}>
+                    <HelpCircle className={`w-5 h-5 mr-2 ${isCuteLogic ? 'text-purple-500' : 'text-blue-500'}`} />
+                    <h3 className="text-lg font-bold">{title}</h3>
+                </div>
+            )}
+            
             <div className="flex flex-col gap-4 items-center w-full">
                 {puzzleLines.map((line, i) => {
                     const tokens = line.split(/([+\-=?:])/g).map(p => p.trim()).filter(p => p.length > 0);
                     const isQ = line.includes('?');
+                    
+                    // Specific highlight for the question line in cute mode
+                    const currentLineStyle = isCuteLogic && isQ
+                        ? 'bg-yellow-50 border-4 border-dashed border-yellow-300 shadow-[0_4px_0_0_#fde047]'
+                        : isQ ? 'bg-yellow-50 border-2 border-dashed border-yellow-400' : lineContainerStyle;
+
                     return (
-                        <div key={i} className={`rounded-2xl p-3 w-full max-w-lg flex flex-wrap items-center justify-center gap-2 ${isQ ? 'bg-yellow-50 border-2 border-dashed border-yellow-400' : 'bg-white/60 border border-gray-200'}`}>
+                        <div key={i} className={currentLineStyle}>
                             {tokens.map((token, idx) => {
-                                if (['+', '-', '=', '?', ':'].includes(token)) return <div key={idx} className={`w-8 h-8 rounded-full flex items-center justify-center text-xl font-black ${token === '?' ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-200 text-gray-600'}`}>{token}</div>;
-                                return <div key={idx} className="bg-white rounded-xl shadow-sm border-b-4 border-gray-200 px-3 py-2 flex items-center justify-center min-w-[50px]"><span className="text-4xl leading-none">{token}</span></div>;
+                                const isOperator = ['+', '-', '=', '?', ':'].includes(token);
+                                
+                                if (isOperator) {
+                                    // Cute Operator Bubbles
+                                    if (isCuteLogic) {
+                                        let opColor = 'bg-gray-200 text-gray-600';
+                                        if (token === '+') opColor = 'bg-green-100 text-green-600 border border-green-200';
+                                        if (token === '-') opColor = 'bg-red-100 text-red-600 border border-red-200';
+                                        if (token === '=') opColor = 'bg-blue-100 text-blue-600 border border-blue-200';
+                                        if (token === '?') opColor = 'bg-yellow-400 text-white animate-bounce';
+                                        
+                                        return <div key={idx} className={`w-10 h-10 rounded-full flex items-center justify-center text-2xl font-black shadow-sm ${opColor}`}>{token}</div>;
+                                    }
+                                    // Standard Operator
+                                    return <div key={idx} className={`w-8 h-8 rounded-full flex items-center justify-center text-xl font-black ${token === '?' ? 'bg-red-500 text-white animate-pulse' : 'bg-gray-200 text-gray-600'}`}>{token}</div>;
+                                }
+                                
+                                // Token Items (Emojis/Numbers)
+                                return (
+                                    <div key={idx} className={`${isCuteLogic ? 'bg-white rounded-2xl shadow-md border-b-4 border-purple-100 px-4 py-3 min-w-[70px] transform hover:scale-110 transition-transform' : 'bg-white rounded-xl shadow-sm border-b-4 border-gray-200 px-3 py-2 min-w-[50px]'} flex items-center justify-center`}>
+                                        <span className={`${isCuteLogic ? 'text-5xl drop-shadow-sm' : 'text-4xl'} leading-none`}>{token}</span>
+                                    </div>
+                                );
                             })}
                         </div>
                     );
@@ -381,7 +423,6 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
   if (!currentProblem) return <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 text-center"><h2 className="text-xl font-bold mb-4">Có lỗi xảy ra khi tải câu hỏi</h2><button onClick={() => window.location.reload()} className="bg-blue-500 text-white px-4 py-2 rounded-lg">Thử lại</button></div>;
 
   const isVisualGame = gameType === GameType.VISUAL_COUNT || gameType === GameType.LOGIC_PUZZLE;
-  const isLogicPuzzle = gameType === GameType.LOGIC_PUZZLE;
   const isWordSearch = gameType === GameType.WORD_SEARCH;
   const isCrossword = gameType === GameType.CROSSWORD;
   
@@ -394,6 +435,14 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
   let currentCardTheme = CARD_THEMES[cardTheme];
   if (bgTheme === 'TET' && cardTheme === 'CLASSIC') currentCardTheme = CARD_THEMES['FESTIVE'];
   if (bgTheme === 'NOEL' && cardTheme === 'CLASSIC') currentCardTheme = CARD_THEMES['COOL'];
+
+  // OVERRIDE FOR CUTE LOGIC PUZZLE
+  let containerClasses = `${currentCardTheme.container} rounded-[2.5rem]`;
+  if (isPrimary && bgTheme === 'DEFAULT' && !isCuteLogic) {
+      containerClasses = 'bg-white/90 border-4 border-sky-300 rounded-[3rem] shadow-[0_10px_0_0_rgba(14,165,233,0.2)]';
+  } else if (isCuteLogic) {
+      containerClasses = 'bg-white/90 border-4 border-pink-300 rounded-[3rem] shadow-[0_10px_0_0_#f472b6]';
+  }
 
   return (
     <div className={`min-h-screen flex flex-col relative overflow-hidden ${backgroundClass}`}>
@@ -457,7 +506,8 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
              <div className="absolute top-10 right-10 text-yellow-400 animate-spin-slow opacity-80"><Sun size={80} /></div>
              <div className="absolute top-20 left-[-100px] text-white opacity-60 animate-[cloudMove_30s_linear_infinite]"><Cloud size={100} fill="white" /></div>
              <div className="absolute top-40 left-[-200px] text-white opacity-40 animate-[cloudMove_45s_linear_infinite_5s]"><Cloud size={80} fill="white" /></div>
-             <div className="absolute bottom-0 w-full h-32 bg-green-200 rounded-t-[50%] scale-150"></div>
+             {/* Conditional ground color based on game type */}
+             <div className={`absolute bottom-0 w-full h-32 ${isCuteLogic ? 'bg-purple-200' : 'bg-green-200'} rounded-t-[50%] scale-150`}></div>
          </div>
       )}
 
@@ -501,7 +551,7 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
 
       {/* Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-4 max-w-5xl mx-auto w-full relative z-10">
-        <div className={`w-full ${isPrimary && bgTheme === 'DEFAULT' ? 'bg-white/90 border-4 border-sky-300 rounded-[3rem] shadow-[0_10px_0_0_rgba(14,165,233,0.2)]' : `${currentCardTheme.container} rounded-[2.5rem]`} p-8 md:p-12 relative overflow-hidden transition-all duration-300`}>
+        <div className={`w-full ${containerClasses} p-8 md:p-12 relative overflow-hidden transition-all duration-300`}>
            
            {!isPrimary && <div className="absolute top-6 right-6 px-3 py-1 rounded-full text-xs font-bold text-white bg-blue-400">{currentProblem.difficulty}</div>}
            <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Câu hỏi {currentIndex+1}/{problems.length}</div>
@@ -585,6 +635,11 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
                 {currentProblem.options.map((opt, idx) => {
                    let style = currentCardTheme.buttonDef;
                    if (isPrimary && bgTheme === 'DEFAULT') style = "bg-white border-b-4 border-sky-200 text-sky-700 hover:bg-sky-50 active:border-b-0 active:translate-y-1 shadow-sm rounded-3xl";
+                   
+                   // CUTE LOGIC MODE BUTTON STYLE
+                   if (isCuteLogic) {
+                       style = "bg-white border-2 border-b-8 border-purple-200 text-purple-700 rounded-3xl shadow-sm hover:-translate-y-2 hover:border-purple-300 hover:shadow-lg active:border-b-2 active:translate-y-1 transition-all duration-200";
+                   }
 
                    if (selectedOption !== null) {
                        if (idx === currentProblem.correctAnswerIndex) style = isPrimary ? "bg-green-100 border-green-400 text-green-700 animate-pop-answer rounded-3xl" : "bg-green-100 border-green-400 text-green-800 animate-pop-answer";
@@ -592,7 +647,7 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
                        else style = "bg-gray-50 text-gray-400 border-gray-200 opacity-50";
                    }
                    return (
-                     <button key={idx} onClick={() => handleAnswer(idx)} disabled={selectedOption !== null} className={`font-bold transition-all relative group flex items-center ${style} ${isLogicPuzzle ? 'aspect-square text-6xl justify-center rounded-3xl' : 'p-4 md:p-6 text-xl rounded-2xl'}`}>
+                     <button key={idx} onClick={() => handleAnswer(idx)} disabled={selectedOption !== null} className={`font-bold transition-all relative group flex items-center ${style} ${isLogicPuzzle ? 'aspect-square text-6xl justify-center' : 'p-4 md:p-6 text-xl rounded-2xl'}`}>
                         {/* Non-Logic Puzzles: Flex layout for label and text to prevent overlap */}
                         {!isLogicPuzzle && (
                            <div className="flex items-center w-full">
@@ -610,7 +665,7 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
                         {ttsConfig.enabled && (
                            <div 
                              onClick={(e) => handleSpeak(opt, 'vi-VN', e)}
-                             className="absolute right-12 top-1/2 -translate-y-1/2 p-2 rounded-full hover:bg-black/5 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer z-20"
+                             className="absolute right-2 bottom-2 md:right-12 md:top-1/2 md:-translate-y-1/2 p-2 rounded-full hover:bg-black/5 text-gray-400 hover:text-blue-500 transition-colors cursor-pointer z-20"
                              title="Nghe"
                            >
                              <Volume2 size={16} />
@@ -627,10 +682,12 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
            
            {/* Explanation */}
            {showExplanation && (
-              <div className="mt-8 p-6 bg-blue-50/80 backdrop-blur-md rounded-2xl border border-blue-100 animate-in slide-in-from-bottom-4">
-                 <div className="flex items-center mb-2 font-bold text-blue-700 text-xs uppercase"><Lightbulb className="w-4 h-4 mr-2"/> Giải thích</div>
+              <div className={`mt-8 p-6 ${isCuteLogic ? 'bg-purple-50 border-purple-200' : 'bg-blue-50/80 border-blue-100'} backdrop-blur-md rounded-2xl border animate-in slide-in-from-bottom-4`}>
+                 <div className={`flex items-center mb-2 font-bold ${isCuteLogic ? 'text-purple-700' : 'text-blue-700'} text-xs uppercase`}>
+                    <Lightbulb className="w-4 h-4 mr-2"/> Giải thích
+                 </div>
                  <div className="text-lg text-slate-700 leading-relaxed mb-6"><MathRenderer text={currentProblem.explanation} /></div>
-                 <button onClick={nextQuestion} className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg hover:scale-[1.02] transition-transform flex items-center justify-center">Tiếp theo <ArrowRight className="ml-2"/></button>
+                 <button onClick={nextQuestion} className={`w-full ${isCuteLogic ? 'bg-purple-500 hover:bg-purple-600' : 'bg-blue-600'} text-white font-bold py-4 rounded-xl shadow-lg hover:scale-[1.02] transition-transform flex items-center justify-center`}>Tiếp theo <ArrowRight className="ml-2"/></button>
               </div>
            )}
         </div>

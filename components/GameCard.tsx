@@ -62,13 +62,17 @@ export const GameCard: React.FC<GameCardProps> = memo(({
   };
 
   const isSpeedRun = mode === GameMode.SPEED_RUN;
+  
+  // Logic for Special Styles
+  const isCute = customStyle?.id === 'cute-logic';
+  const containerClasses = isCute 
+    ? 'rounded-[2.5rem] border-b-8 border-r-4 border-purple-200 bg-white hover:bg-purple-50 shadow-md transform active:scale-95'
+    : `rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] ${isSpeedRun ? 'border-2 border-red-400 bg-red-50 ring-2 ring-red-100 ring-offset-1' : 'border border-gray-100'} ${customStyle?.id === 'dark' ? 'bg-slate-800' : (isSpeedRun ? '' : 'bg-white')}`;
 
   return (
     <div 
       onClick={onClick}
-      className={`rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden group relative flex items-center p-4 gap-4 h-full
-        ${isSpeedRun ? 'border-2 border-red-400 bg-red-50 ring-2 ring-red-100 ring-offset-1' : 'border border-gray-100'}
-        ${customStyle?.id === 'dark' ? 'bg-slate-800' : (isSpeedRun ? '' : 'bg-white')}
+      className={`${containerClasses} transition-all duration-300 cursor-pointer overflow-hidden group relative flex items-center p-4 gap-4 h-full
         ${isUpdating ? 'ring-2 ring-yellow-400 scale-[1.02] shadow-lg' : ''}
       `}
     >
