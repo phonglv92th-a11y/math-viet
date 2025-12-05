@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { AppRoute, GameType, MathProblem, GameMode } from '../types';
+import { AppRoute, GameType, MathProblem, GameMode, BgTheme } from '../types';
 import { generateGameProblems } from '../services/geminiService';
-import { ArrowLeft, ArrowRight, CheckCircle, XCircle, Timer, Loader2, Trophy, Home, RotateCcw, Zap, Sun, CloudRain, Sparkles, Star, Palette, Settings, X, Info, Lightbulb, HelpCircle, Fingerprint, Volume2, Cloud } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle, XCircle, Timer, Loader2, Trophy, Home, RotateCcw, Zap, Sun, CloudRain, Sparkles, Star, Palette, Settings, X, Info, Lightbulb, HelpCircle, Fingerprint, Volume2, Cloud, Snowflake } from 'lucide-react';
 import { Confetti } from '../components/Confetti';
 import { MathRenderer } from '../components/MathRenderer';
 
@@ -14,11 +15,11 @@ interface GameArenaProps {
   topicFocus?: string;
   onNavigate: (route: AppRoute) => void;
   onGameComplete: (score: number) => void;
+  bgTheme: BgTheme; // Prop from parent
 }
 
 // --- Theme Configurations ---
-type BgTheme = 'DEFAULT' | 'OCEAN' | 'FOREST' | 'SPACE' | 'CANDY' | 'SUNSET';
-type CardTheme = 'CLASSIC' | 'WARM' | 'COOL' | 'DARK';
+type CardTheme = 'CLASSIC' | 'WARM' | 'COOL' | 'DARK' | 'FESTIVE';
 
 const BG_THEMES: Record<BgTheme, { class: string; name: string; icon: string }> = {
   DEFAULT: { class: 'bg-slate-100', name: 'Mặc định', icon: '⚪' },
@@ -27,6 +28,8 @@ const BG_THEMES: Record<BgTheme, { class: string; name: string; icon: string }> 
   SPACE: { class: 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white', name: 'Vũ trụ', icon: '🚀' },
   CANDY: { class: 'bg-gradient-to-br from-pink-200 to-purple-300', name: 'Kẹo ngọt', icon: '🍬' },
   SUNSET: { class: 'bg-gradient-to-br from-orange-200 to-rose-400', name: 'Hoàng hôn', icon: '🌅' },
+  NOEL: { class: 'bg-gradient-to-b from-slate-800 to-red-900 text-white', name: 'Giáng Sinh', icon: '🎄' },
+  TET: { class: 'bg-gradient-to-br from-red-600 to-yellow-500 text-white', name: 'Tết Việt', icon: '🧧' },
 };
 
 const CARD_THEMES: Record<CardTheme, { container: string; text: string; buttonDef: string; name: string }> = {
@@ -54,6 +57,12 @@ const CARD_THEMES: Record<CardTheme, { container: string; text: string; buttonDe
     buttonDef: 'bg-[#0f172a] text-gray-200 border-b-4 border-[#334155] active:border-b-0 active:translate-y-1 hover:bg-[#334155]',
     name: 'Tối' 
   },
+  FESTIVE: {
+    container: 'bg-white/95 border-red-200 shadow-2xl shadow-red-900/20 backdrop-blur',
+    text: 'text-red-800',
+    buttonDef: 'bg-white border-b-4 border-red-200 text-red-700 active:border-b-0 active:translate-y-1 hover:bg-red-50',
+    name: 'Lễ Hội'
+  }
 };
 
 const HIGHLIGHT_COLORS = ['#ef4444', '#f97316', '#f59e0b', '#84cc16', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6', '#d946ef', '#f43f5e'];
@@ -121,7 +130,7 @@ const TUTORIALS: Record<GameType, { title: string; desc: string; tip: string }> 
   [GameType.HISTORY_TIMELINE]: { title: "Dòng Chảy Lịch Sử", desc: "Câu hỏi về sự kiện lịch sử.", tip: "Mẹo: Nhớ các mốc thời gian." },
 };
 
-export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode = GameMode.STANDARD, difficulty, questionCount = 5, topicFocus, onNavigate, onGameComplete }) => {
+export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode = GameMode.STANDARD, difficulty, questionCount = 5, topicFocus, onNavigate, onGameComplete, bgTheme }) => {
   const [loading, setLoading] = useState(true);
   const [problems, setProblems] = useState<MathProblem[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -143,7 +152,7 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
   const [cwUserInputs, setCwUserInputs] = useState<Record<string, string>>({});
   const [cwSelectedClue, setCwSelectedClue] = useState<number | null>(null);
 
-  const [bgTheme, setBgTheme] = useState<BgTheme>(() => (localStorage.getItem('mathviet_bg_theme') as BgTheme) || 'DEFAULT');
+  // Removed local bgTheme state, using prop instead
   const [cardTheme, setCardTheme] = useState<CardTheme>(() => (localStorage.getItem('mathviet_card_theme') as CardTheme) || 'CLASSIC');
   const starsRef = useRef<HTMLDivElement>(null);
   const nebulaRef = useRef<HTMLDivElement>(null);
@@ -156,10 +165,9 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
   const isVietnameseLitGame = [GameType.WORD_MATCH, GameType.SPELLING_BEE, GameType.POETRY_PUZZLE, GameType.SENTENCE_BUILDER, GameType.LITERATURE_QUIZ, GameType.LITERARY_DETECTIVE].includes(gameType);
 
   // Determine TTS Configuration
-  // Enable for all subjects so kids can listen to questions
   const ttsConfig = { enabled: true };
 
-  useEffect(() => { localStorage.setItem('mathviet_bg_theme', bgTheme); }, [bgTheme]);
+  // Removed effect that saved bgTheme since it's now managed by parent
   useEffect(() => { localStorage.setItem('mathviet_card_theme', cardTheme); }, [cardTheme]);
 
   useEffect(() => {
@@ -265,7 +273,6 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
       window.speechSynthesis.cancel();
       
       // Auto-detect: If text has Vietnamese accents, force vi-VN. 
-      // If it's an English game type, prefer en-US unless Vietnamese chars are heavy.
       const hasVietnameseChars = /[àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ]/.test(text);
       
       const utterance = new SpeechSynthesisUtterance(text);
@@ -380,21 +387,72 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
   
   // PRIMARY SCHOOL 'CUTE' MODE LOGIC
   const backgroundClass = isPrimary 
-    ? 'bg-sky-100 font-cute' 
+    ? (bgTheme === 'DEFAULT' ? 'bg-sky-100 font-cute' : BG_THEMES[bgTheme].class) 
     : (bgTheme !== 'DEFAULT' ? BG_THEMES[bgTheme].class : (mode === GameMode.SPEED_RUN ? 'bg-red-50' : 'bg-slate-100'));
   
-  const currentCardTheme = CARD_THEMES[cardTheme];
+  // Force Card Theme for Special Events if user hasn't overridden
+  let currentCardTheme = CARD_THEMES[cardTheme];
+  if (bgTheme === 'TET' && cardTheme === 'CLASSIC') currentCardTheme = CARD_THEMES['FESTIVE'];
+  if (bgTheme === 'NOEL' && cardTheme === 'CLASSIC') currentCardTheme = CARD_THEMES['COOL'];
 
   return (
     <div className={`min-h-screen flex flex-col relative overflow-hidden ${backgroundClass}`}>
       <style>{`
         @keyframes pop-answer { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
         @keyframes shake-answer { 0%, 100% { translateX(0); } 25% { translateX(-5px); } 75% { translateX(5px); } }
+        @keyframes snowfall { 0% { transform: translateY(-10vh) translateX(0); opacity: 1; } 100% { transform: translateY(110vh) translateX(20px); opacity: 0.3; } }
+        @keyframes leaf-fall { 0% { transform: translateY(-10vh) rotate(0deg); } 100% { transform: translateY(110vh) rotate(360deg); } }
         .animate-pop-answer { animation: pop-answer 0.4s ease; } .animate-shake-answer { animation: shake-answer 0.5s ease; }
       `}</style>
 
-      {/* Primary School Decorations */}
-      {isPrimary && (
+      {/* NOEL THEME EFFECTS */}
+      {bgTheme === 'NOEL' && (
+         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+             {/* Snow particles */}
+             {[...Array(20)].map((_, i) => (
+                <div key={i} className="absolute text-white opacity-80" 
+                     style={{
+                        left: `${Math.random() * 100}%`,
+                        animation: `snowfall ${5 + Math.random() * 5}s linear infinite`,
+                        animationDelay: `${Math.random() * 5}s`,
+                        fontSize: `${10 + Math.random() * 20}px`
+                     }}>
+                   ❄️
+                </div>
+             ))}
+             {/* Decorations */}
+             <div className="absolute top-0 right-10 text-6xl animate-bounce" style={{animationDuration: '3s'}}>🎅</div>
+             <div className="absolute bottom-0 left-0 text-8xl opacity-30">🎄</div>
+             <div className="absolute bottom-0 right-0 text-8xl opacity-30">🎄</div>
+         </div>
+      )}
+
+      {/* TET THEME EFFECTS */}
+      {bgTheme === 'TET' && (
+         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+             {/* Flower petals (Apricot/Peach) */}
+             {[...Array(15)].map((_, i) => (
+                <div key={i} className="absolute opacity-80" 
+                     style={{
+                        left: `${Math.random() * 100}%`,
+                        animation: `leaf-fall ${6 + Math.random() * 4}s linear infinite`,
+                        animationDelay: `${Math.random() * 5}s`,
+                        fontSize: `${15 + Math.random() * 15}px`
+                     }}>
+                   {i % 2 === 0 ? '🌸' : '🌼'}
+                </div>
+             ))}
+             {/* Decorations */}
+             <div className="absolute top-0 left-4 text-6xl drop-shadow-md">🏮</div>
+             <div className="absolute top-0 right-4 text-6xl drop-shadow-md">🏮</div>
+             <div className="absolute bottom-10 left-10 text-6xl opacity-40 rotate-12">🧧</div>
+             <div className="absolute bottom-10 right-10 text-6xl opacity-40 -rotate-12">🎋</div>
+             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 text-yellow-200 font-bold text-4xl opacity-20 whitespace-nowrap">CHÚC MỪNG NĂM MỚI</div>
+         </div>
+      )}
+
+      {/* Primary School Decorations (Only if no special theme) */}
+      {isPrimary && bgTheme === 'DEFAULT' && (
          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
              <div className="absolute top-10 right-10 text-yellow-400 animate-spin-slow opacity-80"><Sun size={80} /></div>
              <div className="absolute top-20 left-[-100px] text-white opacity-60 animate-[cloudMove_30s_linear_infinite]"><Cloud size={100} fill="white" /></div>
@@ -443,7 +501,7 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
 
       {/* Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-4 max-w-5xl mx-auto w-full relative z-10">
-        <div className={`w-full ${isPrimary ? 'bg-white/90 border-4 border-sky-300 rounded-[3rem] shadow-[0_10px_0_0_rgba(14,165,233,0.2)]' : `${currentCardTheme.container} rounded-[2.5rem]`} p-8 md:p-12 relative overflow-hidden transition-all duration-300`}>
+        <div className={`w-full ${isPrimary && bgTheme === 'DEFAULT' ? 'bg-white/90 border-4 border-sky-300 rounded-[3rem] shadow-[0_10px_0_0_rgba(14,165,233,0.2)]' : `${currentCardTheme.container} rounded-[2.5rem]`} p-8 md:p-12 relative overflow-hidden transition-all duration-300`}>
            
            {!isPrimary && <div className="absolute top-6 right-6 px-3 py-1 rounded-full text-xs font-bold text-white bg-blue-400">{currentProblem.difficulty}</div>}
            <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Câu hỏi {currentIndex+1}/{problems.length}</div>
@@ -505,7 +563,7 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
                 // Standard Question with MathRenderer
                 <div className="text-center mb-8 relative group">
                    <div className="flex items-center justify-center gap-2">
-                     <h2 className={`${isVisualGame ? 'text-6xl' : 'text-3xl md:text-5xl'} font-extrabold leading-tight text-slate-800 pb-2`}>
+                     <h2 className={`${isVisualGame ? 'text-6xl' : 'text-3xl md:text-5xl'} font-extrabold leading-tight ${currentCardTheme.text} pb-2`}>
                         <MathRenderer text={currentProblem.question} />
                      </h2>
                      {ttsConfig.enabled && (
@@ -526,7 +584,7 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
               <div className={`grid gap-4 w-full ${isLogicPuzzle ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-1 md:grid-cols-2'}`}>
                 {currentProblem.options.map((opt, idx) => {
                    let style = currentCardTheme.buttonDef;
-                   if (isPrimary) style = "bg-white border-b-4 border-sky-200 text-sky-700 hover:bg-sky-50 active:border-b-0 active:translate-y-1 shadow-sm rounded-3xl";
+                   if (isPrimary && bgTheme === 'DEFAULT') style = "bg-white border-b-4 border-sky-200 text-sky-700 hover:bg-sky-50 active:border-b-0 active:translate-y-1 shadow-sm rounded-3xl";
 
                    if (selectedOption !== null) {
                        if (idx === currentProblem.correctAnswerIndex) style = isPrimary ? "bg-green-100 border-green-400 text-green-700 animate-pop-answer rounded-3xl" : "bg-green-100 border-green-400 text-green-800 animate-pop-answer";
@@ -538,7 +596,7 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
                         {/* Non-Logic Puzzles: Flex layout for label and text to prevent overlap */}
                         {!isLogicPuzzle && (
                            <div className="flex items-center w-full">
-                               <span className={`shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center text-sm md:text-base font-extrabold mr-4 ${isPrimary ? 'bg-sky-100 text-sky-600' : 'bg-gray-100 text-gray-500'}`}>
+                               <span className={`shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center text-sm md:text-base font-extrabold mr-4 ${isPrimary && bgTheme === 'DEFAULT' ? 'bg-sky-100 text-sky-600' : 'bg-gray-100 text-gray-500'}`}>
                                   {String.fromCharCode(65+idx)}
                                </span>
                                <span className="flex-1 break-words text-left">

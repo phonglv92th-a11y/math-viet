@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { AppRoute, GameType, UserProfile, GameMode, GameStats, Subject as SubjectEnum, AdventureLevel, World, GameCardStyle } from '../types';
+import { AppRoute, GameType, UserProfile, GameMode, GameStats, Subject as SubjectEnum, AdventureLevel, World, GameCardStyle, BgTheme } from '../types';
 import { Brain, Puzzle, ShoppingCart, Shapes, PlayCircle, Zap, Palette, Swords, Search, BookOpen, PenTool, Hammer, ScanEye, X, ChevronRight, Trophy, Loader2, Layers, Feather, Quote, Globe, Languages, Type, MessageCircle, Calculator, BarChart3, Grid3X3, Grid, Atom, FlaskConical, Dna, Hourglass, Map, Star, Settings, Sliders, Sparkles } from 'lucide-react';
 import { GameCard } from '../components/GameCard';
 
@@ -14,6 +14,8 @@ interface DashboardProps {
   onAddFriend: (id: string) => void;
   adventureLevels: AdventureLevel[];
   worlds: World[];
+  bgTheme: BgTheme; // New prop
+  onThemeChange: (theme: BgTheme) => void; // New prop
 }
 
 const COLOR_THEMES = [
@@ -25,6 +27,17 @@ const COLOR_THEMES = [
   { id: 'teal', name: 'Bạc Hà', gradient: 'bg-gradient-to-br from-teal-50 to-teal-100', text: 'text-teal-600' },
   { id: 'indigo', name: 'Huyền Bí', gradient: 'bg-gradient-to-br from-indigo-50 to-indigo-100', text: 'text-indigo-600' },
   { id: 'dark', name: 'Bóng Đêm', gradient: 'bg-gradient-to-br from-slate-700 to-slate-800', text: 'text-white' },
+];
+
+const BG_THEME_OPTIONS = [
+  { id: 'DEFAULT', name: 'Mặc định', color: 'bg-slate-100' },
+  { id: 'OCEAN', name: 'Đại dương', color: 'bg-blue-300' },
+  { id: 'FOREST', name: 'Rừng xanh', color: 'bg-green-300' },
+  { id: 'SPACE', name: 'Vũ trụ', color: 'bg-slate-800' },
+  { id: 'CANDY', name: 'Kẹo ngọt', color: 'bg-pink-200' },
+  { id: 'SUNSET', name: 'Hoàng hôn', color: 'bg-orange-300' },
+  { id: 'NOEL', name: 'Giáng Sinh', color: 'bg-red-800' },
+  { id: 'TET', name: 'Tết Việt', color: 'bg-yellow-500' },
 ];
 
 const ICON_STYLES = [
@@ -41,7 +54,7 @@ const CardSkeleton = () => (
   </div>
 );
 
-export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worlds }: DashboardProps) => {
+export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worlds, bgTheme, onThemeChange }: DashboardProps) => {
   const [subject, setSubject] = useState<SubjectEnum>(SubjectEnum.MATH);
   const [gameMode, setGameMode] = useState<GameMode>(GameMode.STANDARD);
   const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | undefined>(undefined);
@@ -50,7 +63,7 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
   const [editingGameType, setEditingGameType] = useState<GameType>(GameType.MENTAL_MATH);
   const [tempStyle, setTempStyle] = useState<GameCardStyle | null>(null);
   const [liveUsers, setLiveUsers] = useState(0);
-
+  
   // Determine current adventure level (first UNLOCKED)
   const currentAdventureLevel = adventureLevels.find(l => l.status === 'UNLOCKED') || adventureLevels[adventureLevels.length - 1];
   const currentWorld = worlds.find(w => w.id === currentAdventureLevel.worldId) || worlds[0];
@@ -77,6 +90,8 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
       setIsStyleModalOpen(false);
     }
   };
+  
+  // No local handleSaveGlobalTheme needed, direct call to prop
 
   const openStyleModal = () => {
     const defaultGame = GameType.MENTAL_MATH; // Simplify logic
@@ -358,7 +373,10 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
                          </div>
                          
                          {/* Style Button */}
-                         <button onClick={openStyleModal} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500" title="Tùy chỉnh"><Palette className="w-4 h-4" /></button>
+                         <button onClick={openStyleModal} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 relative" title="Tùy chỉnh">
+                            <Palette className="w-4 h-4" />
+                            {bgTheme !== 'DEFAULT' && <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>}
+                         </button>
                      </div>
                  </div>
               </div>
@@ -383,20 +401,42 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
       {isStyleModalOpen && tempStyle && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsStyleModalOpen(false)}></div>
-          <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-6">
+          <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
              <div className="flex justify-between mb-4">
-                <h3 className="font-bold">Tùy chỉnh thẻ</h3>
+                <h3 className="font-bold text-lg">Cài đặt giao diện</h3>
                 <X className="cursor-pointer" onClick={() => setIsStyleModalOpen(false)} />
              </div>
-             {/* Simple list of themes for demo */}
-             <div className="grid grid-cols-4 gap-2 mb-6">
-                {COLOR_THEMES.map(t => (
-                   <button key={t.id} onClick={() => setTempStyle({...tempStyle, ...t})} className={`w-8 h-8 rounded-full ${t.gradient} ${tempStyle.id === t.id ? 'ring-2 ring-black' : ''}`}></button>
-                ))}
+
+             {/* Background Theme Selector */}
+             <div className="mb-6">
+                <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">Chủ đề nền (Toàn ứng dụng)</h4>
+                <div className="grid grid-cols-2 gap-2">
+                   {BG_THEME_OPTIONS.map(theme => (
+                      <button 
+                        key={theme.id}
+                        onClick={() => onThemeChange(theme.id as BgTheme)}
+                        className={`flex items-center p-2 rounded-lg border-2 transition-all ${bgTheme === theme.id ? 'border-blue-500 bg-blue-50 text-blue-700' : 'border-gray-100 hover:bg-gray-50'}`}
+                      >
+                         <div className={`w-4 h-4 rounded-full mr-2 ${theme.color}`}></div>
+                         <span className="text-sm font-bold">{theme.name}</span>
+                      </button>
+                   ))}
+                </div>
              </div>
-             <div className="mb-4">
+
+             <hr className="border-gray-100 my-4" />
+             
+             {/* Card Style Selector */}
+             <div>
+                <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3">Màu sắc thẻ bài (Game Card)</h4>
+                <div className="grid grid-cols-4 gap-2 mb-4">
+                    {COLOR_THEMES.map(t => (
+                    <button key={t.id} onClick={() => setTempStyle({...tempStyle, ...t})} className={`w-8 h-8 rounded-full ${t.gradient} ${tempStyle.id === t.id ? 'ring-2 ring-black scale-110' : ''}`}></button>
+                    ))}
+                </div>
+                
                 <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-2">Kiểu Icon</h4>
-                <div className="flex gap-2">
+                <div className="flex gap-2 mb-6">
                    {ICON_STYLES.map(s => (
                       <button 
                         key={s.id} 
@@ -408,7 +448,8 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
                    ))}
                 </div>
              </div>
-             <button onClick={handleSaveStyle} className="w-full bg-blue-600 text-white font-bold py-2 rounded-xl">Lưu</button>
+
+             <button onClick={handleSaveStyle} className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg">Lưu Cài Đặt</button>
           </div>
         </div>
       )}

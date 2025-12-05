@@ -150,3 +150,5 @@ export interface GameCardStyle {
   text: string;
   iconStyle: 'SIMPLE' | 'BUBBLE' | 'GLASS' | 'NEON';
 }
+
+export type BgTheme = 'DEFAULT' | 'OCEAN' | 'FOREST' | 'SPACE' | 'CANDY' | 'SUNSET' | 'NOEL' | 'TET';

@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { AppRoute } from '../types';
+import { AppRoute, BgTheme } from '../types';
 import { 
   HelpCircle, GraduationCap, BookOpen, Calculator, Languages, 
   Map, User, LogIn, School, Book, ChevronRight, Sparkles, 
-  MessageCircle, Shapes, Heart, Info, Globe, Palette
+  MessageCircle, Shapes, Heart, Info, Globe, Palette, Sun, Cloud
 } from 'lucide-react';
 
 interface HomeProps {
@@ -13,6 +13,8 @@ interface HomeProps {
   onLogin: (username: string, grade: number, name: string) => void;
   onOpenHelp: () => void;
   onOpenDonation: () => void;
+  bgTheme: BgTheme; // Add prop
+  onThemeChange: (theme: BgTheme) => void; // Add prop
 }
 
 // Configuration for Grade Cards
@@ -34,13 +36,22 @@ const GRADE_LEVELS = [
   { grade: 12, title: 'Lớp 12', icon: '🔥', desc: 'Tích phân & Oxyz', color: 'from-red-600 to-rose-800', text: 'text-red-800', bg: 'bg-red-50' },
 ];
 
+const THEME_OPTIONS = [
+    { id: 'DEFAULT', name: 'Mặc định', icon: '🌞' },
+    { id: 'NOEL', name: 'Giáng Sinh', icon: '🎄' },
+    { id: 'TET', name: 'Tết Việt', icon: '🧧' },
+    { id: 'SPACE', name: 'Vũ Trụ', icon: '🚀' },
+    { id: 'OCEAN', name: 'Đại Dương', icon: '🌊' },
+];
+
 type LevelCategory = 'PRIMARY' | 'SECONDARY' | 'HIGH';
 type SubjectView = 'MATH' | 'LIT' | 'ENG';
 
-export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, onOpenHelp, onOpenDonation }) => {
+export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, onOpenHelp, onOpenDonation, bgTheme, onThemeChange }) => {
   const [activeTab, setActiveTab] = useState<'GUEST' | 'AUTH'>('GUEST');
   const [activeLevelTab, setActiveLevelTab] = useState<LevelCategory>('PRIMARY');
   const [activeSubjectView, setActiveSubjectView] = useState<SubjectView>('MATH');
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
   
   // Form State
   const [guestName, setGuestName] = useState('');
@@ -83,8 +94,19 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
     }
   };
 
+  // Determine Background Style based on Theme
+  let mainBgClass = "bg-gradient-to-b from-white via-white to-slate-50";
+  if (bgTheme === 'NOEL') mainBgClass = "bg-gradient-to-b from-slate-900 to-red-900";
+  else if (bgTheme === 'TET') mainBgClass = "bg-gradient-to-br from-red-600 to-yellow-500";
+  else if (bgTheme === 'SPACE') mainBgClass = "bg-slate-900";
+  else if (bgTheme === 'OCEAN') mainBgClass = "bg-gradient-to-br from-cyan-100 to-blue-200";
+  
+  const isDarkTheme = ['NOEL', 'TET', 'SPACE'].includes(bgTheme);
+  const textColor = isDarkTheme ? "text-white" : "text-slate-800";
+  const subTextColor = isDarkTheme ? "text-slate-200" : "text-slate-500";
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans overflow-x-hidden relative">
+    <div className={`min-h-screen flex flex-col font-sans overflow-x-hidden relative ${mainBgClass} transition-colors duration-700`}>
       <style>{`
         @keyframes float-slow {
           0%, 100% { transform: translateY(0px); }
@@ -94,6 +116,9 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-15px) rotate(5deg); }
         }
+        @keyframes snowfall { 0% { transform: translateY(-10vh) translateX(0); opacity: 1; } 100% { transform: translateY(110vh) translateX(20px); opacity: 0.3; } }
+        @keyframes leaf-fall { 0% { transform: translateY(-10vh) rotate(0deg); } 100% { transform: translateY(110vh) rotate(360deg); } }
+        
         .animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
         .animate-float-delayed { animation: float-delayed 7s ease-in-out infinite 1s; }
         
@@ -106,7 +131,45 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
         }
       `}</style>
 
-      {/* Top Navigation Bar - Z-Index 100 to fix mobile tap issue */}
+      {/* --- FESTIVE OVERLAYS --- */}
+      {bgTheme === 'NOEL' && (
+         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+             {[...Array(50)].map((_, i) => (
+                <div key={i} className="absolute text-white opacity-80" 
+                     style={{
+                        left: `${Math.random() * 100}%`,
+                        animation: `snowfall ${5 + Math.random() * 10}s linear infinite`,
+                        animationDelay: `${Math.random() * 5}s`,
+                        fontSize: `${10 + Math.random() * 20}px`
+                     }}>
+                   ❄️
+                </div>
+             ))}
+             <div className="absolute top-20 right-10 text-6xl animate-bounce hidden md:block" style={{animationDuration: '3s'}}>🎅</div>
+             <div className="absolute top-32 left-10 text-4xl animate-bounce hidden md:block" style={{animationDuration: '4s'}}>🦌</div>
+         </div>
+      )}
+
+      {bgTheme === 'TET' && (
+         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+             {[...Array(30)].map((_, i) => (
+                <div key={i} className="absolute opacity-80" 
+                     style={{
+                        left: `${Math.random() * 100}%`,
+                        animation: `leaf-fall ${6 + Math.random() * 4}s linear infinite`,
+                        animationDelay: `${Math.random() * 5}s`,
+                        fontSize: `${15 + Math.random() * 15}px`
+                     }}>
+                   {i % 2 === 0 ? '🌸' : '🌼'}
+                </div>
+             ))}
+             <div className="absolute top-20 left-4 text-6xl drop-shadow-md">🏮</div>
+             <div className="absolute top-20 right-4 text-6xl drop-shadow-md">🏮</div>
+             <div className="absolute top-40 right-20 text-6xl opacity-30 rotate-12 hidden md:block">🐲</div>
+         </div>
+      )}
+
+      {/* Top Navigation Bar */}
       <nav className="absolute top-0 left-0 w-full z-[100] px-4 py-4 md:px-8 pointer-events-auto">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
             {/* Logo */}
@@ -114,39 +177,57 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                <div className="bg-white/80 backdrop-blur-sm p-2 rounded-xl shadow-sm group-hover:scale-110 transition-transform">
                   <Calculator className="w-6 h-6 text-blue-600" />
                </div>
-               <span className="font-extrabold text-xl text-slate-800 tracking-tight">MathViet</span>
+               <span className={`font-extrabold text-xl tracking-tight ${textColor} drop-shadow-sm`}>MathViet</span>
             </div>
 
             {/* Desktop Menu */}
-            <div className="hidden md:flex items-center gap-6">
-               <button 
-                  onClick={() => onNavigate(AppRoute.ABOUT)} 
-                  className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors"
-               >
-                  Về chúng tôi
-               </button>
-               <button 
-                  onClick={() => onNavigate(AppRoute.SITEMAP)} 
-                  className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors"
-               >
-                  Sitemap
-               </button>
-               <button 
-                  onClick={onOpenHelp} 
-                  className="text-sm font-bold text-slate-600 hover:text-blue-600 transition-colors"
-               >
-                  Hướng dẫn
-               </button>
-               <button 
-                  onClick={onOpenDonation} 
-                  className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-md rounded-full text-rose-500 font-bold text-sm shadow-sm hover:bg-white hover:shadow-md transition-all"
-               >
+            <div className="hidden md:flex items-center gap-4">
+               {/* Theme Selector Button (Desktop) */}
+               <div className="relative">
+                  <button 
+                    onClick={() => setShowThemeMenu(!showThemeMenu)}
+                    className="flex items-center gap-2 px-3 py-2 bg-white/20 backdrop-blur-md rounded-full text-white font-bold text-sm hover:bg-white/30 transition-all border border-white/20"
+                  >
+                     <Palette className="w-4 h-4" /> Giao diện: {THEME_OPTIONS.find(t=>t.id===bgTheme)?.name}
+                  </button>
+                  {showThemeMenu && (
+                     <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-[110]">
+                        {THEME_OPTIONS.map(t => (
+                           <button 
+                              key={t.id} 
+                              onClick={() => { onThemeChange(t.id as BgTheme); setShowThemeMenu(false); }}
+                              className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-bold ${bgTheme === t.id ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'}`}
+                           >
+                              <span>{t.icon}</span> {t.name}
+                           </button>
+                        ))}
+                     </div>
+                  )}
+               </div>
+
+               <button onClick={() => onNavigate(AppRoute.ABOUT)} className={`text-sm font-bold hover:opacity-80 transition-colors ${textColor}`}>Về chúng tôi</button>
+               <button onClick={() => onNavigate(AppRoute.SITEMAP)} className={`text-sm font-bold hover:opacity-80 transition-colors ${textColor}`}>Sitemap</button>
+               <button onClick={onOpenHelp} className={`text-sm font-bold hover:opacity-80 transition-colors ${textColor}`}>Hướng dẫn</button>
+               <button onClick={onOpenDonation} className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-rose-500 font-bold text-sm shadow-sm hover:bg-white hover:shadow-md transition-all animate-pulse">
                   <Heart className="w-4 h-4 fill-current" /> Ủng hộ
                </button>
             </div>
 
             {/* Mobile Menu Icons */}
             <div className="flex md:hidden items-center gap-2">
+               {/* Mobile Theme Toggle (Cycle) */}
+               <button 
+                  onClick={() => {
+                     const currentIndex = THEME_OPTIONS.findIndex(t => t.id === bgTheme);
+                     const nextIndex = (currentIndex + 1) % THEME_OPTIONS.length;
+                     onThemeChange(THEME_OPTIONS[nextIndex].id as BgTheme);
+                  }}
+                  className="p-2 bg-white/50 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"
+                  title="Đổi giao diện"
+               >
+                  <Palette className="w-5 h-5" />
+               </button>
+
                <button onClick={() => onNavigate(AppRoute.SITEMAP)} className="p-2 bg-white/50 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><Map className="w-5 h-5" /></button>
                <button onClick={() => onNavigate(AppRoute.ABOUT)} className="p-2 bg-white/50 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><Info className="w-5 h-5" /></button>
                <button onClick={onOpenHelp} className="p-2 bg-white/50 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><HelpCircle className="w-5 h-5" /></button>
@@ -157,15 +238,18 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
 
       {/* Hero Section */}
       <section className="relative pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
-        {/* Dynamic Background */}
-        <div className="absolute inset-0 z-0 transition-colors duration-1000 bg-gradient-to-b from-white via-white to-slate-50">
-           <div className={`absolute top-0 right-0 w-[800px] h-[800px] rounded-full blur-[100px] opacity-20 transition-colors duration-1000 ${
-              activeSubjectView === 'MATH' ? 'bg-blue-400' : activeSubjectView === 'LIT' ? 'bg-rose-400' : 'bg-indigo-400'
-           } -translate-y-1/2 translate-x-1/4`}></div>
-           <div className={`absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full blur-[80px] opacity-20 transition-colors duration-1000 ${
-              activeSubjectView === 'MATH' ? 'bg-cyan-400' : activeSubjectView === 'LIT' ? 'bg-orange-400' : 'bg-purple-400'
-           } translate-y-1/2 -translate-x-1/4`}></div>
-        </div>
+        
+        {/* Only show blobs if default theme */}
+        {bgTheme === 'DEFAULT' && (
+          <>
+            <div className={`absolute top-0 right-0 w-[800px] h-[800px] rounded-full blur-[100px] opacity-20 transition-colors duration-1000 ${
+                activeSubjectView === 'MATH' ? 'bg-blue-400' : activeSubjectView === 'LIT' ? 'bg-rose-400' : 'bg-indigo-400'
+            } -translate-y-1/2 translate-x-1/4`}></div>
+            <div className={`absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full blur-[80px] opacity-20 transition-colors duration-1000 ${
+                activeSubjectView === 'MATH' ? 'bg-cyan-400' : activeSubjectView === 'LIT' ? 'bg-orange-400' : 'bg-purple-400'
+            } translate-y-1/2 -translate-x-1/4`}></div>
+          </>
+        )}
 
         <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -177,19 +261,21 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                  <span className="text-sm font-bold text-gray-700">Học mà chơi, chơi mà học</span>
               </div>
               
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-slate-800 leading-[1.1] tracking-tight">
+              <h1 className={`text-4xl md:text-6xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight ${textColor} drop-shadow-sm`}>
                 Khám phá <br/>
                 <span className={`text-transparent bg-clip-text bg-gradient-to-r transition-all duration-700 ${
-                   activeSubjectView === 'MATH' ? 'from-blue-600 to-cyan-500' :
-                   activeSubjectView === 'LIT' ? 'from-rose-600 to-orange-500' :
-                   'from-indigo-600 to-purple-500'
+                   bgTheme === 'NOEL' ? 'from-green-400 to-red-400' :
+                   bgTheme === 'TET' ? 'from-yellow-300 to-red-500' :
+                   activeSubjectView === 'MATH' ? 'from-blue-400 to-cyan-300' :
+                   activeSubjectView === 'LIT' ? 'from-rose-400 to-orange-300' :
+                   'from-indigo-400 to-purple-300'
                 }`}>
-                   {activeSubjectView === 'MATH' ? 'Thế Giới Số' : activeSubjectView === 'LIT' ? 'Vườn Văn Học' : 'Vũ Trụ Anh Ngữ'}
+                   {bgTheme === 'NOEL' ? 'Mùa Lễ Hội' : bgTheme === 'TET' ? 'Xuân Như Ý' : (activeSubjectView === 'MATH' ? 'Thế Giới Số' : activeSubjectView === 'LIT' ? 'Vườn Văn Học' : 'Vũ Trụ Anh Ngữ')}
                 </span>
               </h1>
               
-              <p className="text-lg md:text-xl text-slate-500 max-w-lg mx-auto lg:mx-0 leading-relaxed">
-                Nền tảng giáo dục Gamification số Việt Nam dành cho học sinh lớp 1-12. 
+              <p className={`text-lg md:text-xl max-w-lg mx-auto lg:mx-0 leading-relaxed ${subTextColor}`}>
+                Nền tảng giáo dục Gamification số 1 Việt Nam dành cho học sinh lớp 1-12. 
                 Rèn luyện tư duy mỗi ngày với AI thông minh.
               </p>
 
@@ -438,28 +524,28 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
       </section>
 
       {/* Why Choose Us */}
-      <section className="py-12 bg-white px-4">
+      <section className={`py-12 px-4 ${isDarkTheme ? 'bg-black/20 text-white' : 'bg-white text-slate-800'}`}>
          <div className="max-w-6xl mx-auto">
-            <h2 className="text-center text-3xl font-extrabold text-slate-800 mb-12">Tại sao chọn MathViet?</h2>
+            <h2 className="text-center text-3xl font-extrabold mb-12">Tại sao chọn MathViet?</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-               <div className="text-center p-6 rounded-3xl bg-blue-50/50 hover:bg-blue-50 transition-colors">
+               <div className={`text-center p-6 rounded-3xl transition-colors ${isDarkTheme ? 'bg-white/10 hover:bg-white/20' : 'bg-blue-50/50 hover:bg-blue-50'}`}>
                   <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl">🤖</div>
-                  <h3 className="font-bold text-xl mb-3 text-gray-800">AI Thông Minh</h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <h3 className="font-bold text-xl mb-3">AI Thông Minh</h3>
+                  <p className={`leading-relaxed ${subTextColor}`}>
                      Sử dụng Google Gemini để tạo ra hàng triệu câu hỏi độc nhất, phù hợp với trình độ của từng học sinh.
                   </p>
                </div>
-               <div className="text-center p-6 rounded-3xl bg-purple-50/50 hover:bg-purple-50 transition-colors">
+               <div className={`text-center p-6 rounded-3xl transition-colors ${isDarkTheme ? 'bg-white/10 hover:bg-white/20' : 'bg-purple-50/50 hover:bg-purple-50'}`}>
                   <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl">🎮</div>
-                  <h3 className="font-bold text-xl mb-3 text-gray-800">Vừa Học Vừa Chơi</h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <h3 className="font-bold text-xl mb-3">Vừa Học Vừa Chơi</h3>
+                  <p className={`leading-relaxed ${subTextColor}`}>
                      Hệ thống điểm thưởng, huy hiệu và bảng xếp hạng giúp việc học trở nên thú vị như chơi game.
                   </p>
                </div>
-               <div className="text-center p-6 rounded-3xl bg-green-50/50 hover:bg-green-50 transition-colors">
+               <div className={`text-center p-6 rounded-3xl transition-colors ${isDarkTheme ? 'bg-white/10 hover:bg-white/20' : 'bg-green-50/50 hover:bg-green-50'}`}>
                   <div className="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl">🇻🇳</div>
-                  <h3 className="font-bold text-xl mb-3 text-gray-800">Đậm Chất Việt</h3>
-                  <p className="text-gray-600 leading-relaxed">
+                  <h3 className="font-bold text-xl mb-3">Đậm Chất Việt</h3>
+                  <p className={`leading-relaxed ${subTextColor}`}>
                      Nội dung bám sát chương trình giáo dục Việt Nam, tích hợp văn hóa và lịch sử nước nhà.
                   </p>
                </div>
@@ -468,26 +554,26 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-50 border-t border-gray-200 py-10 mt-auto">
-         <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-sm text-gray-500 space-y-4">
+      <footer className={`border-t border-gray-200 py-10 mt-auto ${isDarkTheme ? 'bg-black/30 border-white/10 text-slate-300' : 'bg-slate-50 text-gray-500'}`}>
+         <div className="max-w-7xl mx-auto px-4 flex flex-col items-center justify-center text-sm space-y-4">
             <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-4xl">
                <div className="text-center md:text-left mb-6 md:mb-0">
                   <div className="flex items-center justify-center md:justify-start mb-2">
                      <Calculator className="w-5 h-5 mr-2 text-blue-500" />
-                     <span className="font-bold text-gray-700 text-lg">MathViet</span> 
+                     <span className={`font-bold text-lg ${isDarkTheme ? 'text-white' : 'text-gray-700'}`}>MathViet</span> 
                   </div>
                   <p>Nền tảng học tập thông minh miễn phí.</p>
-                  <p className="text-xs text-gray-400 mt-1">© 2025. All rights reserved.</p>
+                  <p className="text-xs opacity-70 mt-1">© 2025. All rights reserved.</p>
                </div>
                
-               <div className="flex gap-6 font-bold text-gray-600">
+               <div className={`flex gap-6 font-bold ${isDarkTheme ? 'text-slate-300' : 'text-gray-600'}`}>
                   <button onClick={onOpenHelp} className="hover:text-primary transition-colors flex items-center"><HelpCircle className="w-4 h-4 mr-1"/> Hướng dẫn</button>
                   <button onClick={() => onNavigate(AppRoute.SITEMAP)} className="hover:text-primary transition-colors flex items-center"><Map className="w-4 h-4 mr-1"/> Sitemap</button>
                   <button onClick={() => onNavigate(AppRoute.ABOUT)} className="hover:text-primary transition-colors flex items-center"><User className="w-4 h-4 mr-1"/> Về chúng tôi</button>
                </div>
             </div>
             
-            <div className="w-full max-w-xl border-t border-gray-200 my-4"></div>
+            <div className="w-full max-w-xl border-t border-gray-200/50 my-4"></div>
 
             <div 
               className="text-xs text-center cursor-pointer hover:text-rose-500 transition-colors group" 
@@ -495,7 +581,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
             >
                <span className="font-bold group-hover:underline">Ủng hộ tôi một ly cà phê tùy tâm ☕</span>
                <br/>
-               <span className="text-gray-400 opacity-70 mt-1 block">Phát triển bởi Lâm Phong - Cựu Học Sinh THPT Tĩnh Gia 3 (2007-2010)</span>
+               <span className="opacity-70 mt-1 block">Phát triển bởi Lâm Phong - Cựu Học Sinh THPT Tĩnh Gia 3 (2007-2010)</span>
             </div>
             
             {/* Hidden Admin Link */}

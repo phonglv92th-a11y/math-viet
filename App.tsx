@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { AppRoute, UserProfile, GameType, AdventureLevel, GameMode, World, WorldId } from './types';
+import { AppRoute, UserProfile, GameType, AdventureLevel, GameMode, World, WorldId, BgTheme } from './types';
 import { Navbar } from './components/Navbar';
 import { HelpModal } from './components/HelpModal';
 import { DonationModal } from './components/DonationModal';
@@ -68,6 +68,9 @@ const App: React.FC = () => {
   const [showHelp, setShowHelp] = useState(false);
   const [showDonation, setShowDonation] = useState(false); // Donation Modal State
   
+  // Theme State (Lifted Up)
+  const [bgTheme, setBgTheme] = useState<BgTheme>(() => (localStorage.getItem('mathviet_bg_theme') as BgTheme) || 'DEFAULT');
+
   // User Data State
   const [user, setUser] = useState<UserProfile | null>(null);
   const [adventureLevels, setAdventureLevels] = useState<AdventureLevel[]>(INITIAL_LEVELS);
@@ -92,6 +95,11 @@ const App: React.FC = () => {
       localStorage.setItem('mathviet_user_profile', JSON.stringify(user));
     }
   }, [user]);
+
+  // Persist Theme
+  useEffect(() => {
+    localStorage.setItem('mathviet_bg_theme', bgTheme);
+  }, [bgTheme]);
 
   const navigateTo = (route: AppRoute, params?: any) => {
     setCurrentRoute(route);
@@ -244,15 +252,25 @@ const App: React.FC = () => {
             return <AdminDashboard onNavigate={navigateTo} />;
          }
          // Default to Home for any other route if not logged in
-         return <Home onNavigate={navigateTo} onStartGuest={handleStartGuest} onLogin={handleLogin} onOpenHelp={() => setShowHelp(true)} onOpenDonation={() => setShowDonation(true)} />;
+         return (
+            <Home 
+                bgTheme={bgTheme} 
+                onThemeChange={setBgTheme}
+                onNavigate={navigateTo} 
+                onStartGuest={handleStartGuest} 
+                onLogin={handleLogin} 
+                onOpenHelp={() => setShowHelp(true)} 
+                onOpenDonation={() => setShowDonation(true)} 
+            />
+         );
     }
 
     // PROTECTED ROUTES
     switch (currentRoute) {
       case AppRoute.HOME:
-        return <Dashboard user={user} onNavigate={navigateTo} onAddFriend={handleAddFriend} adventureLevels={adventureLevels} worlds={WORLDS} />;
+        return <Dashboard user={user} onNavigate={navigateTo} onAddFriend={handleAddFriend} adventureLevels={adventureLevels} worlds={WORLDS} bgTheme={bgTheme} onThemeChange={setBgTheme} />;
       case AppRoute.DASHBOARD:
-        return <Dashboard user={user} onNavigate={navigateTo} onAddFriend={handleAddFriend} adventureLevels={adventureLevels} worlds={WORLDS} />;
+        return <Dashboard user={user} onNavigate={navigateTo} onAddFriend={handleAddFriend} adventureLevels={adventureLevels} worlds={WORLDS} bgTheme={bgTheme} onThemeChange={setBgTheme} />;
       case AppRoute.GAME_PLAY:
         return (
           <GameArena 
@@ -262,6 +280,7 @@ const App: React.FC = () => {
             difficulty={routeParams.difficulty}
             questionCount={routeParams.questionCount}
             topicFocus={routeParams.topicFocus}
+            bgTheme={bgTheme}
             onNavigate={navigateTo} 
             onGameComplete={handleGameComplete} 
           />
@@ -281,7 +300,7 @@ const App: React.FC = () => {
       case AppRoute.ADMIN: // Registered users can also try to access admin
         return <AdminDashboard onNavigate={navigateTo} />;
       default:
-        return <Dashboard user={user} onNavigate={navigateTo} onAddFriend={handleAddFriend} adventureLevels={adventureLevels} worlds={WORLDS} />;
+        return <Dashboard user={user} onNavigate={navigateTo} onAddFriend={handleAddFriend} adventureLevels={adventureLevels} worlds={WORLDS} bgTheme={bgTheme} onThemeChange={setBgTheme} />;
     }
   };
 
