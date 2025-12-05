@@ -1,49 +1,8 @@
 
-import { GoogleGenAI, Type, Schema } from "@google/genai";
 import { GameType, MathProblem } from "../types";
 
-// Initialize Gemini Client (Lazy)
-// This prevents the app from crashing on startup if the API_KEY env variable is missing
-let ai: GoogleGenAI | null = null;
-
-const getAiClient = () => {
-  if (!ai) {
-    if (!process.env.API_KEY) {
-      console.warn("Google Gemini API Key is missing. Game generation will fail.");
-    }
-    ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
-  }
-  return ai;
-};
-
-const problemSchema: Schema = {
-  type: Type.OBJECT,
-  properties: {
-    question: {
-      type: Type.STRING,
-      description: "The question text. For Math, use LaTeX wrapped in $ signs for formulas (e.g., 'Solve $x^2 + 2x = 0$').",
-    },
-    options: {
-      type: Type.ARRAY,
-      items: { type: Type.STRING },
-      description: "A list of 4 possible answers. For Math, use LaTeX wrapped in $ signs (e.g., '$x = 2$').",
-    },
-    correctAnswerIndex: {
-      type: Type.INTEGER,
-      description: "The index (0-3) of the correct answer in the options array.",
-    },
-    explanation: {
-      type: Type.STRING,
-      description: "A short explanation in Vietnamese. Use LaTeX wrapped in $ for math steps.",
-    },
-    difficulty: {
-      type: Type.STRING,
-      enum: ["Easy", "Medium", "Hard"],
-      description: "The difficulty level of the problem.",
-    }
-  },
-  required: ["question", "options", "correctAnswerIndex", "explanation", "difficulty"],
-};
+// NOTE: We no longer import GoogleGenAI here to keep the bundle small and secure.
+// All API calls are now routed through /api/generate (Vercel Function).
 
 export const generateGameProblems = async (
   grade: number,
@@ -51,7 +10,7 @@ export const generateGameProblems = async (
   count: number = 5,
   difficulty?: 'Easy' | 'Medium' | 'Hard',
   topicFocus?: string,
-  reviewContext?: string // New param for Review Mode
+  reviewContext?: string
 ): Promise<MathProblem[]> => {
   const modelId = 'gemini-2.5-flash';
   
@@ -222,31 +181,38 @@ export const generateGameProblems = async (
   const prompt = `${promptContext} Return the result as a JSON array. ensure the language is natural Vietnamese (except for English question content).`;
 
   try {
-    const client = getAiClient();
-    const response = await client.models.generateContent({
-      model: modelId,
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: problemSchema
-        },
-        temperature: 0.7,
+    // SECURITY UPDATE: Fetch from internal API to keep API Key secure on server
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       },
+      body: JSON.stringify({
+        prompt: prompt,
+        modelId: modelId
+      })
     });
 
-    const jsonText = response.text;
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    const jsonText = data.text;
+
     if (!jsonText) return [];
     
-    return JSON.parse(jsonText) as MathProblem[];
+    // Clean markdown code blocks if present
+    const cleanJson = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(cleanJson) as MathProblem[];
+
   } catch (error) {
     console.error("Error generating problems:", error);
     return [{
       question: "Có lỗi kết nối. Vui lòng thử lại sau.",
       options: ["Thử lại", "Thoát", "Đợi", "Báo lỗi"],
       correctAnswerIndex: 0,
-      explanation: "Hệ thống đang bận.",
+      explanation: "Hệ thống đang bận hoặc gặp sự cố mạng.",
       difficulty: "Easy"
     }];
   }
