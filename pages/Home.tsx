@@ -4,13 +4,14 @@ import { AppRoute, BgTheme } from '../types';
 import { 
   HelpCircle, GraduationCap, BookOpen, Calculator, Languages, 
   Map, User, LogIn, School, Book, ChevronRight, Sparkles, 
-  MessageCircle, Shapes, Heart, Info, Globe, Palette, Sun, Cloud
+  MessageCircle, Shapes, Heart, Info, Globe, Palette, Lock, UserPlus
 } from 'lucide-react';
 
 interface HomeProps {
   onNavigate: (route: AppRoute) => void;
   onStartGuest: (name: string, grade: number) => void;
-  onLogin: (username: string, grade: number, name: string) => void;
+  onLogin: (username: string, password: string) => void;
+  onRegister: (username: string, password: string, fullName: string, grade: number) => void;
   onOpenHelp: () => void;
   onOpenDonation: () => void;
   bgTheme: BgTheme; // Add prop
@@ -47,8 +48,9 @@ const THEME_OPTIONS = [
 type LevelCategory = 'PRIMARY' | 'SECONDARY' | 'HIGH';
 type SubjectView = 'MATH' | 'LIT' | 'ENG';
 
-export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, onOpenHelp, onOpenDonation, bgTheme, onThemeChange }) => {
+export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, onRegister, onOpenHelp, onOpenDonation, bgTheme, onThemeChange }) => {
   const [activeTab, setActiveTab] = useState<'GUEST' | 'AUTH'>('GUEST');
+  const [authMode, setAuthMode] = useState<'LOGIN' | 'REGISTER'>('LOGIN'); // Sub-mode for AUTH
   const [activeLevelTab, setActiveLevelTab] = useState<LevelCategory>('PRIMARY');
   const [activeSubjectView, setActiveSubjectView] = useState<SubjectView>('MATH');
   const [showThemeMenu, setShowThemeMenu] = useState(false);
@@ -57,6 +59,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
   const [guestName, setGuestName] = useState('');
   const [selectedGrade, setSelectedGrade] = useState<number | null>(null);
   const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
 
   // Auto-rotate hero subject
@@ -78,10 +81,15 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
     }
   };
 
-  const handleAuthLogin = () => {
-    if (username.trim() && fullName.trim() && selectedGrade) {
-      onLogin(username, selectedGrade, fullName);
-      onNavigate(AppRoute.DASHBOARD);
+  const handleAuthSubmit = () => {
+    if (authMode === 'LOGIN') {
+        if (username.trim() && password.trim()) {
+            onLogin(username, password);
+        }
+    } else {
+        if (username.trim() && password.trim() && fullName.trim() && selectedGrade) {
+            onRegister(username, password, fullName, selectedGrade);
+        }
     }
   };
 
@@ -358,7 +366,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
       <section className="relative z-20 -mt-10 lg:-mt-20 px-4 mb-20">
          <div className="max-w-5xl mx-auto bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl border border-white/50 p-6 md:p-10 flex flex-col md:flex-row gap-10">
             
-            {/* Login / Register Form */}
+            {/* Login / Register / Guest Form */}
             <div className="w-full md:w-1/2 relative">
                 {/* z-index relative to input container in mobile */}
                 <div className="bg-gray-100 p-1 rounded-xl flex mb-6 relative z-30">
@@ -370,7 +378,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                   </button>
                   <button 
                     onClick={() => setActiveTab('AUTH')}
-                    className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${activeTab === 'AUTH' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                    className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${activeTab === 'AUTH' ? 'bg-white text-purple-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                   >
                     Thành Viên (Lưu trữ)
                   </button>
@@ -378,8 +386,8 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
 
                 <div className="space-y-4">
                   {activeTab === 'GUEST' ? (
-                     <>
-                        <div className="relative z-30">
+                     <div className="animate-in fade-in slide-in-from-left-4">
+                        <div className="relative z-30 mb-4">
                            <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
                            <input 
                               type="text" 
@@ -389,6 +397,9 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                               className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-gray-800 font-bold text-lg transition-all relative z-40"
                            />
                         </div>
+                        <p className="text-xs text-gray-500 mb-4 text-center">
+                           * Chế độ khách không lưu dữ liệu vĩnh viễn (Mất khi tải lại trang).
+                        </p>
                         <button
                           onClick={handleStartGuest}
                           disabled={!guestName.trim() || !selectedGrade}
@@ -400,44 +411,91 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                         >
                            Bắt Đầu Ngay <ChevronRight className="w-5 h-5 ml-2" />
                         </button>
-                     </>
+                     </div>
                   ) : (
-                     <>
-                        <div className="relative z-30">
-                           <LogIn className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                           <input 
-                              type="text" 
-                              value={username}
-                              onChange={(e) => setUsername(e.target.value)}
-                              placeholder="Tên đăng nhập"
-                              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all relative z-40"
-                           />
+                     <div className="animate-in fade-in slide-in-from-right-4">
+                        {/* Sub-tabs for Login/Register */}
+                        <div className="flex justify-center gap-6 mb-4 text-sm font-bold border-b border-gray-200 pb-2">
+                            <button 
+                                onClick={() => setAuthMode('LOGIN')}
+                                className={`transition-colors ${authMode === 'LOGIN' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                Đăng Nhập
+                            </button>
+                            <button 
+                                onClick={() => setAuthMode('REGISTER')}
+                                className={`transition-colors ${authMode === 'REGISTER' ? 'text-purple-600 border-b-2 border-purple-600' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                Đăng Ký
+                            </button>
                         </div>
-                        <div className="relative z-30">
-                           <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                           <input 
-                              type="text" 
-                              value={fullName}
-                              onChange={(e) => setFullName(e.target.value)}
-                              placeholder="Tên hiển thị (VD: Bé Bo)"
-                              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all relative z-40"
-                           />
+
+                        <div className="relative z-30 space-y-3">
+                           <div>
+                               <div className="relative">
+                                   <LogIn className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                   <input 
+                                      type="text" 
+                                      value={username}
+                                      onChange={(e) => setUsername(e.target.value)}
+                                      placeholder="Tên đăng nhập (Username)"
+                                      className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all"
+                                   />
+                               </div>
+                           </div>
+                           
+                           <div>
+                               <div className="relative">
+                                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                   <input 
+                                      type="password" 
+                                      value={password}
+                                      onChange={(e) => setPassword(e.target.value)}
+                                      placeholder="Mật khẩu"
+                                      className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all"
+                                   />
+                               </div>
+                           </div>
+
+                           {authMode === 'REGISTER' && (
+                               <div className="animate-in fade-in slide-in-from-top-2">
+                                   <div className="relative">
+                                       <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                                       <input 
+                                          type="text" 
+                                          value={fullName}
+                                          onChange={(e) => setFullName(e.target.value)}
+                                          placeholder="Tên hiển thị (VD: Bé Bo)"
+                                          className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all"
+                                       />
+                                   </div>
+                               </div>
+                           )}
                         </div>
+
                         <button
-                          onClick={handleAuthLogin}
-                          disabled={!username.trim() || !fullName.trim() || !selectedGrade}
-                          className={`w-full py-4 rounded-2xl font-extrabold text-lg shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center relative z-30 ${
-                             (!username.trim() || !fullName.trim() || !selectedGrade) 
+                          onClick={handleAuthSubmit}
+                          disabled={
+                              authMode === 'LOGIN' 
+                              ? (!username.trim() || !password.trim()) 
+                              : (!username.trim() || !password.trim() || !fullName.trim() || !selectedGrade)
+                          }
+                          className={`w-full mt-4 py-4 rounded-2xl font-extrabold text-lg shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center relative z-30 ${
+                             (authMode === 'LOGIN' 
+                                ? (!username.trim() || !password.trim()) 
+                                : (!username.trim() || !password.trim() || !fullName.trim() || !selectedGrade)
+                             )
                              ? 'bg-gray-200 text-gray-400 cursor-not-allowed' 
                              : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-purple-200'
                           }`}
                         >
-                           Đăng Nhập / Đăng Ký
+                           {authMode === 'LOGIN' ? 'Đăng Nhập' : 'Đăng Ký Thành Viên'} 
+                           {authMode === 'LOGIN' ? <LogIn className="w-5 h-5 ml-2" /> : <UserPlus className="w-5 h-5 ml-2" />}
                         </button>
-                     </>
+                     </div>
                   )}
                   
-                  {!selectedGrade && (
+                  {(!selectedGrade && (activeTab === 'GUEST' || authMode === 'REGISTER')) && (
                      <p className="text-center text-sm text-red-500 font-medium animate-pulse relative z-30">
                         👇 Vui lòng chọn lớp học ở bên phải
                      </p>

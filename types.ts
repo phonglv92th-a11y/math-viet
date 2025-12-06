@@ -64,6 +64,7 @@ export interface GameStats {
 export interface UserProfile {
   id: string; // Unique ID
   username?: string; // For registered users
+  password?: string; // Simple auth check
   name: string;
   grade: number; // 1-12
   points: number;

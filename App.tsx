@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { AppRoute, UserProfile, GameType, AdventureLevel, GameMode, World, WorldId, BgTheme } from './types';
 import { Navbar } from './components/Navbar';
@@ -80,6 +81,9 @@ const App: React.FC = () => {
     if (savedUser) {
       try {
         const parsed = JSON.parse(savedUser);
+        
+        // If guest, do not restore from local storage if window was closed (simulate session)
+        // But for simplicity in this specific "reload" request context, we follow the standard session behavior
         setUser(parsed);
         setCurrentRoute(AppRoute.DASHBOARD);
         
@@ -103,7 +107,21 @@ const App: React.FC = () => {
   // Save User whenever state changes
   useEffect(() => {
     if (user) {
-      userService.saveUserProfile(user);
+      // Only save to permanent storage if not a guest (or if we want session persistence for guest)
+      // The user requested: "guest mode... refresh loses data". 
+      // So we do NOT call userService.saveUserProfile for guests if we want strict non-persistence.
+      // However, to allow navigation within the app without losing state, we keep it in state.
+      
+      if (!user.isGuest) {
+          userService.saveUserProfile(user);
+          localStorage.setItem('mathviet_user_profile', JSON.stringify(user));
+      } else {
+          // For guest, we might want to keep it in sessionStorage or just rely on React State
+          // If user refreshes, React State is lost. If we don't save to localStorage, it's lost.
+          // So simply NOT saving to localStorage satisfies "refresh is lost".
+          // BUT, existing code above loads from localStorage. So we must ensure we don't save guests there.
+          localStorage.removeItem('mathviet_user_profile'); 
+      }
     }
   }, [user]);
 
@@ -135,19 +153,44 @@ const App: React.FC = () => {
       isGuest: true
     };
     setUser(guestUser);
+    setCurrentRoute(AppRoute.DASHBOARD);
   };
 
-  const handleLogin = async (username: string, grade: number, fullName: string) => {
-    // Try to fetch existing user from Firebase/Local
-    const existingUser = await userService.getUserProfile(username);
-    
-    if (existingUser) {
-        setUser(existingUser);
-    } else {
-        // Register new user
+  const handleLogin = async (username: string, password: string) => {
+    try {
+        const existingUser = await userService.getUserProfile(username);
+        
+        if (existingUser) {
+            // Simple password check (In real app, backend does this securely)
+            if (existingUser.password === password) {
+                setUser(existingUser);
+                setCurrentRoute(AppRoute.DASHBOARD);
+            } else {
+                alert("Mật khẩu không đúng! Vui lòng thử lại.");
+            }
+        } else {
+            alert("Tài khoản không tồn tại. Vui lòng đăng ký trước.");
+        }
+    } catch (e) {
+        console.error("Login error", e);
+        alert("Có lỗi xảy ra khi đăng nhập.");
+    }
+  };
+
+  const handleRegister = async (username: string, password: string, fullName: string, grade: number) => {
+    try {
+        const existingUser = await userService.getUserProfile(username);
+        
+        if (existingUser) {
+            alert("Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác.");
+            return;
+        }
+
+        // Create new user
         const newUser: UserProfile = {
             id: `user_${username}_${Date.now()}`,
             username: username,
+            password: password, // Store password
             name: fullName,
             grade: grade,
             points: 0,
@@ -159,7 +202,15 @@ const App: React.FC = () => {
             masteryHighScore: 0,
             isGuest: false
         };
+        
+        await userService.saveUserProfile(newUser);
         setUser(newUser);
+        setCurrentRoute(AppRoute.DASHBOARD);
+        alert("Đăng ký thành công!");
+
+    } catch (e) {
+        console.error("Register error", e);
+        alert("Có lỗi xảy ra khi đăng ký.");
     }
   };
 
@@ -259,6 +310,7 @@ const App: React.FC = () => {
                 onNavigate={navigateTo} 
                 onStartGuest={handleStartGuest} 
                 onLogin={handleLogin} 
+                onRegister={handleRegister}
                 onOpenHelp={() => setShowHelp(true)} 
                 onOpenDonation={() => setShowDonation(true)} 
             />
