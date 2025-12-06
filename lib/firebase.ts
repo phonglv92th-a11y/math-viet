@@ -1,8 +1,10 @@
-import { initializeApp } from "firebase/app";
+import * as firebaseApp from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-// Fix: Cast import.meta to any to resolve TypeScript error "Property 'env' does not exist on type 'ImportMeta'"
-const env = (import.meta as any).env;
+// Safe access to environment variables
+// Ensure we don't crash if import.meta.env is undefined
+const meta = import.meta as any;
+const env = meta && meta.env ? meta.env : {};
 
 // Cấu hình Firebase từ biến môi trường (Vercel Environment Variables)
 // Bạn lấy các thông tin này từ Firebase Console -> Project Settings -> General -> Your apps -> SDK setup and configuration
@@ -15,7 +17,7 @@ const firebaseConfig = {
   appId: env.VITE_FIREBASE_APP_ID
 };
 
-// Kiểm tra xem đã có cấu hình chưa
+// Kiểm tra xem đã có cấu hình chưa (Check if API Key exists)
 const isFirebaseConfigured = !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
 
 let app;
@@ -23,14 +25,19 @@ let db: any = null;
 
 if (isFirebaseConfigured) {
   try {
-    app = initializeApp(firebaseConfig);
+    // Access initializeApp from the namespace object to avoid named export issues in some TS configs
+    app = firebaseApp.initializeApp(firebaseConfig);
     db = getFirestore(app);
     console.log("🔥 Firebase connected successfully!");
   } catch (error) {
     console.error("🔥 Firebase initialization error:", error);
   }
 } else {
-  console.warn("⚠️ Firebase credentials missing. Falling back to LocalStorage.");
+  // Log warning only in development or if explicitly checking
+  // Using console.warn to avoid cluttering production logs if intentionally running offline
+  if (env.MODE !== 'production' || !isFirebaseConfigured) {
+     console.warn("⚠️ Firebase credentials missing or incomplete. Falling back to LocalStorage.");
+  }
 }
 
 export { db };
