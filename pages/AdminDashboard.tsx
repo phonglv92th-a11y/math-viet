@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { AppRoute, UserProfile } from '../types';
 import { userService } from '../services/userService';
+import { db } from '../lib/firebase'; // Import db directly to check connection
 import { 
   LayoutDashboard, Users, Activity, Settings, Lock, LogOut, 
-  TrendingUp, AlertTriangle, ShieldCheck, Database, Server, RefreshCw
+  TrendingUp, AlertTriangle, ShieldCheck, Database, Server, RefreshCw, CheckCircle, XCircle
 } from 'lucide-react';
 import { 
   PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
@@ -23,13 +24,6 @@ const TRAFFIC_DATA = [
   { name: '23:59', users: 600 },
 ];
 
-const SUBJECT_DISTRIBUTION = [
-  { name: 'Toán Học', value: 45, color: '#3b82f6' },
-  { name: 'Văn Học', value: 25, color: '#f43f5e' },
-  { name: 'Tiếng Anh', value: 20, color: '#8b5cf6' },
-  { name: 'Khoa Học', value: 10, color: '#10b981' },
-];
-
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
@@ -39,6 +33,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
   // Real User Data State
   const [userList, setUserList] = useState<UserProfile[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
+  
+  // DB Status
+  const isDbConnected = !!db;
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,6 +131,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
         </nav>
 
         <div className="p-4 border-t border-slate-800">
+          <div className={`mb-4 px-3 py-2 rounded-lg flex items-center text-xs font-bold ${isDbConnected ? 'bg-green-900/30 text-green-400 border border-green-800' : 'bg-red-900/30 text-red-400 border border-red-800'}`}>
+             {isDbConnected ? <CheckCircle className="w-4 h-4 mr-2" /> : <XCircle className="w-4 h-4 mr-2" />}
+             {isDbConnected ? 'Database Connected' : 'Database Offline'}
+          </div>
           <button onClick={handleLogout} className="flex items-center text-red-400 hover:text-red-300 transition-colors">
             <LogOut className="w-5 h-5 mr-2" /> Đăng xuất
           </button>
@@ -171,9 +172,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                   <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                      <div className="flex justify-between items-start mb-2">
                         <div className="p-2 bg-blue-50 rounded-lg text-blue-600"><Users className="w-6 h-6" /></div>
-                        <span className="text-green-500 text-xs font-bold bg-green-50 px-2 py-1 rounded-full">Database</span>
+                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${isDbConnected ? 'text-green-500 bg-green-50' : 'text-red-500 bg-red-50'}`}>
+                           {isDbConnected ? 'Online' : 'Local Mode'}
+                        </span>
                      </div>
-                     <div className="text-3xl font-black text-slate-800">{userList.length}</div>
+                     <div className="text-3xl font-black text-slate-800">{userList.length > 0 ? userList.length : '--'}</div>
                      <div className="text-slate-500 text-xs uppercase font-bold tracking-wide mt-1">Người dùng đã đăng ký</div>
                   </div>
                </div>
@@ -213,7 +216,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                         </tr>
                      ))}
                      {userList.length === 0 && !isLoadingUsers && (
-                        <tr><td colSpan={5} className="p-8 text-center text-gray-400">Không có dữ liệu người dùng hoặc chưa kết nối Firebase.</td></tr>
+                        <tr><td colSpan={5} className="p-8 text-center text-gray-400">Không có dữ liệu người dùng.</td></tr>
                      )}
                   </tbody>
                </table>
@@ -223,10 +226,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
           {activeTab === 'SETTINGS' && (
              <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 max-w-2xl">
                 <h3 className="text-xl font-bold text-slate-800 mb-6">Cấu Hình Kết Nối</h3>
-                <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 mb-6">
-                   <h4 className="font-bold text-blue-800 mb-2 flex items-center"><Database className="w-4 h-4 mr-2"/> Trạng thái Database</h4>
-                   <p className="text-sm text-blue-700">
-                      Để kết nối với Firebase thật, hãy đảm bảo bạn đã thêm các biến môi trường (VITE_FIREBASE_...) vào cấu hình dự án (Vercel/Local).
+                <div className={`p-4 rounded-xl border mb-6 ${isDbConnected ? 'bg-blue-50 border-blue-200' : 'bg-red-50 border-red-200'}`}>
+                   <h4 className={`font-bold mb-2 flex items-center ${isDbConnected ? 'text-blue-800' : 'text-red-800'}`}>
+                      <Database className="w-4 h-4 mr-2"/> {isDbConnected ? 'Kết nối thành công!' : 'Chưa kết nối Firebase'}
+                   </h4>
+                   <p className={`text-sm ${isDbConnected ? 'text-blue-700' : 'text-red-700'}`}>
+                      {isDbConnected 
+                        ? 'Hệ thống đang lưu trữ dữ liệu trên Cloud Firestore.' 
+                        : 'Hệ thống đang chạy chế độ Offline (LocalStorage). Vui lòng thêm biến môi trường VITE_FIREBASE_... vào Vercel để kích hoạt Cloud DB.'}
                    </p>
                 </div>
              </div>

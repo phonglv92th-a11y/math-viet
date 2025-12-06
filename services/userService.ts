@@ -19,6 +19,8 @@ export const userService = {
       }
       // Luôn cập nhật profile hiện tại
       localStorage.setItem('mathviet_user_profile', JSON.stringify(user));
+      
+      console.log(`💾 [Local] Saved user: ${user.name} (${user.isGuest ? 'Guest' : 'Member'})`);
       return;
     }
 
@@ -27,8 +29,9 @@ export const userService = {
       // Sử dụng username làm Document ID để dễ tìm kiếm
       const userRef = doc(db, "users", user.username || user.id);
       await setDoc(userRef, user, { merge: true });
+      console.log(`🔥 [Firebase] Saved user to Cloud: ${user.username}`);
     } catch (error) {
-      console.error("Error saving user to Firebase:", error);
+      console.error("❌ Error saving user to Firebase:", error);
       // Fallback: Vẫn lưu ở local để user không bị mất data ngay lập tức
       localStorage.setItem('mathviet_user_profile', JSON.stringify(user));
     }
@@ -45,16 +48,18 @@ export const userService = {
         const docSnap = await getDoc(userRef);
         
         if (docSnap.exists()) {
+          console.log(`🔥 [Firebase] Fetched user: ${username}`);
           return docSnap.data() as UserProfile;
         }
       } catch (error) {
-        console.error("Error fetching user from Firebase:", error);
+        console.error("❌ Error fetching user from Firebase:", error);
       }
     }
 
     // 2. Nếu không có mạng hoặc không tìm thấy trên Cloud, tìm ở LocalStorage
     const localData = localStorage.getItem(`mathviet_user_${username}`);
     if (localData) {
+      console.log(`💾 [Local] Fetched user: ${username}`);
       return JSON.parse(localData);
     }
 
@@ -81,7 +86,7 @@ export const userService = {
       });
       return users;
     } catch (error) {
-      console.error("Error fetching all users:", error);
+      console.error("❌ Error fetching all users:", error);
       return [];
     }
   }
