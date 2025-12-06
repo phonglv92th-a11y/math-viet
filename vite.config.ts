@@ -9,7 +9,10 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
-    // Security update: Removed 'define' block for process.env.API_KEY 
-    // to prevent leaking credentials to the client.
+    define: {
+      // Expose API_KEY to client for immediate functionality in this environment.
+      // Note: In a production Vercel deployment with a real backend, you would remove this.
+      'process.env.API_KEY': JSON.stringify(env.API_KEY),
+    },
   };
 });

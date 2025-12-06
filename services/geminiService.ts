@@ -1,8 +1,6 @@
 
+import { GoogleGenAI, Schema, Type } from "@google/genai";
 import { GameType, MathProblem } from "../types";
-
-// NOTE: We no longer import GoogleGenAI here to keep the bundle small and secure.
-// All API calls are now routed through /api/generate (Vercel Function).
 
 export const generateGameProblems = async (
   grade: number,
@@ -12,6 +10,22 @@ export const generateGameProblems = async (
   topicFocus?: string,
   reviewContext?: string
 ): Promise<MathProblem[]> => {
+  // Use client-side key for now to ensure functionality in preview
+  // In production, this should ideally be process.env.API_KEY from the defined vite config
+  const apiKey = process.env.API_KEY;
+  
+  if (!apiKey) {
+    console.error("API Key is missing!");
+    return [{
+      question: "Lỗi cấu hình: Thiếu API Key",
+      options: ["Liên hệ", "Admin", "Để", "Sửa"],
+      correctAnswerIndex: 0,
+      explanation: "Vui lòng kiểm tra file .env hoặc cấu hình Vercel.",
+      difficulty: "Easy"
+    }];
+  }
+
+  const ai = new GoogleGenAI({ apiKey: apiKey });
   const modelId = 'gemini-2.5-flash';
   
   let promptContext = "";
@@ -181,35 +195,40 @@ export const generateGameProblems = async (
   const prompt = `${promptContext} Return the result as a JSON array. ensure the language is natural Vietnamese (except for English question content).`;
 
   try {
-    // SECURITY UPDATE: Fetch from internal API to keep API Key secure on server
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await ai.models.generateContent({
+      model: modelId,
+      contents: prompt,
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              question: { type: Type.STRING },
+              options: { type: Type.ARRAY, items: { type: Type.STRING } },
+              correctAnswerIndex: { type: Type.INTEGER },
+              explanation: { type: Type.STRING },
+              difficulty: { type: Type.STRING, enum: ["Easy", "Medium", "Hard"] }
+            },
+            required: ["question", "options", "correctAnswerIndex", "explanation", "difficulty"],
+          },
+        },
+        temperature: 0.7,
       },
-      body: JSON.stringify({
-        prompt: prompt,
-        modelId: modelId
-      })
     });
 
-    if (!response.ok) {
-      throw new Error(`API request failed with status ${response.status}`);
-    }
-
-    const data = await response.json();
-    const jsonText = data.text;
-
+    const jsonText = response.text;
     if (!jsonText) return [];
     
-    // Clean markdown code blocks if present
+    // Clean markdown code blocks if present (though responseMimeType should handle it)
     const cleanJson = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
     return JSON.parse(cleanJson) as MathProblem[];
 
   } catch (error) {
     console.error("Error generating problems:", error);
     return [{
-      question: "Có lỗi kết nối. Vui lòng thử lại sau.",
+      question: "Có lỗi kết nối. Vui lòng kiểm tra API Key hoặc mạng.",
       options: ["Thử lại", "Thoát", "Đợi", "Báo lỗi"],
       correctAnswerIndex: 0,
       explanation: "Hệ thống đang bận hoặc gặp sự cố mạng.",
