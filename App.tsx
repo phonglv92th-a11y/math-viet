@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { AppRoute, UserProfile, GameType, AdventureLevel, GameMode, World, WorldId, BgTheme } from './types';
 import { Navbar } from './components/Navbar';
@@ -13,7 +12,8 @@ import { PracticeSetup } from './pages/PracticeSetup';
 import { MasteryPeak } from './pages/MasteryPeak';
 import { SiteMap } from './pages/SiteMap';
 import { About } from './pages/About';
-import { AdminDashboard } from './pages/AdminDashboard'; // Import new page
+import { AdminDashboard } from './pages/AdminDashboard';
+import { userService } from './services/userService'; // Import User Service
 
 // Define Worlds
 const WORLDS: World[] = [
@@ -66,33 +66,44 @@ const App: React.FC = () => {
   const [currentRoute, setCurrentRoute] = useState<AppRoute>(AppRoute.HOME);
   const [routeParams, setRouteParams] = useState<any>({});
   const [showHelp, setShowHelp] = useState(false);
-  const [showDonation, setShowDonation] = useState(false); // Donation Modal State
+  const [showDonation, setShowDonation] = useState(false);
   
-  // Theme State (Lifted Up)
   const [bgTheme, setBgTheme] = useState<BgTheme>(() => (localStorage.getItem('mathviet_bg_theme') as BgTheme) || 'DEFAULT');
 
-  // User Data State
   const [user, setUser] = useState<UserProfile | null>(null);
   const [adventureLevels, setAdventureLevels] = useState<AdventureLevel[]>(INITIAL_LEVELS);
 
-  // Load User from LocalStorage on Mount
+  // Load User on Mount
   useEffect(() => {
+    // Check for cached session in localStorage first for speed
     const savedUser = localStorage.getItem('mathviet_user_profile');
     if (savedUser) {
       try {
         const parsed = JSON.parse(savedUser);
         setUser(parsed);
         setCurrentRoute(AppRoute.DASHBOARD);
+        
+        // Background sync with Firebase if logged in
+        if (!parsed.isGuest && parsed.username) {
+           userService.getUserProfile(parsed.username).then(remoteData => {
+              if (remoteData) {
+                 // Merge remote data if needed, for now just replace
+                 setUser(remoteData);
+                 // Update cache
+                 localStorage.setItem('mathviet_user_profile', JSON.stringify(remoteData));
+              }
+           });
+        }
       } catch (e) {
         console.error("Failed to load user profile", e);
       }
     }
   }, []);
 
-  // Save Registered User to LocalStorage whenever user state changes
+  // Save User whenever state changes
   useEffect(() => {
-    if (user && !user.isGuest) {
-      localStorage.setItem('mathviet_user_profile', JSON.stringify(user));
+    if (user) {
+      userService.saveUserProfile(user);
     }
   }, [user]);
 
@@ -126,15 +137,14 @@ const App: React.FC = () => {
     setUser(guestUser);
   };
 
-  const handleLogin = (username: string, grade: number, fullName: string) => {
-    const storageKey = `mathviet_user_${username}`;
-    const existing = localStorage.getItem(storageKey);
+  const handleLogin = async (username: string, grade: number, fullName: string) => {
+    // Try to fetch existing user from Firebase/Local
+    const existingUser = await userService.getUserProfile(username);
     
-    if (existing) {
-        const existingUser = JSON.parse(existing);
+    if (existingUser) {
         setUser(existingUser);
-        localStorage.setItem('mathviet_user_profile', existing);
     } else {
+        // Register new user
         const newUser: UserProfile = {
             id: `user_${username}_${Date.now()}`,
             username: username,
@@ -150,15 +160,10 @@ const App: React.FC = () => {
             isGuest: false
         };
         setUser(newUser);
-        localStorage.setItem(storageKey, JSON.stringify(newUser));
-        localStorage.setItem('mathviet_user_profile', JSON.stringify(newUser));
     }
   };
 
   const handleLogout = () => {
-    if (user && !user.isGuest && user.username) {
-        localStorage.setItem(`mathviet_user_${user.username}`, JSON.stringify(user));
-    }
     localStorage.removeItem('mathviet_user_profile');
     setUser(null);
     setCurrentRoute(AppRoute.HOME);
@@ -207,7 +212,6 @@ const App: React.FC = () => {
        else if (score > 200) currentStats.stars = 2;
        else if (score > 100) currentStats.stars = 1;
     }
-    // Increment games played counter (vital for missions)
     currentStats.gamesPlayed = (currentStats.gamesPlayed || 0) + 1;
 
     const updatedUser = {
@@ -223,10 +227,7 @@ const App: React.FC = () => {
     };
 
     setUser(updatedUser);
-
-    if (!updatedUser.isGuest && updatedUser.username) {
-        localStorage.setItem(`mathviet_user_${updatedUser.username}`, JSON.stringify(updatedUser));
-    }
+    // Data is automatically saved via useEffect -> userService
     
     setTimeout(() => {
        if (routeParams.levelId) {
@@ -240,7 +241,7 @@ const App: React.FC = () => {
   };
 
   const renderContent = () => {
-    // PUBLIC ROUTES (No Login Required)
+    // PUBLIC ROUTES
     if (!user) {
          if (currentRoute === AppRoute.ABOUT) {
             return <About onNavigate={navigateTo} onOpenDonation={() => setShowDonation(true)} />;
@@ -248,10 +249,9 @@ const App: React.FC = () => {
          if (currentRoute === AppRoute.SITEMAP) {
             return <SiteMap onNavigate={navigateTo} onOpenDonation={() => setShowDonation(true)} />;
          }
-         if (currentRoute === AppRoute.ADMIN) { // Admin Access without user login
+         if (currentRoute === AppRoute.ADMIN) { 
             return <AdminDashboard onNavigate={navigateTo} />;
          }
-         // Default to Home for any other route if not logged in
          return (
             <Home 
                 bgTheme={bgTheme} 
@@ -268,7 +268,6 @@ const App: React.FC = () => {
     // PROTECTED ROUTES
     switch (currentRoute) {
       case AppRoute.HOME:
-        return <Dashboard user={user} onNavigate={navigateTo} onAddFriend={handleAddFriend} adventureLevels={adventureLevels} worlds={WORLDS} bgTheme={bgTheme} onThemeChange={setBgTheme} />;
       case AppRoute.DASHBOARD:
         return <Dashboard user={user} onNavigate={navigateTo} onAddFriend={handleAddFriend} adventureLevels={adventureLevels} worlds={WORLDS} bgTheme={bgTheme} onThemeChange={setBgTheme} />;
       case AppRoute.GAME_PLAY:
@@ -297,7 +296,7 @@ const App: React.FC = () => {
         return <SiteMap onNavigate={navigateTo} onOpenDonation={() => setShowDonation(true)} />;
       case AppRoute.ABOUT:
         return <About onNavigate={navigateTo} onOpenDonation={() => setShowDonation(true)} />;
-      case AppRoute.ADMIN: // Registered users can also try to access admin
+      case AppRoute.ADMIN:
         return <AdminDashboard onNavigate={navigateTo} />;
       default:
         return <Dashboard user={user} onNavigate={navigateTo} onAddFriend={handleAddFriend} adventureLevels={adventureLevels} worlds={WORLDS} bgTheme={bgTheme} onThemeChange={setBgTheme} />;

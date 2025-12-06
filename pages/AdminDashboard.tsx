@@ -1,20 +1,18 @@
-
-import React, { useState } from 'react';
-import { AppRoute } from '../types';
+import React, { useState, useEffect } from 'react';
+import { AppRoute, UserProfile } from '../types';
+import { userService } from '../services/userService';
 import { 
   LayoutDashboard, Users, Activity, Settings, Lock, LogOut, 
-  TrendingUp, AlertTriangle, ShieldCheck, Database, Server
+  TrendingUp, AlertTriangle, ShieldCheck, Database, Server, RefreshCw
 } from 'lucide-react';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
-  LineChart, Line, PieChart, Pie, Cell, AreaChart, Area
+  PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
 
 interface AdminDashboardProps {
   onNavigate: (route: AppRoute) => void;
 }
 
-// --- MOCK DATA FOR ANALYTICS ---
 const TRAFFIC_DATA = [
   { name: '00:00', users: 120 },
   { name: '04:00', users: 80 },
@@ -32,29 +30,32 @@ const SUBJECT_DISTRIBUTION = [
   { name: 'Khoa Học', value: 10, color: '#10b981' },
 ];
 
-const USER_TABLE_DATA = [
-  { id: 'U001', name: 'Nguyễn Văn A', grade: 5, xp: 12500, status: 'Online', lastActive: 'Vừa xong' },
-  { id: 'U002', name: 'Trần Thị B', grade: 9, xp: 8400, status: 'Offline', lastActive: '2 giờ trước' },
-  { id: 'U003', name: 'Lê Hoàng C', grade: 12, xp: 21000, status: 'Online', lastActive: '5 phút trước' },
-  { id: 'U004', name: 'Phạm Minh D', grade: 3, xp: 4500, status: 'Offline', lastActive: '1 ngày trước' },
-  { id: 'U005', name: 'Vũ Thu E', grade: 7, xp: 9200, status: 'Online', lastActive: 'Vừa xong' },
-];
-
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'USERS' | 'ANALYTICS' | 'SETTINGS'>('OVERVIEW');
+  
+  // Real User Data State
+  const [userList, setUserList] = useState<UserProfile[]>([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Hardcoded password for demo
     if (password === 'admin123') {
       setIsAuthenticated(true);
       setError('');
+      fetchUsers();
     } else {
       setError('Mật khẩu không đúng!');
     }
+  };
+
+  const fetchUsers = async () => {
+    setIsLoadingUsers(true);
+    const users = await userService.getAllUsers();
+    setUserList(users);
+    setIsLoadingUsers(false);
   };
 
   const handleLogout = () => {
@@ -63,7 +64,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
     onNavigate(AppRoute.HOME);
   };
 
-  // --- LOGIN VIEW ---
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
@@ -106,10 +106,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
     );
   }
 
-  // --- DASHBOARD VIEW ---
   return (
     <div className="min-h-screen bg-slate-50 flex font-sans">
-      
       {/* Sidebar */}
       <div className="w-64 bg-slate-900 text-white hidden md:flex flex-col flex-shrink-0">
         <div className="p-6 border-b border-slate-800">
@@ -120,30 +118,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
         </div>
         
         <nav className="flex-1 p-4 space-y-2">
-          <button 
-            onClick={() => setActiveTab('OVERVIEW')}
-            className={`w-full flex items-center p-3 rounded-xl transition-colors ${activeTab === 'OVERVIEW' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-          >
-            <LayoutDashboard className="w-5 h-5 mr-3" /> Tổng Quan
-          </button>
-          <button 
-            onClick={() => setActiveTab('USERS')}
-            className={`w-full flex items-center p-3 rounded-xl transition-colors ${activeTab === 'USERS' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-          >
-            <Users className="w-5 h-5 mr-3" /> Người Dùng
-          </button>
-          <button 
-            onClick={() => setActiveTab('ANALYTICS')}
-            className={`w-full flex items-center p-3 rounded-xl transition-colors ${activeTab === 'ANALYTICS' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-          >
-            <TrendingUp className="w-5 h-5 mr-3" /> Phân Tích
-          </button>
-          <button 
-            onClick={() => setActiveTab('SETTINGS')}
-            className={`w-full flex items-center p-3 rounded-xl transition-colors ${activeTab === 'SETTINGS' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
-          >
-            <Settings className="w-5 h-5 mr-3" /> Cấu Hình
-          </button>
+          {['OVERVIEW', 'USERS', 'ANALYTICS', 'SETTINGS'].map((tab) => (
+             <button 
+                key={tab}
+                onClick={() => setActiveTab(tab as any)}
+                className={`w-full flex items-center p-3 rounded-xl transition-colors ${activeTab === tab ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
+             >
+                {tab === 'OVERVIEW' && <LayoutDashboard className="w-5 h-5 mr-3" />}
+                {tab === 'USERS' && <Users className="w-5 h-5 mr-3" />}
+                {tab === 'ANALYTICS' && <TrendingUp className="w-5 h-5 mr-3" />}
+                {tab === 'SETTINGS' && <Settings className="w-5 h-5 mr-3" />}
+                {tab === 'OVERVIEW' ? 'Tổng Quan' : tab === 'USERS' ? 'Người Dùng' : tab === 'ANALYTICS' ? 'Phân Tích' : 'Cấu Hình'}
+             </button>
+          ))}
         </nav>
 
         <div className="p-4 border-t border-slate-800">
@@ -155,53 +142,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        
-        {/* Mobile Header */}
-        <div className="bg-white border-b border-gray-200 p-4 md:hidden flex justify-between items-center">
-           <span className="font-bold text-slate-800">Admin Dashboard</span>
-           <button onClick={handleLogout}><LogOut className="w-5 h-5 text-gray-500" /></button>
-        </div>
-
         <div className="flex-1 overflow-y-auto p-6 md:p-8 custom-scrollbar">
           
-          {/* Header Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-               <div className="flex justify-between items-start mb-2">
-                  <div className="p-2 bg-blue-50 rounded-lg text-blue-600"><Users className="w-6 h-6" /></div>
-                  <span className="text-green-500 text-xs font-bold bg-green-50 px-2 py-1 rounded-full">+12%</span>
-               </div>
-               <div className="text-3xl font-black text-slate-800">1,240</div>
-               <div className="text-slate-500 text-xs uppercase font-bold tracking-wide mt-1">Người dùng Active</div>
-            </div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-               <div className="flex justify-between items-start mb-2">
-                  <div className="p-2 bg-purple-50 rounded-lg text-purple-600"><Activity className="w-6 h-6" /></div>
-                  <span className="text-green-500 text-xs font-bold bg-green-50 px-2 py-1 rounded-full">+24%</span>
-               </div>
-               <div className="text-3xl font-black text-slate-800">850</div>
-               <div className="text-slate-500 text-xs uppercase font-bold tracking-wide mt-1">Đang Online (Giả lập)</div>
-            </div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-               <div className="flex justify-between items-start mb-2">
-                  <div className="p-2 bg-yellow-50 rounded-lg text-yellow-600"><Database className="w-6 h-6" /></div>
-               </div>
-               <div className="text-3xl font-black text-slate-800">15.2K</div>
-               <div className="text-slate-500 text-xs uppercase font-bold tracking-wide mt-1">Bài tập đã tạo</div>
-            </div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-               <div className="flex justify-between items-start mb-2">
-                  <div className="p-2 bg-green-50 rounded-lg text-green-600"><Server className="w-6 h-6" /></div>
-                  <span className="text-green-500 text-xs font-bold bg-green-50 px-2 py-1 rounded-full">Ổn định</span>
-               </div>
-               <div className="text-3xl font-black text-slate-800">99.9%</div>
-               <div className="text-slate-500 text-xs uppercase font-bold tracking-wide mt-1">Uptime Hệ Thống</div>
-            </div>
-          </div>
-
           {activeTab === 'OVERVIEW' && (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-               {/* Traffic Chart */}
                <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                   <h3 className="text-lg font-bold text-slate-800 mb-6">Lưu lượng truy cập (Real-time)</h3>
                   <div className="h-80">
@@ -222,38 +166,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                     </ResponsiveContainer>
                   </div>
                </div>
-
-               {/* Subject Distribution */}
-               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                  <h3 className="text-lg font-bold text-slate-800 mb-6">Tỷ lệ Môn học</h3>
-                  <div className="h-64">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={SUBJECT_DISTRIBUTION}
-                          innerRadius={60}
-                          outerRadius={80}
-                          paddingAngle={5}
-                          dataKey="value"
-                        >
-                          {SUBJECT_DISTRIBUTION.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </div>
-                  <div className="space-y-3">
-                     {SUBJECT_DISTRIBUTION.map((item) => (
-                       <div key={item.name} className="flex items-center justify-between text-sm">
-                          <div className="flex items-center">
-                             <div className="w-3 h-3 rounded-full mr-2" style={{backgroundColor: item.color}}></div>
-                             <span className="text-slate-600 font-medium">{item.name}</span>
-                          </div>
-                          <span className="font-bold text-slate-800">{item.value}%</span>
-                       </div>
-                     ))}
+               {/* Stats Card */}
+               <div className="space-y-6">
+                  <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                     <div className="flex justify-between items-start mb-2">
+                        <div className="p-2 bg-blue-50 rounded-lg text-blue-600"><Users className="w-6 h-6" /></div>
+                        <span className="text-green-500 text-xs font-bold bg-green-50 px-2 py-1 rounded-full">Database</span>
+                     </div>
+                     <div className="text-3xl font-black text-slate-800">{userList.length}</div>
+                     <div className="text-slate-500 text-xs uppercase font-bold tracking-wide mt-1">Người dùng đã đăng ký</div>
                   </div>
                </div>
             </div>
@@ -262,85 +183,51 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
           {activeTab === 'USERS' && (
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                  <h3 className="text-lg font-bold text-slate-800">Danh Sách Người Dùng Gần Đây</h3>
-                  <button className="text-sm text-blue-600 font-bold hover:underline">Xuất báo cáo</button>
+                  <h3 className="text-lg font-bold text-slate-800">Danh Sách Người Dùng (Realtime DB)</h3>
+                  <button onClick={fetchUsers} className="flex items-center text-sm text-blue-600 font-bold hover:bg-blue-50 px-3 py-1 rounded transition-colors">
+                     <RefreshCw className={`w-4 h-4 mr-2 ${isLoadingUsers ? 'animate-spin' : ''}`} /> Làm mới
+                  </button>
                </div>
                <table className="w-full text-left text-sm">
                   <thead className="bg-slate-50 text-slate-500 font-bold uppercase">
                      <tr>
-                        <th className="p-4">ID</th>
+                        <th className="p-4">Username</th>
                         <th className="p-4">Tên hiển thị</th>
                         <th className="p-4">Cấp lớp</th>
                         <th className="p-4">Điểm XP</th>
                         <th className="p-4">Trạng thái</th>
-                        <th className="p-4">Hoạt động</th>
                      </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                     {USER_TABLE_DATA.map((user, idx) => (
+                     {userList.map((user, idx) => (
                         <tr key={idx} className="hover:bg-slate-50 transition-colors">
-                           <td className="p-4 font-mono text-slate-400">{user.id}</td>
+                           <td className="p-4 font-mono text-slate-400">{user.username || user.id}</td>
                            <td className="p-4 font-bold text-slate-800">{user.name}</td>
                            <td className="p-4"><span className="bg-slate-100 px-2 py-1 rounded text-slate-600 font-bold text-xs">Lớp {user.grade}</span></td>
-                           <td className="p-4 text-blue-600 font-bold">{user.xp.toLocaleString()}</td>
+                           <td className="p-4 text-blue-600 font-bold">{user.points.toLocaleString()}</td>
                            <td className="p-4">
-                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${user.status === 'Online' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
-                                 {user.status}
+                              <span className={`px-2 py-1 rounded-full text-xs font-bold ${user.isGuest ? 'bg-gray-100 text-gray-500' : 'bg-green-100 text-green-600'}`}>
+                                 {user.isGuest ? 'Khách' : 'Thành viên'}
                               </span>
                            </td>
-                           <td className="p-4 text-slate-500">{user.lastActive}</td>
                         </tr>
                      ))}
+                     {userList.length === 0 && !isLoadingUsers && (
+                        <tr><td colSpan={5} className="p-8 text-center text-gray-400">Không có dữ liệu người dùng hoặc chưa kết nối Firebase.</td></tr>
+                     )}
                   </tbody>
                </table>
-               <div className="p-4 bg-slate-50 text-center text-slate-500 text-xs italic">
-                  * Dữ liệu hiển thị là dữ liệu giả lập vì ứng dụng chưa có Database tập trung.
-               </div>
             </div>
           )}
 
           {activeTab === 'SETTINGS' && (
              <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 max-w-2xl">
-                <h3 className="text-xl font-bold text-slate-800 mb-6">Cấu Hình Hệ Thống</h3>
-                
-                <div className="space-y-6">
-                   <div className="flex items-center justify-between p-4 border border-slate-200 rounded-xl">
-                      <div>
-                         <h4 className="font-bold text-slate-800">Chế độ Bảo Trì</h4>
-                         <p className="text-sm text-slate-500">Tạm dừng truy cập để nâng cấp hệ thống</p>
-                      </div>
-                      <div className="w-12 h-6 bg-slate-200 rounded-full relative cursor-pointer">
-                         <div className="w-5 h-5 bg-white rounded-full shadow absolute top-0.5 left-0.5 transition-all"></div>
-                      </div>
-                   </div>
-
-                   <div className="flex items-center justify-between p-4 border border-slate-200 rounded-xl">
-                      <div>
-                         <h4 className="font-bold text-slate-800">Thông báo toàn hệ thống</h4>
-                         <p className="text-sm text-slate-500">Hiển thị banner thông báo cho tất cả người dùng</p>
-                      </div>
-                      <div className="w-12 h-6 bg-blue-600 rounded-full relative cursor-pointer">
-                         <div className="w-5 h-5 bg-white rounded-full shadow absolute top-0.5 right-0.5 transition-all"></div>
-                      </div>
-                   </div>
-
-                   <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-2">API Key (Gemini)</label>
-                      <div className="flex gap-2">
-                         <input type="password" value="**************************" disabled className="flex-1 bg-slate-100 border border-slate-300 rounded-lg px-4 py-2 text-slate-500" />
-                         <button className="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2 rounded-lg">Thay đổi</button>
-                      </div>
-                   </div>
-
-                   <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200 flex items-start">
-                      <AlertTriangle className="w-5 h-5 text-yellow-600 mr-3 flex-shrink-0 mt-0.5" />
-                      <div>
-                         <h4 className="font-bold text-yellow-800 text-sm">Lưu ý quan trọng</h4>
-                         <p className="text-xs text-yellow-700 mt-1">
-                            Các cài đặt này hiện tại chỉ có hiệu lực trên phiên làm việc của Admin vì chưa có Backend Server.
-                         </p>
-                      </div>
-                   </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-6">Cấu Hình Kết Nối</h3>
+                <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 mb-6">
+                   <h4 className="font-bold text-blue-800 mb-2 flex items-center"><Database className="w-4 h-4 mr-2"/> Trạng thái Database</h4>
+                   <p className="text-sm text-blue-700">
+                      Để kết nối với Firebase thật, hãy đảm bảo bạn đã thêm các biến môi trường (VITE_FIREBASE_...) vào cấu hình dự án (Vercel/Local).
+                   </p>
                 </div>
              </div>
           )}
