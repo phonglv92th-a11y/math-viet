@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { AppRoute, GameType, UserProfile, GameMode, GameStats, Subject as SubjectEnum, AdventureLevel, World, GameCardStyle, BgTheme } from '../types';
-import { Brain, Puzzle, ShoppingCart, Shapes, PlayCircle, Zap, Palette, Swords, Search, BookOpen, PenTool, Hammer, ScanEye, X, ChevronRight, Trophy, Loader2, Layers, Feather, Quote, Globe, Languages, Type, MessageCircle, Calculator, BarChart3, Grid3X3, Grid, Atom, FlaskConical, Dna, Hourglass, Map, Star, Settings, Sliders, Sparkles } from 'lucide-react';
+import { Brain, Puzzle, ShoppingCart, Shapes, PlayCircle, Zap, Palette, Swords, Search, BookOpen, PenTool, Hammer, ScanEye, X, ChevronRight, Trophy, Loader2, Layers, Feather, Quote, Globe, Languages, Type, MessageCircle, Calculator, BarChart3, Grid3X3, Grid, Atom, FlaskConical, Dna, Hourglass, Map, Star, Settings, Sliders, Sparkles, UserPlus } from 'lucide-react';
 import { GameCard } from '../components/GameCard';
+import { FriendInviteModal } from '../components/FriendInviteModal';
 
 // Lazy load heavy components
 const Leaderboard = React.lazy(() => import('../components/Leaderboard'));
@@ -69,6 +70,7 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
   const [difficulty, setDifficulty] = useState<'Easy' | 'Medium' | 'Hard' | undefined>(undefined);
   const [gameStyles, setGameStyles] = useState<Record<string, GameCardStyle>>({});
   const [isStyleModalOpen, setIsStyleModalOpen] = useState(false);
+  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false); // New State
   const [editingGameType, setEditingGameType] = useState<GameType>(GameType.MENTAL_MATH);
   const [tempStyle, setTempStyle] = useState<GameCardStyle | null>(null);
   const [liveUsers, setLiveUsers] = useState(0);
@@ -417,6 +419,15 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
            <Suspense fallback={<CardSkeleton />}>
               <Leaderboard onAddFriend={onAddFriend} />
            </Suspense>
+
+           {/* Play with Friends Button */}
+           <button 
+              onClick={() => setIsInviteModalOpen(true)}
+              className="w-full py-4 rounded-3xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-extrabold text-lg shadow-lg hover:shadow-cyan-200 transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center group"
+           >
+              <Swords className="w-6 h-6 mr-2 group-hover:rotate-12 transition-transform" /> 
+              Thách Đấu Bạn Bè
+           </button>
         </div>
 
       </div>
@@ -477,6 +488,13 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
           </div>
         </div>
       )}
+
+      {/* Invite Friends Modal */}
+      <FriendInviteModal 
+         isOpen={isInviteModalOpen} 
+         onClose={() => setIsInviteModalOpen(false)} 
+         user={user}
+      />
     </div>
   );
 };
