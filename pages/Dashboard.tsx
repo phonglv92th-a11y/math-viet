@@ -307,7 +307,7 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
            {/* Mastery Peak Banner */}
            <div 
              onClick={() => onNavigate(AppRoute.MASTERY_PEAK)}
-             className="relative overflow-hidden rounded-3xl bg-slate-900 text-white shadow-xl cursor-pointer group h-64 flex flex-col justify-center px-8 border-4 border-slate-800 hover:border-purple-500 transition-all"
+             className="relative overflow-hidden rounded-3xl bg-slate-900 text-white shadow-xl cursor-pointer group h-64 flex flex-col justify-center px-8 border-4 border-slate-800 hover:border-purple-500 transition-all mb-6"
            >
               {/* Animated Background */}
               <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519681393784-d120267933ba')] bg-cover bg-center opacity-40 group-hover:scale-105 transition-transform duration-700"></div>
@@ -336,25 +336,41 @@ export const Dashboard = ({ user, onNavigate, onAddFriend, adventureLevels, worl
               </div>
            </div>
 
-           {/* Custom Practice Highlight Banner */}
+           {/* Custom Practice Highlight Banner (Enhanced) */}
            <div 
              onClick={() => onNavigate(AppRoute.PRACTICE_SETUP)}
-             className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-violet-600 to-fuchsia-600 p-1 cursor-pointer group shadow-lg hover:shadow-violet-200 transition-all transform hover:-translate-y-1"
+             className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-400 to-rose-500 p-1 cursor-pointer group shadow-lg hover:shadow-orange-200 transition-all transform hover:-translate-y-1 mb-8"
            >
-              <div className="bg-white/10 backdrop-blur-sm p-6 rounded-[20px] flex items-center justify-between relative z-10">
-                 <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                       <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase border border-white/20">Cá nhân hóa</span>
+              <div className="bg-white/10 backdrop-blur-md p-6 md:p-8 rounded-[20px] relative z-10 flex flex-col md:flex-row items-center gap-6 overflow-hidden">
+                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+                 
+                 <div className="flex-1 text-center md:text-left relative z-10">
+                    <div className="inline-flex items-center gap-2 mb-3 bg-white/20 px-3 py-1 rounded-full backdrop-blur-md shadow-sm border border-white/10">
+                       <Sparkles className="w-3 h-3 text-yellow-300" />
+                       <span className="text-white text-[10px] font-bold uppercase tracking-wider">Cá nhân hóa</span>
                     </div>
-                    <h3 className="text-xl font-extrabold text-white mb-1">Tùy Chỉnh Bài Luyện Tập</h3>
-                    <p className="text-violet-100 text-sm">Tự tạo đề thi theo ý muốn (Chủ đề, Độ khó & Số câu).</p>
+                    <h3 className="text-2xl md:text-3xl font-extrabold text-white mb-2 leading-tight drop-shadow-md">
+                       Luyện Tập Tùy Chỉnh
+                    </h3>
+                    <p className="text-orange-50 text-sm md:text-base mb-6 max-w-lg font-medium">
+                       Tạo bộ đề thi riêng với chủ đề, độ khó và số lượng câu hỏi tùy ý. Tập trung vào điểm yếu để tiến bộ nhanh hơn!
+                    </p>
+                    <button className="bg-white text-rose-600 font-extrabold py-3 px-8 rounded-xl shadow-lg hover:bg-rose-50 transition-all transform group-hover:scale-105 inline-flex items-center">
+                       Thiết lập ngay <Settings className="w-4 h-4 ml-2" />
+                    </button>
                  </div>
-                 <div className="bg-white/20 p-3 rounded-full text-white group-hover:bg-white group-hover:text-violet-600 transition-colors shadow-inner">
-                    <Sliders className="w-8 h-8" />
+                 
+                 {/* Illustration */}
+                 <div className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0 group-hover:scale-110 transition-transform duration-500">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent rounded-full animate-pulse"></div>
+                    <div className="relative bg-white/20 backdrop-blur-md border border-white/30 rounded-2xl p-4 w-full h-full flex items-center justify-center transform rotate-6 shadow-2xl">
+                        <Sliders className="w-16 h-16 text-white drop-shadow-md" />
+                    </div>
+                    <div className="absolute -bottom-2 -left-2 bg-blue-500 text-white text-[10px] font-bold px-3 py-1 rounded-full shadow-lg border border-white/20 flex items-center">
+                        <Sparkles className="w-3 h-3 mr-1" /> AI Powered
+                    </div>
                  </div>
               </div>
-              <div className="absolute top-0 right-0 -mt-2 -mr-2 w-24 h-24 bg-white/10 rounded-full blur-xl"></div>
-              <div className="absolute bottom-0 left-0 -mb-2 -ml-2 w-16 h-16 bg-black/10 rounded-full blur-lg"></div>
            </div>
 
            {/* Quick Game Grid */}
