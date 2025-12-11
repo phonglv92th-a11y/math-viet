@@ -14,7 +14,8 @@ import { MasteryPeak } from './pages/MasteryPeak';
 import { SiteMap } from './pages/SiteMap';
 import { About } from './pages/About';
 import { AdminDashboard } from './pages/AdminDashboard';
-import { userService } from './services/userService'; // Import User Service
+import { userService } from './services/userService';
+import { hashPassword } from './utils/security'; // Secure Hash Utility
 
 // Define Worlds
 const WORLDS: World[] = [
@@ -81,9 +82,6 @@ const App: React.FC = () => {
     if (savedUser) {
       try {
         const parsed = JSON.parse(savedUser);
-        
-        // If guest, do not restore from local storage if window was closed (simulate session)
-        // But for simplicity in this specific "reload" request context, we follow the standard session behavior
         setUser(parsed);
         setCurrentRoute(AppRoute.DASHBOARD);
         
@@ -91,9 +89,7 @@ const App: React.FC = () => {
         if (!parsed.isGuest && parsed.username) {
            userService.getUserProfile(parsed.username).then(remoteData => {
               if (remoteData) {
-                 // Merge remote data if needed, for now just replace
                  setUser(remoteData);
-                 // Update cache
                  localStorage.setItem('mathviet_user_profile', JSON.stringify(remoteData));
               }
            });
@@ -107,19 +103,10 @@ const App: React.FC = () => {
   // Save User whenever state changes
   useEffect(() => {
     if (user) {
-      // Only save to permanent storage if not a guest (or if we want session persistence for guest)
-      // The user requested: "guest mode... refresh loses data". 
-      // So we do NOT call userService.saveUserProfile for guests if we want strict non-persistence.
-      // However, to allow navigation within the app without losing state, we keep it in state.
-      
       if (!user.isGuest) {
           userService.saveUserProfile(user);
           localStorage.setItem('mathviet_user_profile', JSON.stringify(user));
       } else {
-          // For guest, we might want to keep it in sessionStorage or just rely on React State
-          // If user refreshes, React State is lost. If we don't save to localStorage, it's lost.
-          // So simply NOT saving to localStorage satisfies "refresh is lost".
-          // BUT, existing code above loads from localStorage. So we must ensure we don't save guests there.
           localStorage.removeItem('mathviet_user_profile'); 
       }
     }
@@ -161,8 +148,10 @@ const App: React.FC = () => {
         const existingUser = await userService.getUserProfile(username);
         
         if (existingUser) {
-            // Simple password check (In real app, backend does this securely)
-            if (existingUser.password === password) {
+            // SECURITY: Hash the input password and compare with stored hash
+            const inputHash = await hashPassword(password);
+            
+            if (existingUser.password === inputHash) {
                 setUser(existingUser);
                 setCurrentRoute(AppRoute.DASHBOARD);
             } else {
@@ -186,11 +175,14 @@ const App: React.FC = () => {
             return;
         }
 
+        // SECURITY: Hash password before storage
+        const passwordHash = await hashPassword(password);
+
         // Create new user
         const newUser: UserProfile = {
             id: `user_${username}_${Date.now()}`,
             username: username,
-            password: password, // Store password
+            password: passwordHash, // Store HASH, not plain text
             name: fullName,
             grade: grade,
             points: 0,
@@ -278,7 +270,6 @@ const App: React.FC = () => {
     };
 
     setUser(updatedUser);
-    // Data is automatically saved via useEffect -> userService
     
     setTimeout(() => {
        if (routeParams.levelId) {

@@ -10,9 +10,9 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react()],
     define: {
-      // Expose API_KEY to client for immediate functionality in this environment.
-      // Note: In a production Vercel deployment with a real backend, you would remove this.
-      'process.env.API_KEY': JSON.stringify(env.API_KEY),
+      // SECURITY UPDATE: Do NOT expose API_KEY to client. 
+      // All AI requests must go through the /api/generate endpoint.
+      // 'process.env.API_KEY': JSON.stringify(env.API_KEY),
     },
   };
 });

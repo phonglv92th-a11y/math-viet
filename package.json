@@ -15,12 +15,14 @@
     "react": "latest",
     "react-dom": "latest",
     "recharts": "latest",
-    "katex": "latest"
+    "katex": "latest",
+    "dompurify": "latest"
   },
   "devDependencies": {
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "@types/node": "latest",
+    "@types/dompurify": "latest",
     "@vitejs/plugin-react": "latest",
     "typescript": "latest",
     "vite": "latest"

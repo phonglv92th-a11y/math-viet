@@ -1,5 +1,8 @@
-import { GoogleGenAI, Schema, Type } from "@google/genai";
+
 import { GameType, MathProblem } from "../types";
+
+// Note: We do not import GoogleGenAI here for Client-side use anymore to improve security.
+// The API Key is no longer exposed to the client.
 
 export const generateGameProblems = async (
   grade: number,
@@ -177,9 +180,9 @@ export const generateGameProblems = async (
 
   const prompt = `${promptContext} Return the result as a JSON array. ensure the language is natural Vietnamese (except for English question content).`;
 
-  // --- HYBRID STRATEGY ---
+  // --- SECURE API CALL ---
+  // We ONLY call the serverless endpoint. We do NOT use the client-side SDK directly anymore.
   
-  // STRATEGY 1: Try Serverless API (Preferred for Vercel/Production)
   try {
     const response = await fetch('/api/generate', {
       method: 'POST',
@@ -187,69 +190,26 @@ export const generateGameProblems = async (
       body: JSON.stringify({ prompt, modelId })
     });
 
-    if (response.ok) {
-      const data = await response.json();
-      if (data.text) {
-        const cleanJson = data.text.replace(/```json/g, '').replace(/```/g, '').trim();
-        return JSON.parse(cleanJson) as MathProblem[];
-      }
+    if (!response.ok) {
+      throw new Error(`Server responded with status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.text) {
+      const cleanJson = data.text.replace(/```json/g, '').replace(/```/g, '').trim();
+      return JSON.parse(cleanJson) as MathProblem[];
+    } else {
+      throw new Error("No data returned from API");
     }
   } catch (error) {
-    console.warn("Serverless API call failed, falling back to Client SDK:", error);
-  }
-
-  // STRATEGY 2: Fallback to Client SDK (For Preview/Localhost or if Serverless fails)
-  // This requires the API_KEY to be exposed in vite.config.ts define
-  const apiKey = process.env.API_KEY;
-  if (!apiKey) {
-    console.error("API Key is missing for both Serverless and Client methods!");
-    return [{
-      question: "Lỗi kết nối: Không tìm thấy API Key",
-      options: ["Thử lại", "Báo lỗi", "Đợi", "Thoát"],
-      correctAnswerIndex: 0,
-      explanation: "Vui lòng kiểm tra cấu hình Vercel (Environment Variables).",
-      difficulty: "Easy"
-    }];
-  }
-
-  try {
-    const ai = new GoogleGenAI({ apiKey: apiKey });
-    const response = await ai.models.generateContent({
-      model: modelId,
-      contents: prompt,
-      config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.ARRAY,
-          items: {
-            type: Type.OBJECT,
-            properties: {
-              question: { type: Type.STRING },
-              options: { type: Type.ARRAY, items: { type: Type.STRING } },
-              correctAnswerIndex: { type: Type.INTEGER },
-              explanation: { type: Type.STRING },
-              difficulty: { type: Type.STRING, enum: ["Easy", "Medium", "Hard"] }
-            },
-            required: ["question", "options", "correctAnswerIndex", "explanation", "difficulty"],
-          },
-        },
-        temperature: 0.7,
-      },
-    });
-
-    const jsonText = response.text;
-    if (!jsonText) return [];
+    console.error("API generation failed:", error);
     
-    const cleanJson = jsonText.replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(cleanJson) as MathProblem[];
-
-  } catch (error) {
-    console.error("Client SDK Error:", error);
+    // Provide a safe fallback error message
     return [{
-      question: "Có lỗi khi tạo câu hỏi. Vui lòng thử lại.",
-      options: ["Thử lại", "Thoát", "Đợi", "Báo lỗi"],
+      question: "Không thể kết nối đến máy chủ AI.",
+      options: ["Thử lại", "Kiểm tra mạng", "Báo lỗi", "Thoát"],
       correctAnswerIndex: 0,
-      explanation: "Hệ thống AI đang bận hoặc gặp sự cố kết nối.",
+      explanation: "Vui lòng kiểm tra lại kết nối mạng hoặc liên hệ quản trị viên.",
       difficulty: "Easy"
     }];
   }
