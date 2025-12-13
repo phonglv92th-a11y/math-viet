@@ -32,35 +32,36 @@ const BG_THEMES: Record<BgTheme, { class: string; name: string; icon: string }> 
   TET: { class: 'bg-gradient-to-br from-red-600 to-yellow-500 text-white', name: 'Tết Việt', icon: '🧧' },
 };
 
+// IMPROVED CONTRAST: Ensure text is always dark enough on light backgrounds or white on dark backgrounds
 const CARD_THEMES: Record<CardTheme, { container: string; text: string; buttonDef: string; name: string }> = {
   CLASSIC: { 
     container: 'bg-white border-gray-200 shadow-xl', 
-    text: 'text-gray-800', 
-    buttonDef: 'bg-white border-b-4 border-gray-200 active:border-b-0 active:translate-y-1 hover:bg-gray-50',
+    text: 'text-slate-800', 
+    buttonDef: 'bg-white border-b-4 border-gray-200 text-slate-700 active:border-b-0 active:translate-y-1 hover:bg-gray-50',
     name: 'Cổ điển' 
   },
   WARM: { 
     container: 'bg-[#fffbeb] border-[#fde68a] shadow-xl', 
     text: 'text-[#78350f]', 
-    buttonDef: 'bg-white border-b-4 border-[#fde68a] active:border-b-0 active:translate-y-1 hover:bg-[#fef3c7]',
+    buttonDef: 'bg-white border-b-4 border-[#fde68a] text-slate-800 active:border-b-0 active:translate-y-1 hover:bg-[#fef3c7]',
     name: 'Ấm áp' 
   },
   COOL: { 
     container: 'bg-[#f0f9ff] border-[#bae6fd] shadow-xl', 
     text: 'text-[#0c4a6e]', 
-    buttonDef: 'bg-white border-b-4 border-[#bae6fd] active:border-b-0 active:translate-y-1 hover:bg-[#e0f2fe]',
+    buttonDef: 'bg-white border-b-4 border-[#bae6fd] text-slate-800 active:border-b-0 active:translate-y-1 hover:bg-[#e0f2fe]',
     name: 'Mát mẻ' 
   },
   DARK: { 
     container: 'bg-[#1e293b] border-[#334155] shadow-2xl shadow-black/50', 
     text: 'text-white', 
-    buttonDef: 'bg-[#0f172a] text-gray-200 border-b-4 border-[#334155] active:border-b-0 active:translate-y-1 hover:bg-[#334155]',
+    buttonDef: 'bg-[#0f172a] text-slate-200 border-b-4 border-[#334155] active:border-b-0 active:translate-y-1 hover:bg-[#334155]',
     name: 'Tối' 
   },
   FESTIVE: {
     container: 'bg-white/95 border-red-200 shadow-2xl shadow-red-900/20 backdrop-blur',
-    text: 'text-red-800',
-    buttonDef: 'bg-white border-b-4 border-red-200 text-red-700 active:border-b-0 active:translate-y-1 hover:bg-red-50',
+    text: 'text-red-900',
+    buttonDef: 'bg-white border-b-4 border-red-200 text-red-900 active:border-b-0 active:translate-y-1 hover:bg-red-50',
     name: 'Lễ Hội'
   }
 };
@@ -634,16 +635,17 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
               <div className={`grid gap-4 w-full ${isLogicPuzzle ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-1 md:grid-cols-2'}`}>
                 {currentProblem.options.map((opt, idx) => {
                    let style = currentCardTheme.buttonDef;
-                   if (isPrimary && bgTheme === 'DEFAULT') style = "bg-white border-b-4 border-sky-200 text-sky-700 hover:bg-sky-50 active:border-b-0 active:translate-y-1 shadow-sm rounded-3xl";
+                   if (isPrimary && bgTheme === 'DEFAULT') style = "bg-white border-b-4 border-sky-200 text-sky-800 hover:bg-sky-50 active:border-b-0 active:translate-y-1 shadow-sm rounded-3xl";
                    
                    // CUTE LOGIC MODE BUTTON STYLE
                    if (isCuteLogic) {
-                       style = "bg-white border-2 border-b-8 border-purple-200 text-purple-700 rounded-3xl shadow-sm hover:-translate-y-2 hover:border-purple-300 hover:shadow-lg active:border-b-2 active:translate-y-1 transition-all duration-200";
+                       style = "bg-white border-2 border-b-8 border-purple-200 text-purple-800 rounded-3xl shadow-sm hover:-translate-y-2 hover:border-purple-300 hover:shadow-lg active:border-b-2 active:translate-y-1 transition-all duration-200";
                    }
 
                    if (selectedOption !== null) {
-                       if (idx === currentProblem.correctAnswerIndex) style = isPrimary ? "bg-green-100 border-green-400 text-green-700 animate-pop-answer rounded-3xl" : "bg-green-100 border-green-400 text-green-800 animate-pop-answer";
-                       else if (idx === selectedOption) style = isPrimary ? "bg-red-100 border-red-400 text-red-700 animate-shake-answer rounded-3xl" : "bg-red-100 border-red-400 text-red-800 animate-shake-answer";
+                       // High contrast for correct/incorrect states
+                       if (idx === currentProblem.correctAnswerIndex) style = isPrimary ? "bg-green-100 border-green-500 text-green-800 animate-pop-answer rounded-3xl" : "bg-green-100 border-green-500 text-green-900 animate-pop-answer";
+                       else if (idx === selectedOption) style = isPrimary ? "bg-red-100 border-red-500 text-red-800 animate-shake-answer rounded-3xl" : "bg-red-100 border-red-500 text-red-900 animate-shake-answer";
                        else style = "bg-gray-50 text-gray-400 border-gray-200 opacity-50";
                    }
                    return (
@@ -651,7 +653,7 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
                         {/* Non-Logic Puzzles: Flex layout for label and text to prevent overlap */}
                         {!isLogicPuzzle && (
                            <div className="flex items-center w-full">
-                               <span className={`shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center text-sm md:text-base font-extrabold mr-4 ${isPrimary && bgTheme === 'DEFAULT' ? 'bg-sky-100 text-sky-600' : 'bg-gray-100 text-gray-500'}`}>
+                               <span className={`shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl flex items-center justify-center text-sm md:text-base font-extrabold mr-4 ${isPrimary && bgTheme === 'DEFAULT' ? 'bg-sky-100 text-sky-700' : 'bg-gray-100 text-gray-600'}`}>
                                   {String.fromCharCode(65+idx)}
                                </span>
                                <span className="flex-1 break-words text-left">
@@ -686,7 +688,7 @@ export const GameArena: React.FC<GameArenaProps> = ({ gameType, userGrade, mode 
                  <div className={`flex items-center mb-2 font-bold ${isCuteLogic ? 'text-purple-700' : 'text-blue-700'} text-xs uppercase`}>
                     <Lightbulb className="w-4 h-4 mr-2"/> Giải thích
                  </div>
-                 <div className="text-lg text-slate-700 leading-relaxed mb-6"><MathRenderer text={currentProblem.explanation} /></div>
+                 <div className="text-lg text-slate-800 leading-relaxed mb-6"><MathRenderer text={currentProblem.explanation} /></div>
                  <button onClick={nextQuestion} className={`w-full ${isCuteLogic ? 'bg-purple-500 hover:bg-purple-600' : 'bg-blue-600'} text-white font-bold py-4 rounded-xl shadow-lg hover:scale-[1.02] transition-transform flex items-center justify-center`}>Tiếp theo <ArrowRight className="ml-2"/></button>
               </div>
            )}

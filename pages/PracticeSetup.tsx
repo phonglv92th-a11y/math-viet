@@ -26,11 +26,11 @@ const GameTypeOption = ({
     onClick={onClick}
     className={`relative flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 ${
       selected 
-        ? `border-${color}-500 bg-${color}-50 text-${color}-700 shadow-md transform scale-105` 
-        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+        ? `border-${color}-500 bg-${color}-50 text-${color}-800 shadow-md transform scale-105` 
+        : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
     }`}
   >
-    <Icon className={`w-8 h-8 mb-2 ${selected ? `text-${color}-600` : 'text-gray-400'}`} />
+    <Icon className={`w-8 h-8 mb-2 ${selected ? `text-${color}-700` : 'text-gray-400'}`} />
     <span className="text-xs font-bold text-center">{type}</span>
     {selected && (
       <div className={`absolute top-2 right-2 w-5 h-5 bg-${color}-500 rounded-full flex items-center justify-center text-white`}>
@@ -119,8 +119,8 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                     <RotateCcw className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className={`font-bold text-lg ${isReviewMode ? 'text-orange-700' : 'text-gray-700'}`}>Chế độ Ôn tập (Review Mode)</h3>
-                    <p className="text-sm text-gray-500">
+                    <h3 className={`font-bold text-lg ${isReviewMode ? 'text-orange-800' : 'text-gray-800'}`}>Chế độ Ôn tập (Review Mode)</h3>
+                    <p className="text-sm text-gray-600">
                       Hệ thống sẽ tự động tạo câu hỏi dựa trên những chủ đề bạn đã làm sai trong lịch sử đấu.
                     </p>
                   </div>
@@ -335,8 +335,8 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                       onClick={() => setDifficulty(undefined)}
                       className={`p-3 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${
                         difficulty === undefined 
-                        ? 'border-violet-500 bg-violet-50 text-violet-700 shadow-md scale-105' 
-                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                        ? 'border-violet-500 bg-violet-50 text-violet-800 shadow-md scale-105' 
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                       }`}
                     >
                        <Shuffle className="w-8 h-8 mb-2" />
@@ -349,8 +349,8 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                       onClick={() => setDifficulty('Easy')}
                       className={`p-3 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${
                         difficulty === 'Easy' 
-                        ? 'border-green-500 bg-green-50 text-green-700 shadow-md scale-105' 
-                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                        ? 'border-green-500 bg-green-50 text-green-800 shadow-md scale-105' 
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                       }`}
                     >
                        <Signal className="w-8 h-8 mb-2" />
@@ -363,8 +363,8 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                       onClick={() => setDifficulty('Medium')}
                       className={`p-3 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${
                         difficulty === 'Medium' 
-                        ? 'border-yellow-500 bg-yellow-50 text-yellow-700 shadow-md scale-105' 
-                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                        ? 'border-yellow-500 bg-yellow-50 text-yellow-800 shadow-md scale-105' 
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                       }`}
                     >
                        <BarChart className="w-8 h-8 mb-2" />
@@ -377,8 +377,8 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                       onClick={() => setDifficulty('Hard')}
                       className={`p-3 rounded-xl border-2 flex flex-col items-center justify-center transition-all ${
                         difficulty === 'Hard' 
-                        ? 'border-red-500 bg-red-50 text-red-700 shadow-md scale-105' 
-                        : 'border-gray-200 bg-white text-gray-500 hover:border-gray-300'
+                        ? 'border-red-500 bg-red-50 text-red-800 shadow-md scale-105' 
+                        : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
                       }`}
                     >
                        <AlertTriangle className="w-8 h-8 mb-2" />
@@ -404,7 +404,7 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                     className={`flex-1 py-3 rounded-lg font-bold border-2 transition-all ${
                       questionCount === count 
                         ? 'bg-violet-600 text-white border-violet-600 shadow-md' 
-                        : 'bg-white text-gray-500 border-gray-200 hover:border-violet-300'
+                        : 'bg-white text-gray-600 border-gray-200 hover:border-violet-300'
                     }`}
                   >
                     {count}
@@ -432,20 +432,20 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                         value={topicFocus}
                         onChange={(e) => setTopicFocus(e.target.value)}
                         placeholder="VD: Truyện Kiều, Dế Mèn, Animals, Family, Past Tense..."
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all"
+                        className="w-full pl-10 pr-4 py-3 rounded-xl border-2 border-gray-200 focus:border-violet-500 focus:ring-4 focus:ring-violet-100 outline-none transition-all text-slate-800"
                     />
                   </div>
                   
                   {/* AI Suggestions */}
                   {suggestions.length > 0 && (
                       <div className="mt-4">
-                         <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Gợi ý từ AI cho môn này:</p>
+                         <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Gợi ý từ AI cho môn này:</p>
                          <div className="flex flex-wrap gap-2">
                              {suggestions.map((suggestion, idx) => (
                                  <button
                                     key={idx}
                                     onClick={() => setTopicFocus(suggestion)}
-                                    className="px-3 py-1 bg-white border border-gray-200 rounded-full text-sm text-gray-600 hover:bg-violet-50 hover:text-violet-600 hover:border-violet-200 transition-colors"
+                                    className="px-3 py-1 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-violet-50 hover:text-violet-700 hover:border-violet-200 transition-colors"
                                  >
                                     {suggestion}
                                  </button>
@@ -454,7 +454,7 @@ export const PracticeSetup: React.FC<PracticeSetupProps> = ({ onNavigate, userGr
                       </div>
                   )}
 
-                  <p className="text-xs text-gray-400 mt-4 ml-1 italic">
+                  <p className="text-xs text-gray-500 mt-4 ml-1 italic">
                     * Nhập bất kỳ chủ đề nào, AI sẽ tạo câu hỏi xoay quanh chủ đề đó.
                   </p>
               </section>
