@@ -1,9 +1,7 @@
 
 import { GameType, MathProblem } from "../types";
 
-// Note: We do not import GoogleGenAI here for Client-side use anymore to improve security.
-// The API Key is no longer exposed to the client.
-
+// Note: Logic tạo Prompt vẫn giữ ở Client để linh hoạt, nhưng API Key đã bị ẩn.
 export const generateGameProblems = async (
   grade: number,
   gameType: GameType,
@@ -12,7 +10,6 @@ export const generateGameProblems = async (
   topicFocus?: string,
   reviewContext?: string
 ): Promise<MathProblem[]> => {
-  const modelId = 'gemini-2.5-flash';
   
   let promptContext = "";
   const isHighSchool = grade >= 10;
@@ -180,36 +177,38 @@ export const generateGameProblems = async (
 
   const prompt = `${promptContext} Return the result as a JSON array. ensure the language is natural Vietnamese (except for English question content).`;
 
-  // --- SECURE API CALL ---
-  // We ONLY call the serverless endpoint. We do NOT use the client-side SDK directly anymore.
-  
   try {
+    // SECURE CALL: Send prompt to our own backend, NOT directly to Google
     const response = await fetch('/api/generate', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt, modelId })
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: prompt,
+        modelId: 'gemini-2.5-flash'
+      })
     });
 
     if (!response.ok) {
-      throw new Error(`Server responded with status: ${response.status}`);
+       throw new Error(`Server error: ${response.status}`);
     }
 
     const data = await response.json();
+    
     if (data.text) {
-      const cleanJson = data.text.replace(/```json/g, '').replace(/```/g, '').trim();
-      return JSON.parse(cleanJson) as MathProblem[];
+      return JSON.parse(data.text) as MathProblem[];
     } else {
-      throw new Error("No data returned from API");
+      throw new Error("No data returned from AI Backend");
     }
   } catch (error) {
-    console.error("API generation failed:", error);
+    console.error("AI generation failed:", error);
     
-    // Provide a safe fallback error message
     return [{
-      question: "Không thể kết nối đến máy chủ AI.",
+      question: "Lỗi kết nối Server AI. (Hãy đảm bảo bạn đang dùng 'vercel dev' hoặc đã deploy)",
       options: ["Thử lại", "Kiểm tra mạng", "Báo lỗi", "Thoát"],
       correctAnswerIndex: 0,
-      explanation: "Vui lòng kiểm tra lại kết nối mạng hoặc liên hệ quản trị viên.",
+      explanation: "Chế độ bảo mật cao yêu cầu chạy qua Backend Proxy.",
       difficulty: "Easy"
     }];
   }

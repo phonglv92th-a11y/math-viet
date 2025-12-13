@@ -2,7 +2,7 @@
 import { GoogleGenAI, Type, Schema } from "@google/genai";
 
 export const config = {
-  runtime: 'edge', // Use Edge Runtime for faster cold starts
+  runtime: 'edge', 
 };
 
 const problemSchema: Schema = {
@@ -42,13 +42,13 @@ export default async function handler(req: Request) {
   try {
     const { prompt, modelId } = await req.json();
 
+    // SERVER-SIDE CHECK: Access API Key securely from Vercel Env
     if (!process.env.API_KEY) {
       return new Response(JSON.stringify({ error: 'Server configuration error: Missing API Key' }), { status: 500 });
     }
 
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-    // Call Gemini API
     const response = await ai.models.generateContent({
       model: modelId || 'gemini-2.5-flash',
       contents: prompt,
@@ -62,7 +62,6 @@ export default async function handler(req: Request) {
       },
     });
 
-    // Return the generated text directly
     return new Response(JSON.stringify({ text: response.text }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
