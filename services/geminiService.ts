@@ -96,12 +96,14 @@ export const generateGameProblems = async (
     case GameType.WORD_SEARCH:
       promptContext = `Generate ${count} sets of words for a Crossword/Word Search game for Grade ${grade}.
       Structure: 'question' is Topic Name, 'options' is list of words. Explanation is a fun fact.
-      IMPORTANT: If 'topicFocus' is English, generate English words. Else Vietnamese.`;
+      IMPORTANT: If 'topicFocus' is English, generate English words. Else Vietnamese.
+      Set correctAnswerIndex to 0.`;
       break;
     case GameType.CROSSWORD:
       promptContext = `Generate ${count} Crossword Puzzle data sets suitable for Grade ${grade}.
       Structure: 'options' is a list of exactly 6 "WORD|Clue" strings.
-      IMPORTANT: If English topic, Words MUST be English.`;
+      IMPORTANT: If English topic, Words MUST be English.
+      Set correctAnswerIndex to 0.`;
       break;
 
     // --- ENGLISH GAMES ---
@@ -168,14 +170,24 @@ export const generateGameProblems = async (
   if (difficulty && !reviewContext) {
     promptContext += ` STRICTLY ensure all problems are of '${difficulty}' difficulty level.`;
   } else if (!difficulty && gameType !== GameType.MIXED_CHALLENGE && !reviewContext) {
-    promptContext += ` Provide a mix of difficulties.`;
+    promptContext += ` Provide a mix of difficulties: some Easy, some Medium, some Hard.`;
   }
 
   if (topicFocus && topicFocus.trim() !== '') {
     promptContext += ` SPECIFICALLY focus the problems on the topic: "${topicFocus}".`;
   }
 
-  const prompt = `${promptContext} Return the result as a JSON array. ensure the language is natural Vietnamese (except for English question content).`;
+  // STRICT SCHEMA INSTRUCTION
+  promptContext += `
+    CRITICAL JSON REQUIREMENTS:
+    1. The output MUST be a JSON Array of objects.
+    2. Each object MUST have: 'question', 'options' (array of 4 strings), 'correctAnswerIndex' (integer 0-3), 'explanation', 'difficulty'.
+    3. 'difficulty' MUST be one of: "Easy", "Medium", "Hard".
+    4. If a field is not applicable (e.g. correctAnswerIndex for Word Search), provide a valid dummy value (e.g. 0).
+    5. Ensure the language is natural Vietnamese (except for English question content).
+  `;
+
+  const prompt = `${promptContext}`;
 
   try {
     // SECURE CALL: Send prompt to our own backend, NOT directly to Google
@@ -197,7 +209,15 @@ export const generateGameProblems = async (
     const data = await response.json();
     
     if (data.text) {
-      return JSON.parse(data.text) as MathProblem[];
+      // Clean JSON string if it contains markdown code blocks
+      let cleanJson = data.text.trim();
+      if (cleanJson.startsWith('```json')) {
+        cleanJson = cleanJson.replace(/^```json/, '').replace(/```$/, '');
+      } else if (cleanJson.startsWith('```')) {
+        cleanJson = cleanJson.replace(/^```/, '').replace(/```$/, '');
+      }
+      
+      return JSON.parse(cleanJson) as MathProblem[];
     } else {
       throw new Error("No data returned from AI Backend");
     }
@@ -205,10 +225,10 @@ export const generateGameProblems = async (
     console.error("AI generation failed:", error);
     
     return [{
-      question: "Lỗi kết nối Server AI. (Hãy đảm bảo bạn đang dùng 'vercel dev' hoặc đã deploy)",
+      question: "Lỗi kết nối Server AI. Vui lòng thử lại sau giây lát.",
       options: ["Thử lại", "Kiểm tra mạng", "Báo lỗi", "Thoát"],
       correctAnswerIndex: 0,
-      explanation: "Chế độ bảo mật cao yêu cầu chạy qua Backend Proxy.",
+      explanation: `Chi tiết lỗi: ${(error as Error).message}. Hãy đảm bảo API Key đã được cấu hình trong Vercel.`,
       difficulty: "Easy"
     }];
   }
