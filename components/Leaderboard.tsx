@@ -33,7 +33,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onAddFriend }) => {
     if (!searchQuery.trim()) return MOCK_USER_DATABASE;
     return MOCK_USER_DATABASE.filter(u => 
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      u.id.toLowerCase() === searchQuery.toLowerCase()
+      u.id?.toLowerCase() === searchQuery.toLowerCase()
     );
   }, [searchQuery]);
 
@@ -83,11 +83,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onAddFriend }) => {
       <div className="p-2 space-y-1">
         {displayedUsers.length > 0 ? (
           displayedUsers.map((u, i) => {
-            const isTop3 = u.rank <= 3;
             const rankColor = u.rank === 1 ? 'text-yellow-500' : u.rank === 2 ? 'text-slate-400' : u.rank === 3 ? 'text-orange-400' : 'text-slate-300';
             
             return (
-              <div key={u.id} className="flex items-center p-3 hover:bg-slate-50 rounded-2xl transition-all group/item">
+              <div key={u.id || i} className="flex items-center p-3 hover:bg-slate-50 rounded-2xl transition-all group/item">
                 <div className={`w-6 text-center font-black text-xs mr-2 ${rankColor}`}>
                   {u.rank}
                 </div>
@@ -99,11 +98,11 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onAddFriend }) => {
                   <div className="text-[10px] font-bold text-blue-500 uppercase tracking-tighter">{u.points.toLocaleString()} XP</div>
                 </div>
                 
-                {addedFriends.includes(u.id!) ? (
+                {u.id && addedFriends.includes(u.id) ? (
                   <div className="p-2 text-green-500" title="Đã kết bạn">
                     <UserCheck className="w-4 h-4" />
                   </div>
-                ) : (
+                ) : u.id ? (
                   <button 
                     onClick={() => handleAddFriendClick(u.id!)}
                     className="p-2 text-slate-300 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors opacity-0 group-hover/item:opacity-100"
@@ -111,7 +110,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ onAddFriend }) => {
                   >
                     <UserPlus className="w-4 h-4" />
                   </button>
-                )}
+                ) : null}
               </div>
             );
           })
