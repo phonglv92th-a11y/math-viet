@@ -113,6 +113,11 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
   const textColor = isDarkTheme ? "text-white" : "text-slate-800";
   const subTextColor = isDarkTheme ? "text-slate-200" : "text-slate-500";
 
+  // Dynamic Theme Button Style for better visibility
+  const themeBtnStyle = isDarkTheme 
+    ? "bg-white/20 text-white border-white/30 hover:bg-white/30" 
+    : "bg-slate-800/10 text-slate-800 border-slate-200 hover:bg-slate-800/20";
+
   return (
     <div className={`min-h-screen flex flex-col font-sans overflow-x-hidden relative ${mainBgClass} transition-colors duration-700`}>
       <style>{`
@@ -190,21 +195,21 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
 
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center gap-4">
-               {/* Theme Selector Button (Desktop) */}
+               {/* Theme Selector Button (Desktop) - Enhanced Contrast */}
                <div className="relative">
                   <button 
                     onClick={() => setShowThemeMenu(!showThemeMenu)}
-                    className="flex items-center gap-2 px-3 py-2 bg-white/20 backdrop-blur-md rounded-full text-white font-bold text-sm hover:bg-white/30 transition-all border border-white/20"
+                    className={`flex items-center gap-2 px-4 py-2 backdrop-blur-md rounded-full font-bold text-sm transition-all border shadow-sm ${themeBtnStyle}`}
                   >
-                     <Palette className="w-4 h-4" /> Giao diện: {THEME_OPTIONS.find(t=>t.id===bgTheme)?.name}
+                     <Palette className="w-4 h-4" /> {THEME_OPTIONS.find(t=>t.id===bgTheme)?.name}
                   </button>
                   {showThemeMenu && (
-                     <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-[110]">
+                     <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-[110] animate-in slide-in-from-top-2">
                         {THEME_OPTIONS.map(t => (
                            <button 
                               key={t.id} 
                               onClick={() => { onThemeChange(t.id as BgTheme); setShowThemeMenu(false); }}
-                              className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-bold ${bgTheme === t.id ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'}`}
+                              className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 text-sm font-bold transition-colors ${bgTheme === t.id ? 'bg-blue-50 text-blue-600' : 'text-gray-700 hover:bg-gray-50'}`}
                            >
                               <span>{t.icon}</span> {t.name}
                            </button>
@@ -216,30 +221,30 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                <button onClick={() => onNavigate(AppRoute.ABOUT)} className={`text-sm font-bold hover:opacity-80 transition-colors ${textColor}`}>Về chúng tôi</button>
                <button onClick={() => onNavigate(AppRoute.SITEMAP)} className={`text-sm font-bold hover:opacity-80 transition-colors ${textColor}`}>Sitemap</button>
                <button onClick={onOpenHelp} className={`text-sm font-bold hover:opacity-80 transition-colors ${textColor}`}>Hướng dẫn</button>
-               <button onClick={onOpenDonation} className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-rose-500 font-bold text-sm shadow-sm hover:bg-white hover:shadow-md transition-all animate-pulse">
+               <button onClick={onOpenDonation} className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-rose-500 font-bold text-sm shadow-sm hover:bg-white hover:shadow-md transition-all animate-pulse border border-rose-100">
                   <Heart className="w-4 h-4 fill-current" /> Ủng hộ
                </button>
             </div>
 
             {/* Mobile Menu Icons */}
             <div className="flex md:hidden items-center gap-2">
-               {/* Mobile Theme Toggle (Cycle) */}
+               {/* Mobile Theme Toggle (Cycle) - Enhanced Background */}
                <button 
                   onClick={() => {
                      const currentIndex = THEME_OPTIONS.findIndex(t => t.id === bgTheme);
                      const nextIndex = (currentIndex + 1) % THEME_OPTIONS.length;
                      onThemeChange(THEME_OPTIONS[nextIndex].id as BgTheme);
                   }}
-                  className="p-2 bg-white/50 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"
+                  className="p-2 bg-white rounded-full text-blue-600 shadow-md border border-blue-50 relative z-[101] cursor-pointer active:scale-90"
                   title="Đổi giao diện"
                >
                   <Palette className="w-5 h-5" />
                </button>
 
-               <button onClick={() => onNavigate(AppRoute.SITEMAP)} className="p-2 bg-white/50 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><Map className="w-5 h-5" /></button>
-               <button onClick={() => onNavigate(AppRoute.ABOUT)} className="p-2 bg-white/50 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><Info className="w-5 h-5" /></button>
-               <button onClick={onOpenHelp} className="p-2 bg-white/50 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><HelpCircle className="w-5 h-5" /></button>
-               <button onClick={onOpenDonation} className="p-2 bg-white/50 rounded-full text-rose-500 shadow-sm relative z-[101] cursor-pointer active:scale-95"><Heart className="w-5 h-5 fill-current" /></button>
+               <button onClick={() => onNavigate(AppRoute.SITEMAP)} className="p-2 bg-white/80 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><Map className="w-5 h-5" /></button>
+               <button onClick={() => onNavigate(AppRoute.ABOUT)} className="p-2 bg-white/80 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><Info className="w-5 h-5" /></button>
+               <button onClick={onOpenHelp} className="p-2 bg-white/80 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><HelpCircle className="w-5 h-5" /></button>
+               <button onClick={onOpenDonation} className="p-2 bg-white rounded-full text-rose-500 shadow-md border border-rose-50 relative z-[101] cursor-pointer active:scale-95"><Heart className="w-5 h-5 fill-current" /></button>
             </div>
         </div>
       </nav>
@@ -291,19 +296,19 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
               <div className="flex justify-center lg:justify-start gap-3 pt-2">
                 <button 
                   onClick={() => setActiveSubjectView('MATH')}
-                  className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center transition-all ${activeSubjectView === 'MATH' ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center transition-all ${activeSubjectView === 'MATH' ? 'bg-blue-100 text-blue-700 ring-2 ring-blue-500 shadow-md' : 'bg-white text-gray-500 hover:bg-gray-50 shadow-sm border'}`}
                 >
                   <Calculator className="w-4 h-4 mr-2" /> Toán
                 </button>
                 <button 
                   onClick={() => setActiveSubjectView('LIT')}
-                  className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center transition-all ${activeSubjectView === 'LIT' ? 'bg-rose-100 text-rose-700 ring-2 ring-rose-500' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center transition-all ${activeSubjectView === 'LIT' ? 'bg-rose-100 text-rose-700 ring-2 ring-rose-500 shadow-md' : 'bg-white text-gray-500 hover:bg-gray-50 shadow-sm border'}`}
                 >
                   <BookOpen className="w-4 h-4 mr-2" /> Văn
                 </button>
                 <button 
                   onClick={() => setActiveSubjectView('ENG')}
-                  className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center transition-all ${activeSubjectView === 'ENG' ? 'bg-indigo-100 text-indigo-700 ring-2 ring-indigo-500' : 'bg-white text-gray-500 hover:bg-gray-50'}`}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold flex items-center transition-all ${activeSubjectView === 'ENG' ? 'bg-indigo-100 text-indigo-700 ring-2 ring-indigo-500 shadow-md' : 'bg-white text-gray-500 hover:bg-gray-50 shadow-sm border'}`}
                 >
                   <Languages className="w-4 h-4 mr-2" /> Anh
                 </button>
@@ -394,7 +399,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                               value={guestName}
                               onChange={(e) => setGuestName(e.target.value)}
                               placeholder="Nhập tên của bé..."
-                              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-gray-800 font-bold text-lg transition-all relative z-40"
+                              className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none text-gray-800 font-bold text-lg transition-all relative z-40 shadow-inner"
                            />
                         </div>
                         <p className="text-xs text-gray-500 mb-4 text-center">
@@ -439,7 +444,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                                       value={username}
                                       onChange={(e) => setUsername(e.target.value)}
                                       placeholder="Tên đăng nhập (Username)"
-                                      className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all"
+                                      className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all shadow-inner"
                                    />
                                </div>
                            </div>
@@ -452,7 +457,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                                       value={password}
                                       onChange={(e) => setPassword(e.target.value)}
                                       placeholder="Mật khẩu"
-                                      className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all"
+                                      className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all shadow-inner"
                                    />
                                </div>
                            </div>
@@ -466,7 +471,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                                           value={fullName}
                                           onChange={(e) => setFullName(e.target.value)}
                                           placeholder="Tên hiển thị (VD: Bé Bo)"
-                                          className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all"
+                                          className="w-full pl-12 pr-4 py-3 rounded-2xl bg-white border border-gray-200 focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none text-gray-800 font-bold transition-all shadow-inner"
                                        />
                                    </div>
                                </div>
@@ -496,7 +501,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                   )}
                   
                   {(!selectedGrade && (activeTab === 'GUEST' || authMode === 'REGISTER')) && (
-                     <p className="text-center text-sm text-red-500 font-medium animate-pulse relative z-30">
+                     <p className="text-center text-sm text-red-500 font-bold animate-pulse relative z-30 bg-red-50 py-1 rounded-full">
                         👇 Vui lòng chọn lớp học ở bên phải
                      </p>
                   )}
@@ -543,7 +548,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                </div>
 
                {/* Grade Carousel */}
-               <div className="relative flex-1 bg-gray-50 rounded-2xl p-4 border border-gray-100 overflow-hidden">
+               <div className="relative flex-1 bg-gray-50 rounded-2xl p-4 border border-gray-200 overflow-hidden">
                   <div className="absolute inset-x-0 top-0 h-4 bg-gradient-to-b from-gray-50 to-transparent z-10"></div>
                   <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-gray-50 to-transparent z-10"></div>
                   
@@ -556,7 +561,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                               flex items-center p-4 rounded-xl text-left transition-all duration-300 snap-center relative z-20
                               ${selectedGrade === level.grade
                                  ? `bg-white ring-2 ring-offset-2 ring-${level.color.split('-')[1]} shadow-lg transform scale-[1.02]`
-                                 : 'bg-white hover:bg-gray-50 border border-gray-100 hover:border-gray-300'
+                                 : 'bg-white hover:bg-gray-50 border border-gray-100 hover:border-gray-300 shadow-sm'
                               }
                            `}
                         >
@@ -586,22 +591,22 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
          <div className="max-w-6xl mx-auto">
             <h2 className="text-center text-3xl font-extrabold mb-12">Tại sao chọn MathViet?</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-               <div className={`text-center p-6 rounded-3xl transition-colors ${isDarkTheme ? 'bg-white/10 hover:bg-white/20' : 'bg-blue-50/50 hover:bg-blue-50'}`}>
-                  <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl">🤖</div>
+               <div className={`text-center p-6 rounded-3xl transition-colors ${isDarkTheme ? 'bg-white/10 hover:bg-white/20' : 'bg-blue-50/50 hover:bg-blue-50 border'}`}>
+                  <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl shadow-sm">🤖</div>
                   <h3 className="font-bold text-xl mb-3">AI Thông Minh</h3>
                   <p className={`leading-relaxed ${subTextColor}`}>
                      Sử dụng Google Gemini để tạo ra hàng triệu câu hỏi độc nhất, phù hợp với trình độ của từng học sinh.
                   </p>
                </div>
-               <div className={`text-center p-6 rounded-3xl transition-colors ${isDarkTheme ? 'bg-white/10 hover:bg-white/20' : 'bg-purple-50/50 hover:bg-purple-50'}`}>
-                  <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl">🎮</div>
+               <div className={`text-center p-6 rounded-3xl transition-colors ${isDarkTheme ? 'bg-white/10 hover:bg-white/20' : 'bg-purple-50/50 hover:bg-purple-50 border'}`}>
+                  <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl shadow-sm">🎮</div>
                   <h3 className="font-bold text-xl mb-3">Vừa Học Vừa Chơi</h3>
                   <p className={`leading-relaxed ${subTextColor}`}>
                      Hệ thống điểm thưởng, huy hiệu và bảng xếp hạng giúp việc học trở nên thú vị như chơi game.
                   </p>
                </div>
-               <div className={`text-center p-6 rounded-3xl transition-colors ${isDarkTheme ? 'bg-white/10 hover:bg-white/20' : 'bg-green-50/50 hover:bg-green-50'}`}>
-                  <div className="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl">🇻🇳</div>
+               <div className={`text-center p-6 rounded-3xl transition-colors ${isDarkTheme ? 'bg-white/10 hover:bg-white/20' : 'bg-green-50/50 hover:bg-green-50 border'}`}>
+                  <div className="w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-3xl shadow-sm">🇻🇳</div>
                   <h3 className="font-bold text-xl mb-3">Đậm Chất Việt</h3>
                   <p className={`leading-relaxed ${subTextColor}`}>
                      Nội dung bám sát chương trình giáo dục Việt Nam, tích hợp văn hóa và lịch sử nước nhà.
