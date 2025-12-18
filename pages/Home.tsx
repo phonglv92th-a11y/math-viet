@@ -4,7 +4,8 @@ import { AppRoute, BgTheme } from '../types';
 import { 
   HelpCircle, GraduationCap, BookOpen, Calculator, Languages, 
   Map, User, LogIn, School, Book, ChevronRight, Sparkles, 
-  MessageCircle, Shapes, Heart, Info, Globe, Palette, Lock, UserPlus
+  MessageCircle, Shapes, Heart, Info, Globe, Palette, Lock, UserPlus,
+  Cloud // Added Cloud icon
 } from 'lucide-react';
 
 interface HomeProps {
@@ -244,7 +245,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
                <button onClick={() => onNavigate(AppRoute.SITEMAP)} className="p-2 bg-white/80 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><Map className="w-5 h-5" /></button>
                <button onClick={() => onNavigate(AppRoute.ABOUT)} className="p-2 bg-white/80 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><Info className="w-5 h-5" /></button>
                <button onClick={onOpenHelp} className="p-2 bg-white/80 rounded-full text-slate-600 shadow-sm relative z-[101] cursor-pointer active:scale-95"><HelpCircle className="w-5 h-5" /></button>
-               <button onClick={onOpenDonation} className="p-2 bg-white rounded-full text-rose-500 shadow-md border border-rose-50 relative z-[101] cursor-pointer active:scale-95"><Heart className="w-5 h-5 fill-current" /></button>
+               <button onClick={onOpenDonation} className="p-2 bg-white rounded-full text-rose-500 shadow-md border border-rose-10 relative z-[101] cursor-pointer active:scale-95"><Heart className="w-5 h-5 fill-current" /></button>
             </div>
         </div>
       </nav>
@@ -252,9 +253,25 @@ export const Home: React.FC<HomeProps> = ({ onNavigate, onStartGuest, onLogin, o
       {/* Hero Section */}
       <section className="relative pt-24 pb-16 lg:pt-32 lg:pb-24 overflow-hidden">
         
-        {/* Only show blobs if default theme */}
+        {/* Only show blobs and clouds if default theme */}
         {bgTheme === 'DEFAULT' && (
           <>
+            {/* Animated Clouds Backdrop */}
+            <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+                <div className="absolute top-20 left-0 text-slate-200/40 animate-cloud-move" style={{ animationDuration: '45s' }}>
+                    <Cloud size={120} fill="currentColor" />
+                </div>
+                <div className="absolute top-48 left-0 text-slate-200/30 animate-cloud-move" style={{ animationDuration: '65s', animationDelay: '-20s' }}>
+                    <Cloud size={180} fill="currentColor" />
+                </div>
+                <div className="absolute top-10 left-0 text-slate-200/20 animate-cloud-move" style={{ animationDuration: '90s', animationDelay: '-45s' }}>
+                    <Cloud size={240} fill="currentColor" />
+                </div>
+                <div className="absolute top-72 right-0 text-slate-200/10 animate-cloud-move" style={{ animationDuration: '55s', animationDelay: '-10s' }}>
+                    <Cloud size={150} fill="currentColor" />
+                </div>
+            </div>
+
             <div className={`absolute top-0 right-0 w-[800px] h-[800px] rounded-full blur-[100px] opacity-20 transition-colors duration-1000 ${
                 activeSubjectView === 'MATH' ? 'bg-blue-400' : activeSubjectView === 'LIT' ? 'bg-rose-400' : 'bg-indigo-400'
             } -translate-y-1/2 translate-x-1/4`}></div>
